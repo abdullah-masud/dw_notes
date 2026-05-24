@@ -2,6 +2,7 @@
     const config = window.DATA_WAREHOUSE_NOTES_CONFIG || {};
     const storagePrefix = 'data-warehouse-notes:';
     const sharedSpace = config.sharedSpace || 'data-warehouse-shared';
+    const tableName = config.tableName || 'study_notes';
     const supabaseUrl = config.supabaseUrl || '';
     const supabaseAnonKey = config.supabaseAnonKey || '';
     const savedLabel = 'Saved locally';
@@ -58,7 +59,7 @@
         clearTimeout(remoteTimers[localNoteKey]);
         remoteTimers[localNoteKey] = setTimeout(async function () {
             try {
-                await supabaseRequest('study_notes?on_conflict=id', {
+                await supabaseRequest(tableName + '?on_conflict=id', {
                     method: 'POST',
                     headers: {
                         Prefer: 'resolution=merge-duplicates,return=minimal'
@@ -89,7 +90,7 @@
         setSyncStatus('Loading...');
 
         try {
-            const rows = await supabaseRequest('study_notes?select=id,content&passcode=eq.' + encodeURIComponent(sharedSpace));
+            const rows = await supabaseRequest(tableName + '?select=id,content&passcode=eq.' + encodeURIComponent(sharedSpace));
             const remoteNotes = new Map((rows || []).map(function (row) {
                 return [row.id.replace(sharedSpace + '|', ''), row.content || ''];
             }));
@@ -127,7 +128,7 @@
             return;
         }
 
-        await supabaseRequest('study_notes?passcode=eq.' + encodeURIComponent(sharedSpace), {
+        await supabaseRequest(tableName + '?passcode=eq.' + encodeURIComponent(sharedSpace), {
             method: 'DELETE',
             headers: {
                 Prefer: 'return=minimal'

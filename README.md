@@ -12,9 +12,10 @@ The shared cloud space is:
 
 ```js
 sharedSpace: 'data-warehouse-shared'
+tableName: 'dw_study_notes'
 ```
 
-Remote rows use the existing `public.study_notes` table:
+Remote rows use the `public.dw_study_notes` table:
 
 - `id`: `sharedSpace + '|' + localNoteKey`
 - `passcode`: the shared space name
@@ -22,6 +23,8 @@ Remote rows use the existing `public.study_notes` table:
 - `updated_at`: latest save time
 
 No login, password, or passcode prompt is used. Everyone using this project shares the same note space.
+
+Run [supabase-dw-study-notes.sql](supabase-dw-study-notes.sql) in the Supabase SQL editor to create the separate Data Warehousing notes table and row-level security policies.
 
 Bottom-right controls are available on the site:
 
