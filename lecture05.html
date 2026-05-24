@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lecture 05 â€“ Pattern & Association Rule Mining | CITS3401</title>
+<title>Lecture 05 – Pattern & Association Rule Mining | CITS3401</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/styles.css">
 <style>
@@ -60,7 +60,7 @@
   li{margin-bottom:6px}
   ul.clean{list-style:none;padding-left:0}
   ul.clean li{padding-left:20px;position:relative}
-  ul.clean li::before{content:'â†’';position:absolute;left:0;color:var(--gold);font-size:13px;top:2px}
+  ul.clean li::before{content:'→';position:absolute;left:0;color:var(--gold);font-size:13px;top:2px}
   code{font-family:'JetBrains Mono',monospace;font-size:13px;background:var(--cream);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--rust)}
   .formula{background:var(--ink);color:var(--gold-light);border-radius:8px;padding:14px 20px;margin:16px 0;font-family:'JetBrains Mono',monospace;font-size:14px;text-align:center}
   .summary-box{background:var(--ink);color:#e8dfc8;border-radius:12px;padding:26px 30px;margin:28px 0}
@@ -83,7 +83,7 @@
 <body>
 <nav class="sidebar">
   <div class="sidebar-brand">
-    <a href="index.html">â† All Lectures</a>
+    <a href="index.html">← All Lectures</a>
     <strong>Lecture 05</strong><span>Pattern & Association Rule Mining</span>
   </div>
   <div class="nav-section">Contents</div>
@@ -101,33 +101,33 @@
 </nav>
 <div class="main">
   <div class="hero">
-    <div class="hero-eyebrow">CITS3401 Â· Week 5 Â· Lecture 05</div>
+    <div class="hero-eyebrow">CITS3401 · Week 5 · Lecture 05</div>
     <h1>Frequent Itemset &amp;<br>Association Rule Mining</h1>
     <p class="hero-sub">The mathematical side of data warehousing. Frequent itemsets, closed and max patterns, the Apriori algorithm, and association rules with support, confidence, and lift.</p>
     <div class="hero-nav">
-      <a class="home" href="index.html">ðŸ  Home</a>
-      <a class="prev" href="lecture04.html">â† Lecture 04</a>
-      <a class="next" href="Lecture06.html">Lecture 06 â†’</a>
+      <a class="home" href="index.html">🏠 Home</a>
+      <a class="prev" href="lecture04.html">← Lecture 04</a>
+      <a class="next" href="Lecture06.html">Lecture 06 →</a>
     </div>
   </div>
   <div class="content">
 
     <div class="callout exam" style="margin-bottom:32px;">
-      <div class="callout-label">ðŸŽ¯ Exam Alert â€” Q3 = Metadata + Association Rules (20 marks)</div>
+      <div class="callout-label">🎯 Exam Alert — Q3 = Metadata + Association Rules (20 marks)</div>
       <p>The lecturer confirmed: "Question 3 = Metadata and association rule mining, 20 marks." You will be given the minimum support, minimum confidence. You must calculate support, confidence, and lift for given rules. Practice all the worked examples.</p>
     </div>
 
     <div class="section" id="basic">
       <div class="section-header"><div class="section-num">01</div><h2>Basic Concepts: Frequent Patterns</h2></div>
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Definitions</div>
+        <div class="callout-label">📖 Definitions</div>
         <p><strong>Itemset:</strong> A set of one or more items (e.g., {bread, eggs}).<br>
         <strong>k-itemset:</strong> An itemset with exactly k items (e.g., {a, c} is a 2-itemset).<br>
-        <strong>Frequent itemset:</strong> An itemset whose support â‰¥ minimum support threshold (minsup).</p>
+        <strong>Frequent itemset:</strong> An itemset whose support ≥ minimum support threshold (minsup).</p>
       </div>
-      <h3>Support â€” Two Versions</h3>
+      <h3>Support — Two Versions</h3>
       <div class="formula">Absolute Support (sup{X}) = Number of transactions containing X</div>
-      <div class="formula">Relative Support (s{X}) = Number of transactions containing X Ã· Total number of transactions</div>
+      <div class="formula">Relative Support (s{X}) = Number of transactions containing X ÷ Total number of transactions</div>
       <h3>Worked Example</h3>
       <div class="table-wrap"><table>
         <tr><th>TID</th><th>Items Bought</th></tr>
@@ -138,14 +138,14 @@
         <tr><td>t5</td><td>b, c, d, e, f</td></tr>
       </table></div>
       <ul class="clean">
-        <li>sup{a} = 3 (appears in t1, t2, t3) â†’ relative: 3/5 = 60%</li>
-        <li>sup{c} = 4 (appears in t1, t2, t3, t5) â†’ relative: 4/5 = 80%</li>
-        <li>sup{a,c} = 3 (appears in t1, t2, t3 â€” both a AND c) â†’ relative: 60%</li>
-        <li>sup{a,e} = 1 (only t3 has both) â†’ relative: 20%</li>
+        <li>sup{a} = 3 (appears in t1, t2, t3) → relative: 3/5 = 60%</li>
+        <li>sup{c} = 4 (appears in t1, t2, t3, t5) → relative: 4/5 = 80%</li>
+        <li>sup{a,c} = 3 (appears in t1, t2, t3 — both a AND c) → relative: 60%</li>
+        <li>sup{a,e} = 1 (only t3 has both) → relative: 20%</li>
       </ul>
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Exam Trap â€” Union vs. Intersection</div>
-        <p>Support(X â†’ Y) uses X <strong>UNION</strong> Y, not intersection. "A and C appear together in the same transaction" means the transaction must contain BOTH. Count only transactions that contain ALL items in the itemset.</p>
+        <div class="callout-label">🎯 Exam Trap — Union vs. Intersection</div>
+        <p>Support(X → Y) uses X <strong>UNION</strong> Y, not intersection. "A and C appear together in the same transaction" means the transaction must contain BOTH. Count only transactions that contain ALL items in the itemset.</p>
       </div>
     </div>
 
@@ -154,133 +154,133 @@
       <p>Long patterns generate astronomically many sub-patterns (2<sup>100</sup> for a 100-item set). Closed and max patterns are compressed representations.</p>
       <div class="table-wrap"><table>
         <tr><th>Type</th><th>Definition</th><th>Property</th></tr>
-        <tr><td><strong>Closed Pattern</strong></td><td>Frequent itemset X where NO super-pattern Y âŠƒ X has the SAME support as X</td><td><strong>Lossless</strong> â€” all frequent itemset supports can be derived from closed patterns</td></tr>
-        <tr><td><strong>Max-Pattern</strong></td><td>Frequent itemset X where there is NO FREQUENT super-pattern Y âŠƒ X</td><td><strong>Lossy</strong> â€” we know all subsets are frequent but don't know their exact supports</td></tr>
+        <tr><td><strong>Closed Pattern</strong></td><td>Frequent itemset X where NO super-pattern Y ⊃ X has the SAME support as X</td><td><strong>Lossless</strong> — all frequent itemset supports can be derived from closed patterns</td></tr>
+        <tr><td><strong>Max-Pattern</strong></td><td>Frequent itemset X where there is NO FREQUENT super-pattern Y ⊃ X</td><td><strong>Lossy</strong> — we know all subsets are frequent but don't know their exact supports</td></tr>
       </table></div>
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Key Relationships</div>
-        <p>Every max-pattern IS a closed pattern. Not every closed pattern is a max-pattern (a closed pattern may have frequent super-patterns). In the Venn diagram: Frequent âŠƒ Closed âŠƒ Max.</p>
+        <div class="callout-label">🎯 Key Relationships</div>
+        <p>Every max-pattern IS a closed pattern. Not every closed pattern is a max-pattern (a closed pattern may have frequent super-patterns). In the Venn diagram: Frequent ⊃ Closed ⊃ Max.</p>
       </div>
       <h3>How to Identify Closed Patterns</h3>
-      <p>For each frequent itemset X: check if any of X's supersets have the EXACT SAME support. If yes â†’ X is NOT closed (because adding more items doesn't reduce support). If no â†’ X IS closed.</p>
+      <p>For each frequent itemset X: check if any of X's supersets have the EXACT SAME support. If yes → X is NOT closed (because adding more items doesn't reduce support). If no → X IS closed.</p>
       <h3>How to Identify Max-Patterns</h3>
-      <p>For each frequent itemset X: check if any of X's supersets are ALSO frequent. If yes â†’ X is NOT a max-pattern (it can be extended and still be frequent). If no â†’ X IS a max-pattern.</p>
+      <p>For each frequent itemset X: check if any of X's supersets are ALSO frequent. If yes → X is NOT a max-pattern (it can be extended and still be frequent). If no → X IS a max-pattern.</p>
       <div class="callout tip">
-        <div class="callout-label">ðŸ’¡ Simple Example</div>
+        <div class="callout-label">💡 Simple Example</div>
         <p>TDB: T1={a,b}, T2={a,b,c}. minsup=1.<br>
         All supports: a=2, b=2, c=1, {a,b}=2, {a,c}=1, {b,c}=1, {a,b,c}=1.<br>
-        <strong>Closed patterns:</strong> {a,b} (support=2, superset {a,b,c} has support=1 â€” different, so {a,b} is closed) and {a,b,c} (no supersets â†’ closed).<br>
-        <strong>Max-pattern:</strong> Only {a,b,c} (its only supersets don't exist â†’ it's the only max-pattern).<br>
+        <strong>Closed patterns:</strong> {a,b} (support=2, superset {a,b,c} has support=1 — different, so {a,b} is closed) and {a,b,c} (no supersets → closed).<br>
+        <strong>Max-pattern:</strong> Only {a,b,c} (its only supersets don't exist → it's the only max-pattern).<br>
         Note: {a,b} is closed but NOT max (because {a,b,c} is a frequent superset).</p>
       </div>
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Why Prefer Closed Over Max?</div>
-        <p>Closed patterns are <strong>lossless</strong> â€” from closed patterns, you can recover the exact support of any frequent itemset. Max-patterns are <strong>lossy</strong> â€” you only know all subsets are frequent, not their exact supports. In practice, prefer closed patterns for richer information.</p>
+        <div class="callout-label">🎯 Why Prefer Closed Over Max?</div>
+        <p>Closed patterns are <strong>lossless</strong> — from closed patterns, you can recover the exact support of any frequent itemset. Max-patterns are <strong>lossy</strong> — you only know all subsets are frequent, not their exact supports. In practice, prefer closed patterns for richer information.</p>
       </div>
     </div>
 
     <div class="section" id="apriori">
       <div class="section-header"><div class="section-num">03</div><h2>The Apriori Algorithm</h2></div>
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– The Downward Closure Property (Anti-monotonicity)</div>
+        <div class="callout-label">📖 The Downward Closure Property (Anti-monotonicity)</div>
         <p>If an itemset X is FREQUENT, then ALL subsets of X are also frequent.<br>
         Equivalently: if any SUBSET of X is INFREQUENT, then X cannot be frequent.<br>
-        This is the key insight that makes Apriori efficient â€” prune entire branches early.</p>
+        This is the key insight that makes Apriori efficient — prune entire branches early.</p>
       </div>
       <h3>Apriori Algorithm Steps</h3>
       <ol>
-        <li>Scan the database to find all frequent 1-itemsets (Fâ‚).</li>
+        <li>Scan the database to find all frequent 1-itemsets (F₁).</li>
         <li>Generate candidate (k+1)-itemsets from frequent k-itemsets by self-joining.</li>
         <li>Prune candidates: if ANY subset of a candidate is infrequent, remove it.</li>
         <li>Scan database to count support of remaining candidates.</li>
         <li>Repeat until no new frequent itemsets are found.</li>
       </ol>
       <div class="callout tip">
-        <div class="callout-label">ðŸ’¡ The Pruning Power</div>
+        <div class="callout-label">💡 The Pruning Power</div>
         <p>If item D is infrequent (say support = 1 when minsup = 2), then ALL itemsets containing D are automatically infrequent. You never need to check AD, BD, CD, ACD, BCD, etc. This dramatically reduces computation.</p>
       </div>
       <h3>Self-Joining for Candidate Generation</h3>
-      <p>F3 = {abc, abd, acd, ace, bcd}. To generate C4: join F3 with itself. Only join sets that share the first (k-1) items. Example: {abc} and {abd} â†’ {abcd} (share "ab"). Then prune: {abcd} is pruned if any 3-subset is not in F3. Check: is {acd} in F3? Yes. Is {bcd} in F3? Yes. So {abcd} survives. Result: C4 = {abcd}.</p>
+      <p>F3 = {abc, abd, acd, ace, bcd}. To generate C4: join F3 with itself. Only join sets that share the first (k-1) items. Example: {abc} and {abd} → {abcd} (share "ab"). Then prune: {abcd} is pruned if any 3-subset is not in F3. Check: is {acd} in F3? Yes. Is {bcd} in F3? Yes. So {abcd} survives. Result: C4 = {abcd}.</p>
     </div>
 
     <div class="section" id="association">
       <div class="section-header"><div class="section-num">04</div><h2>Association Rule Mining</h2></div>
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Definition</div>
-        <p>An <strong>association rule</strong> X â†’ Y means: transactions containing X tend to also contain Y. Both X and Y are itemsets. X âˆ© Y = âˆ… (they don't overlap).</p>
+        <div class="callout-label">📖 Definition</div>
+        <p>An <strong>association rule</strong> X → Y means: transactions containing X tend to also contain Y. Both X and Y are itemsets. X ∩ Y = ∅ (they don't overlap).</p>
       </div>
-      <div class="formula">Support(X â†’ Y) = |Transactions containing BOTH X and Y| Ã· |Total transactions|</div>
-      <p>Support measures the frequency of the rule â€” how often do X and Y appear together in all transactions.</p>
+      <div class="formula">Support(X → Y) = |Transactions containing BOTH X and Y| ÷ |Total transactions|</div>
+      <p>Support measures the frequency of the rule — how often do X and Y appear together in all transactions.</p>
     </div>
 
     <div class="section" id="confidence">
       <div class="section-header"><div class="section-num">05</div><h2>Confidence</h2></div>
-      <div class="formula">Confidence(X â†’ Y) = Support(X âˆª Y) Ã· Support(X) = Support_count(X âˆª Y) Ã· Support_count(X)</div>
+      <div class="formula">Confidence(X → Y) = Support(X ∪ Y) ÷ Support(X) = Support_count(X ∪ Y) ÷ Support_count(X)</div>
       <p>Confidence measures: "Of all transactions containing X, what fraction ALSO contain Y?" It is a conditional probability.</p>
       <h3>Strong Association Rules</h3>
       <p>A rule is <strong>strong</strong> if it meets BOTH minimum support AND minimum confidence thresholds. These are the rules we care about.</p>
       <div class="callout warning">
-        <div class="callout-label">âš ï¸ Confidence Alone Can Be Misleading</div>
-        <p>A high-confidence rule isn't always meaningful. If item B is already very popular (appears in 90% of transactions), then almost any rule "X â†’ B" will have high confidence â€” not because X causes B, but just because B is everywhere. That's why we also need Lift.</p>
+        <div class="callout-label">⚠️ Confidence Alone Can Be Misleading</div>
+        <p>A high-confidence rule isn't always meaningful. If item B is already very popular (appears in 90% of transactions), then almost any rule "X → B" will have high confidence — not because X causes B, but just because B is everywhere. That's why we also need Lift.</p>
       </div>
     </div>
 
     <div class="section" id="lift">
-      <div class="section-header"><div class="section-num">06</div><h2>Lift â€” Correcting for Popularity</h2></div>
-      <div class="formula">Lift(X â†’ Y) = Confidence(X â†’ Y) Ã· Support(Y) = Support(X âˆª Y) Ã· [Support(X) Ã— Support(Y)]</div>
+      <div class="section-header"><div class="section-num">06</div><h2>Lift — Correcting for Popularity</h2></div>
+      <div class="formula">Lift(X → Y) = Confidence(X → Y) ÷ Support(Y) = Support(X ∪ Y) ÷ [Support(X) × Support(Y)]</div>
       <div class="table-wrap"><table>
         <tr><th>Lift Value</th><th>Meaning</th><th>Action</th></tr>
-        <tr><td>= 1</td><td>X and Y are statistically independent â€” buying X has no effect on buying Y</td><td>Ignore this rule</td></tr>
-        <tr><td>&gt; 1</td><td>Positive correlation â€” buying X makes buying Y MORE likely than by chance</td><td>Useful rule â€” the higher, the more significant</td></tr>
-        <tr><td>&lt; 1</td><td>Negative correlation â€” buying X makes buying Y LESS likely than by chance</td><td>Interesting â€” may indicate substitutes</td></tr>
+        <tr><td>= 1</td><td>X and Y are statistically independent — buying X has no effect on buying Y</td><td>Ignore this rule</td></tr>
+        <tr><td>&gt; 1</td><td>Positive correlation — buying X makes buying Y MORE likely than by chance</td><td>Useful rule — the higher, the more significant</td></tr>
+        <tr><td>&lt; 1</td><td>Negative correlation — buying X makes buying Y LESS likely than by chance</td><td>Interesting — may indicate substitutes</td></tr>
       </table></div>
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Key Rule â€” Always Consider Lift Alongside Confidence</div>
-        <p>The game â†’ video example: support = 40%, confidence = 67%. This looks good! But support(video) = 75%. Lift = 0.67/0.75 = 0.89 &lt; 1 â†’ negative correlation. Customers who buy games are actually 11% LESS likely to buy videos than average. High confidence was misleading â€” video is just very popular overall.</p>
+        <div class="callout-label">🎯 Key Rule — Always Consider Lift Alongside Confidence</div>
+        <p>The game → video example: support = 40%, confidence = 67%. This looks good! But support(video) = 75%. Lift = 0.67/0.75 = 0.89 &lt; 1 → negative correlation. Customers who buy games are actually 11% LESS likely to buy videos than average. High confidence was misleading — video is just very popular overall.</p>
       </div>
     </div>
 
     <div class="section" id="worked">
       <div class="section-header"><div class="section-num">07</div><h2>Complete Worked Example</h2></div>
       <div class="callout tip">
-        <div class="callout-label">ðŸ’¡ Exam-Style Full Calculation</div>
+        <div class="callout-label">💡 Exam-Style Full Calculation</div>
         <p>300 customers buy item A. 200 customers buy item B. 150 customers buy both A and B. Total = 1000 customers.</p>
       </div>
-      <div class="formula">Support(A â†’ B) = 150/1000 = 15%</div>
-      <div class="formula">Confidence(A â†’ B) = 150/300 = 50%</div>
-      <div class="formula">Lift(A â†’ B) = 0.50 Ã· (200/1000) = 0.50 Ã· 0.20 = 2.5</div>
-      <p><strong>Interpretation:</strong> 15% of all transactions contain both A and B. Of customers who buy A, 50% also buy B. Customers who buy A are 2.5 times more likely to buy B compared to buying A and B independently. Lift &gt; 1 â†’ positive correlation â†’ useful rule!</p>
+      <div class="formula">Support(A → B) = 150/1000 = 15%</div>
+      <div class="formula">Confidence(A → B) = 150/300 = 50%</div>
+      <div class="formula">Lift(A → B) = 0.50 ÷ (200/1000) = 0.50 ÷ 0.20 = 2.5</div>
+      <p><strong>Interpretation:</strong> 15% of all transactions contain both A and B. Of customers who buy A, 50% also buy B. Customers who buy A are 2.5 times more likely to buy B compared to buying A and B independently. Lift &gt; 1 → positive correlation → useful rule!</p>
       <h3>Step-by-Step Process for Exam</h3>
       <ol>
         <li>Find all frequent 1-itemsets using the minsup threshold.</li>
         <li>Remove infrequent items. Generate candidate 2-itemsets from remaining items.</li>
-        <li>Test candidates â€” remove any below minsup. Continue to 3-itemsets, etc.</li>
-        <li>For each frequent itemset, generate possible association rules (both directions: Aâ†’C and Câ†’A).</li>
+        <li>Test candidates — remove any below minsup. Continue to 3-itemsets, etc.</li>
+        <li>For each frequent itemset, generate possible association rules (both directions: A→C and C→A).</li>
         <li>Calculate support, confidence, and lift for each rule.</li>
         <li>Keep only rules that meet both minsup AND minconf.</li>
       </ol>
     </div>
 
     <div class="section" id="summary">
-      <div class="section-header"><div class="section-num">â˜…</div><h2>Summary</h2></div>
+      <div class="section-header"><div class="section-num">★</div><h2>Summary</h2></div>
       <div class="summary-box">
-        <h3>Lecture 05 â€” Key Takeaways</h3>
+        <h3>Lecture 05 — Key Takeaways</h3>
         <ul>
-          <li>Frequent itemset: support â‰¥ minsup. Two types of support: absolute (count) and relative (fraction).</li>
+          <li>Frequent itemset: support ≥ minsup. Two types of support: absolute (count) and relative (fraction).</li>
           <li>Closed pattern: frequent AND no super-pattern with SAME support. Lossless compression.</li>
-          <li>Max-pattern: frequent AND no FREQUENT super-pattern. Lossy â€” prefer closed.</li>
+          <li>Max-pattern: frequent AND no FREQUENT super-pattern. Lossy — prefer closed.</li>
           <li>All max-patterns are closed, but not all closed patterns are max-patterns.</li>
           <li>Apriori: level-wise candidate generation with downward closure pruning. If a subset is infrequent, its supersets can't be frequent.</li>
-          <li>Support(Xâ†’Y) = transactions with both Ã· total. Always evaluate both directions separately.</li>
-          <li>Confidence(Xâ†’Y) = Support(XâˆªY) Ã· Support(X). Conditional probability.</li>
-          <li>Lift(Xâ†’Y) = Confidence(Xâ†’Y) Ã· Support(Y). &gt;1 = positive correlation. &lt;1 = negative. =1 = independent.</li>
-          <li>Always evaluate confidence alongside lift â€” high confidence can be misleading without lift.</li>
+          <li>Support(X→Y) = transactions with both ÷ total. Always evaluate both directions separately.</li>
+          <li>Confidence(X→Y) = Support(X∪Y) ÷ Support(X). Conditional probability.</li>
+          <li>Lift(X→Y) = Confidence(X→Y) ÷ Support(Y). &gt;1 = positive correlation. &lt;1 = negative. =1 = independent.</li>
+          <li>Always evaluate confidence alongside lift — high confidence can be misleading without lift.</li>
         </ul>
       </div>
     </div>
 
     <div class="section" id="checklist">
-      <div class="section-header"><div class="section-num">âœ“</div><h2>Revision Checklist</h2></div>
+      <div class="section-header"><div class="section-num">✓</div><h2>Revision Checklist</h2></div>
       <ul class="checklist">
         <li><div class="check-box"></div>I can calculate absolute and relative support for any itemset from a transaction table</li>
         <li><div class="check-box"></div>I can identify all frequent itemsets given a minsup threshold</li>
@@ -299,19 +299,19 @@
       <div class="quiz">
         <div class="quiz-item">
           <p><strong>Given the transaction table below with minsup = 2 and minconf = 50%:<br>T1: {A,X}, T2: {A,Z}, T3: {B,Y}, T4: {A,Z}, T5: {B,Z}<br>(1) Find all frequent itemsets. (2) Calculate support, confidence, and lift for all strong association rules.</strong></p>
-          <p class="hint">Hint: Frequent: A(3), B(2), Z(3), {A,Z}(2). Rules: Aâ†’Z (support=40%, conf=66.7%, lift=66.7/60=1.11) and Zâ†’A (support=40%, conf=66.7%, lift=1.11).</p>
+          <p class="hint">Hint: Frequent: A(3), B(2), Z(3), {A,Z}(2). Rules: A→Z (support=40%, conf=66.7%, lift=66.7/60=1.11) and Z→A (support=40%, conf=66.7%, lift=1.11).</p>
         </div>
         <div class="quiz-item">
-          <p><strong>10,000 transactions. 6,000 include computer games. 7,500 include videos. 4,000 include both. minsup=30%, minconf=60%. Is "computer games â†’ videos" a strong rule? Calculate support, confidence, and lift. Interpret the lift.</strong></p>
-          <p class="hint">Hint: Support=40% (â‰¥30% âœ“). Confidence=4000/6000=66.7% (â‰¥60% âœ“). So it's strong. Lift = 0.667/(7500/10000) = 0.667/0.75 = 0.889 &lt;1 â†’ negative correlation. Buying games makes buying videos 11% LESS likely than by chance.</p>
+          <p><strong>10,000 transactions. 6,000 include computer games. 7,500 include videos. 4,000 include both. minsup=30%, minconf=60%. Is "computer games → videos" a strong rule? Calculate support, confidence, and lift. Interpret the lift.</strong></p>
+          <p class="hint">Hint: Support=40% (≥30% ✓). Confidence=4000/6000=66.7% (≥60% ✓). So it's strong. Lift = 0.667/(7500/10000) = 0.667/0.75 = 0.889 &lt;1 → negative correlation. Buying games makes buying videos 11% LESS likely than by chance.</p>
         </div>
         <div class="quiz-item">
           <p><strong>Explain the downward closure property. How does it help the Apriori algorithm prune candidates efficiently? Give an example.</strong></p>
-          <p class="hint">Hint: If any subset of an itemset is infrequent, the whole superset is infrequent. Example: if {D} is infrequent, then {AD}, {BD}, {ABD}, etc. are ALL infrequent â€” no need to compute them. This eliminates entire subtrees from the search space.</p>
+          <p class="hint">Hint: If any subset of an itemset is infrequent, the whole superset is infrequent. Example: if {D} is infrequent, then {AD}, {BD}, {ABD}, etc. are ALL infrequent — no need to compute them. This eliminates entire subtrees from the search space.</p>
         </div>
         <div class="quiz-item">
           <p><strong>From the dataset: T1={A,B}, T2={B,C,D}, T3={A,B,C,D}, T4={A,B,D}, T5={A,B,C,D} with minsup=2, identify: (a) all frequent itemsets, (b) all closed patterns, (c) all max-patterns.</strong></p>
-          <p class="hint">Hint: Closed: {B}(5), {A,B}(4), {B,D}(4), {A,B,D}(3), {B,C,D}(3), {A,B,C,D}(2). Max-patterns: {A,B,D}(3) and {B,C,D}(3) and {A,B,C,D}(2) â€” check which have no frequent superset.</p>
+          <p class="hint">Hint: Closed: {B}(5), {A,B}(4), {B,D}(4), {A,B,D}(3), {B,C,D}(3), {A,B,C,D}(2). Max-patterns: {A,B,D}(3) and {B,C,D}(3) and {A,B,C,D}(2) — check which have no frequent superset.</p>
         </div>
         <div class="quiz-item">
           <p><strong>Why are closed patterns preferred over max-patterns in most applications?</strong></p>
@@ -322,7 +322,7 @@
 
   </div>
 </div>
-<a class="scroll-top" href="#">â†‘</a>
+<a class="scroll-top" href="#">↑</a>
 <script src="assets/js/supabase-config.js"></script>
 <script src="assets/js/notes.js"></script>
 </body>

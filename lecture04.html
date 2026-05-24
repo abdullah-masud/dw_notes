@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lecture 04 â€“ Practical Dimensional Modelling | CITS3401</title>
+<title>Lecture 04 – Practical Dimensional Modelling | CITS3401</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/styles.css">
 <style>
@@ -60,7 +60,7 @@
   li{margin-bottom:6px}
   ul.clean{list-style:none;padding-left:0}
   ul.clean li{padding-left:20px;position:relative}
-  ul.clean li::before{content:'â†’';position:absolute;left:0;color:var(--gold);font-size:13px;top:2px}
+  ul.clean li::before{content:'→';position:absolute;left:0;color:var(--gold);font-size:13px;top:2px}
   .compare-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:20px 0}
   .compare-card{border:1px solid var(--border);border-radius:10px;overflow:hidden}
   .compare-card-head{padding:10px 14px;font-family:'Playfair Display',serif;font-size:14px;font-weight:700}
@@ -89,7 +89,7 @@
 <body>
 <nav class="sidebar">
   <div class="sidebar-brand">
-    <a href="index.html">â† All Lectures</a>
+    <a href="index.html">← All Lectures</a>
     <strong>Lecture 04</strong><span>Practical Dimensional Modelling</span>
   </div>
   <div class="nav-section">Contents</div>
@@ -108,26 +108,26 @@
 </nav>
 <div class="main">
   <div class="hero">
-    <div class="hero-eyebrow">CITS3401 Â· Week 4 Â· Lecture 04</div>
+    <div class="hero-eyebrow">CITS3401 · Week 4 · Lecture 04</div>
     <h1>Practical Concerns of<br>Dimensional Modelling</h1>
     <p class="hero-sub">Real-world design decisions: date dimensions, surrogate keys, slowly changing dimensions (the most exam-heavy topic), dimension roles, and snapshot vs. transactional facts.</p>
     <div class="hero-nav">
-      <a class="home" href="index.html">ðŸ  Home</a>
-      <a class="prev" href="lecture03.html">â† Lecture 03</a>
-      <a class="next" href="lecture05.html">Lecture 05 â†’</a>
+      <a class="home" href="index.html">🏠 Home</a>
+      <a class="prev" href="lecture03.html">← Lecture 03</a>
+      <a class="next" href="lecture05.html">Lecture 05 →</a>
     </div>
   </div>
   <div class="content">
 
     <div class="callout exam" style="margin-bottom:32px;">
-      <div class="callout-label">ðŸŽ¯ Exam Weight â€” Very High</div>
+      <div class="callout-label">🎯 Exam Weight — Very High</div>
       <p>The lecturer explicitly stated: <strong>"This week contributes about 20 marks in the final exam."</strong> Pay extra attention to Slowly Changing Dimensions and Surrogate Keys.</p>
     </div>
 
     <div class="section" id="date-dim">
       <div class="section-header"><div class="section-num">01</div><h2>Date / Time Dimensions</h2></div>
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Why Use a Date Dimension?</div>
+        <div class="callout-label">📖 Why Use a Date Dimension?</div>
         <p>Almost every data warehouse has a date dimension. Instead of storing a SQL timestamp, a date dimension table stores rich date properties that can't be computed from a timestamp (holiday/non-holiday, selling season, fiscal quarter, weekday/weekend).</p>
       </div>
       <h3>Typical Grain: One Row = One Day</h3>
@@ -141,14 +141,14 @@
       </ul>
       <h3>Use Meaningful Labels, Not 0/1</h3>
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Exam Point â€” Always Use Meaningful Values</div>
+        <div class="callout-label">🎯 Exam Point — Always Use Meaningful Values</div>
         <p>Use <strong>"Holiday" / "Non-Holiday"</strong> not <strong>1 / 0</strong>. Use <strong>"Weekday" / "Weekend"</strong> not <strong>Y / N</strong>. Why? Because the data warehouse is for <em>managers</em>, not developers. When a value appears in a Power BI report, "Holiday" is instantly understandable; "1" is not.</p>
       </div>
       <h3>Multiple Hierarchies from One Date Dimension</h3>
       <p>One date dimension table can support multiple concept hierarchies for different purposes:</p>
       <ul class="clean">
-        <li>Date â†’ Month â†’ Quarter â†’ Year (calendar reporting)</li>
-        <li>Date â†’ Week â†’ Year (ISO week reporting)</li>
+        <li>Date → Month → Quarter → Year (calendar reporting)</li>
+        <li>Date → Week → Year (ISO week reporting)</li>
         <li>Holiday / Non-Holiday (for promotion analysis)</li>
         <li>Weekday / Weekend (for behaviour analysis)</li>
       </ul>
@@ -158,23 +158,23 @@
     <div class="section" id="surrogate">
       <div class="section-header"><div class="section-num">02</div><h2>Surrogate Keys</h2></div>
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Surrogate Key vs. Natural Key</div>
+        <div class="callout-label">📖 Surrogate Key vs. Natural Key</div>
         <p><strong>Natural key:</strong> A meaningful identifier from the real world (e.g., passport number, student ID, driver's licence). <strong>Surrogate key:</strong> A meaningless integer assigned by the data warehouse (e.g., 1, 2, 3, 4...).</p>
       </div>
       <h3>Why Use Surrogate Keys in DW Dimension Tables?</h3>
       <ul class="clean">
         <li><strong>Insulation from operational system changes:</strong> If a customer's email address (natural key) changes, historical fact table links are not broken because the surrogate key stays the same.</li>
         <li><strong>Easy multi-source integration:</strong> Different systems may use different IDs for the same entity. Surrogate keys provide a unified identifier.</li>
-        <li><strong>Smaller storage:</strong> A 4-byte integer surrogate key is much smaller than an 8-character passport number. Fact tables referencing dimension keys become thinner â†’ better performance.</li>
+        <li><strong>Smaller storage:</strong> A 4-byte integer surrogate key is much smaller than an 8-character passport number. Fact tables referencing dimension keys become thinner → better performance.</li>
         <li><strong>Handle exceptional cases:</strong> What if someone doesn't have a driver's licence? You can't use a NULL natural key. A surrogate key allows you to assign a special value like "Unknown" (surrogate key = 0).</li>
       </ul>
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Exam Trap â€” Natural Keys Are Risky</div>
-        <p>If you use email address as the PK and a customer changes their email, you lose the link to all their historical sales records. Surrogate keys prevent this â€” they never change, even if the person's natural ID changes.</p>
+        <div class="callout-label">🎯 Exam Trap — Natural Keys Are Risky</div>
+        <p>If you use email address as the PK and a customer changes their email, you lose the link to all their historical sales records. Surrogate keys prevent this — they never change, even if the person's natural ID changes.</p>
       </div>
       <h3>Degenerate Dimension</h3>
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Definition</div>
+        <div class="callout-label">📖 Definition</div>
         <p>A <strong>degenerate dimension</strong> is a dimension key that exists in the fact table but has NO corresponding dimension table. Examples: Transaction ID, Invoice Number. These are identifiers with no descriptive attributes worth storing in a separate table.</p>
       </div>
       <p>Two options for degenerate dimensions: (1) Discard it if not needed for analysis. (2) Keep it directly in the fact table as a foreign key without creating a dimension table. Used for grouping line items (e.g., "all products in the same shopping cart share the same Transaction ID").</p>
@@ -185,16 +185,16 @@
       <p>The number of dimension tables and how you group attributes affects storage size and query performance significantly. Three design options were compared:</p>
       <div class="table-wrap"><table>
         <tr><th>Option</th><th>Design</th><th>Storage</th><th>Performance</th><th>Modern Use</th></tr>
-        <tr><td><strong>A</strong></td><td>One "Everything" dimension â€” all 100 attributes in 1 table</td><td>~200 GB (huge)</td><td>Fastest (no joins)</td><td>Popular for cloud, ML, real-time analytics</td></tr>
+        <tr><td><strong>A</strong></td><td>One "Everything" dimension — all 100 attributes in 1 table</td><td>~200 GB (huge)</td><td>Fastest (no joins)</td><td>Popular for cloud, ML, real-time analytics</td></tr>
         <tr><td><strong>B</strong></td><td>Each attribute gets its own dimension table (100 tables)</td><td>~21.2 GB</td><td>Slow (100 joins)</td><td>Not recommended</td></tr>
         <tr><td><strong>C</strong></td><td>5 logical dimensions grouping correlated attributes</td><td>~2.8 GB (smallest)</td><td>Good (few joins)</td><td>Traditional best practice</td></tr>
       </table></div>
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Exam Point â€” Why Option C Was Traditionally Best</div>
+        <div class="callout-label">🎯 Exam Point — Why Option C Was Traditionally Best</div>
         <p><strong>Correlated attributes</strong> (e.g., product name and brand) should be in the same dimension because they have the same number of distinct combinations as products. <strong>Uncorrelated attributes</strong> (e.g., product and date) produce explosive combinations if combined, making Option A's table massive. Option C groups correlated attributes = compact dimensions.</p>
       </div>
       <div class="callout tip">
-        <div class="callout-label">ðŸ’¡ Modern Shift: Option A is Now Common</div>
+        <div class="callout-label">💡 Modern Shift: Option A is Now Common</div>
         <p>With cloud storage (cheap) and columnar databases (only scan needed columns), Option A ("One Big Table") is now popular for: real-time analytics, machine learning (one row = one feature vector), BI tools (Power BI/Tableau prefer flat single tables). The shift = from storage-optimised (Option C) to compute-optimised (Option A).</p>
       </div>
     </div>
@@ -202,85 +202,85 @@
     <div class="section" id="scd">
       <div class="section-header"><div class="section-num">04</div><h2>Slowly Changing Dimensions (SCD)</h2></div>
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Definition</div>
+        <div class="callout-label">📖 Definition</div>
         <p>A <strong>Slowly Changing Dimension (SCD)</strong> is a dimension where attribute values change occasionally over time (not frequently). Examples: customer address, store location, employee department, product category.</p>
       </div>
       <p>The question is: when an attribute value changes, do we overwrite the old value (losing history) or preserve both old and new (keeping history)?</p>
 
       <div class="compare-grid">
         <div class="compare-card">
-          <div class="compare-card-head t1">Type 1 â€” Overwrite</div>
+          <div class="compare-card-head t1">Type 1 — Overwrite</div>
           <div class="compare-card-body">
             <p><strong>What it does:</strong> Simply update the existing row with the new value.</p>
             <ul>
-              <li>âœ… Simple to implement</li>
-              <li>âœ… No extra rows</li>
-              <li>âŒ Loses all historical data</li>
-              <li>âŒ Historical reports change retroactively</li>
+              <li>✅ Simple to implement</li>
+              <li>✅ No extra rows</li>
+              <li>❌ Loses all historical data</li>
+              <li>❌ Historical reports change retroactively</li>
             </ul>
             <p><em>Use when:</em> History doesn't matter (e.g., phone number).</p>
           </div>
         </div>
         <div class="compare-card">
-          <div class="compare-card-head t2">Type 2 â€” New Row</div>
+          <div class="compare-card-head t2">Type 2 — New Row</div>
           <div class="compare-card-body">
             <p><strong>What it does:</strong> Add a NEW row for the new value. Old row is flagged as expired; new row is flagged as current.</p>
             <ul>
-              <li>âœ… Full history preserved</li>
-              <li>âœ… Accurate historical reporting</li>
-              <li>âŒ Table grows over time</li>
-              <li>âŒ Requires surrogate keys</li>
+              <li>✅ Full history preserved</li>
+              <li>✅ Accurate historical reporting</li>
+              <li>❌ Table grows over time</li>
+              <li>❌ Requires surrogate keys</li>
             </ul>
             <p><em>Use when:</em> History matters (e.g., customer address, district boundaries).</p>
           </div>
         </div>
         <div class="compare-card">
-          <div class="compare-card-head t3">Type 3 â€” New Column</div>
+          <div class="compare-card-head t3">Type 3 — New Column</div>
           <div class="compare-card-body">
             <p><strong>What it does:</strong> Add a new column to store the old value (e.g., "Previous District" + "Current District").</p>
             <ul>
-              <li>âœ… No new rows â€” single row per entity</li>
-              <li>âœ… Can report both old and new</li>
-              <li>âŒ No timestamps â€” can't tell when change happened</li>
-              <li>âŒ Schema gets complicated with many changes</li>
+              <li>✅ No new rows — single row per entity</li>
+              <li>✅ Can report both old and new</li>
+              <li>❌ No timestamps — can't tell when change happened</li>
+              <li>❌ Schema gets complicated with many changes</li>
             </ul>
-            <p><em>Use when:</em> Only 1â€“2 previous values need tracking.</p>
+            <p><em>Use when:</em> Only 1–2 previous values need tracking.</p>
           </div>
         </div>
       </div>
 
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Exam Comparison â€” Which Type to Choose?</div>
+        <div class="callout-label">🎯 Exam Comparison — Which Type to Choose?</div>
         <p>Ask yourself: <strong>"Does the historical value matter for reporting?"</strong><br>
-        â€” Phone number changed? Type 1 (history unimportant, analysts don't care which number was active).<br>
-        â€” Customer moved from Crawley to Claremont? Type 2 (historical sales must be attributed to correct location).<br>
-        â€” District boundaries reorganised? Type 2 or Type 3 (need to compare old vs. new).<br>
-        <strong>Type 2 requires surrogate keys</strong> â€” because the natural key may be the same for old and new rows.</p>
+        — Phone number changed? Type 1 (history unimportant, analysts don't care which number was active).<br>
+        — Customer moved from Crawley to Claremont? Type 2 (historical sales must be attributed to correct location).<br>
+        — District boundaries reorganised? Type 2 or Type 3 (need to compare old vs. new).<br>
+        <strong>Type 2 requires surrogate keys</strong> — because the natural key may be the same for old and new rows.</p>
       </div>
     </div>
 
     <div class="section" id="dim-roles">
       <div class="section-header"><div class="section-num">05</div><h2>Dimension Roles</h2></div>
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Definition</div>
+        <div class="callout-label">📖 Definition</div>
         <p>A <strong>dimension role</strong> occurs when a single dimension table is used in multiple ways within the same fact table. The same physical table plays different "roles" using separate foreign keys.</p>
       </div>
       <h3>Airline Example</h3>
-      <p>A flight has: Departure City, Arrival City, Departure Time, Arrival Time. Instead of creating separate "Departure Location" and "Arrival Location" dimension tables (which would be identical), you create ONE location dimension and reference it TWICE in the fact table â€” once as departure_city_key and once as arrival_city_key.</p>
+      <p>A flight has: Departure City, Arrival City, Departure Time, Arrival Time. Instead of creating separate "Departure Location" and "Arrival Location" dimension tables (which would be identical), you create ONE location dimension and reference it TWICE in the fact table — once as departure_city_key and once as arrival_city_key.</p>
       <ul class="clean">
         <li>ONE Date dimension table, but TWO foreign keys in the fact table: order_date_key, ship_date_key</li>
         <li>ONE Location dimension table, but TWO foreign keys: origin_location_key, destination_location_key</li>
       </ul>
       <div class="callout tip">
-        <div class="callout-label">ðŸ’¡ Why This Is Better</div>
-        <p>Creating two separate "Departure Time" and "Arrival Time" dimension tables would be redundant â€” they'd have identical structure and data. One table with two references is cleaner, smaller, and consistent.</p>
+        <div class="callout-label">💡 Why This Is Better</div>
+        <p>Creating two separate "Departure Time" and "Arrival Time" dimension tables would be redundant — they'd have identical structure and data. One table with two references is cleaner, smaller, and consistent.</p>
       </div>
     </div>
 
     <div class="section" id="junk">
       <div class="section-header"><div class="section-num">06</div><h2>Junk Dimension</h2></div>
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Definition</div>
+        <div class="callout-label">📖 Definition</div>
         <p>A <strong>junk dimension</strong> is a single dimension table that groups together several low-cardinality, miscellaneous flags or indicators that don't fit into any existing dimension. This avoids cluttering the fact table with many small single-column dimensions.</p>
       </div>
       <p>Examples of attributes that become junk dimensions: payment method (Cash / Credit Card / Check), bag type (Paper / Plastic / None), order type (Standard / Express / Next-Day).</p>
@@ -298,18 +298,18 @@
       <div class="table-wrap"><table>
         <tr><th>Feature</th><th>Transactional</th><th>Snapshot</th></tr>
         <tr><td><strong>What one row represents</strong></td><td>A single discrete event (e.g., one deposit, one withdrawal)</td><td>The state at a specific point in time (e.g., end-of-day balance)</td></tr>
-        <tr><td><strong>Detail level</strong></td><td>Maximum â€” every individual event recorded</td><td>Summarised â€” state at predefined intervals (daily, weekly, hourly)</td></tr>
+        <tr><td><strong>Detail level</strong></td><td>Maximum — every individual event recorded</td><td>Summarised — state at predefined intervals (daily, weekly, hourly)</td></tr>
         <tr><td><strong>Update frequency</strong></td><td>Every time an event occurs</td><td>At predefined intervals (daily snapshot, weekly snapshot)</td></tr>
         <tr><td><strong>Use case</strong></td><td>Analysing individual events, auditing, detailed reporting</td><td>Tracking trends over time, inventory levels, account balances</td></tr>
         <tr><td><strong>Examples</strong></td><td>Every debit/credit transaction to a bank account</td><td>End-of-day account balance for each day</td></tr>
       </table></div>
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Exam Practice â€” Converting Transactional to Snapshot</div>
+        <div class="callout-label">🎯 Exam Practice — Converting Transactional to Snapshot</div>
         <p>If given a transactional table (all individual debits/credits), you must be able to construct the corresponding daily snapshot table. Key rule: if no transactions occur on a day, the balance STAYS THE SAME as the previous day. The snapshot carries forward the last known value.</p>
       </div>
       <div class="callout tip">
-        <div class="callout-label">ðŸ’¡ Snapshot Example</div>
-        <p>Jim's transactions: Mar 20: +20, âˆ’5 = balance +15. Mar 21: no transactions = balance stays 15. Mar 22: âˆ’10 = balance 5.<br>
+        <div class="callout-label">💡 Snapshot Example</div>
+        <p>Jim's transactions: Mar 20: +20, −5 = balance +15. Mar 21: no transactions = balance stays 15. Mar 22: −10 = balance 5.<br>
         Snapshot table rows: (Jim, Mar 20, 15), (Jim, Mar 21, 15), (Jim, Mar 22, 5).</p>
       </div>
     </div>
@@ -317,19 +317,19 @@
     <div class="section" id="international">
       <div class="section-header"><div class="section-num">08</div><h2>International Issues</h2></div>
       <h3>Multiple Currencies</h3>
-      <p>When an organisation operates across countries, each transaction may be in a different currency. Solution: store each currency-denominated fact in TWO columns â€” one in local currency, one in a standard currency (e.g., USD). Add a Currency dimension to indicate which currency the local column uses. Use the historical exchange rate at the time of the transaction.</p>
+      <p>When an organisation operates across countries, each transaction may be in a different currency. Solution: store each currency-denominated fact in TWO columns — one in local currency, one in a standard currency (e.g., USD). Add a Currency dimension to indicate which currency the local column uses. Use the historical exchange rate at the time of the transaction.</p>
       <h3>Time Zones</h3>
       <p>Decide: local time or standardised time (GMT/UTC)?</p>
       <ul class="clean">
-        <li><strong>Local time:</strong> Better when local business patterns matter (e.g., a cafÃ©'s busiest hours are 8amâ€“10am locally, not midnight UTC)</li>
+        <li><strong>Local time:</strong> Better when local business patterns matter (e.g., a café's busiest hours are 8am–10am locally, not midnight UTC)</li>
         <li><strong>Standardised time (GMT):</strong> Better when relative ordering of global events matters (e.g., stock trades must be in sequence globally)</li>
       </ul>
     </div>
 
     <div class="section" id="summary">
-      <div class="section-header"><div class="section-num">â˜…</div><h2>Summary</h2></div>
+      <div class="section-header"><div class="section-num">★</div><h2>Summary</h2></div>
       <div class="summary-box">
-        <h3>Lecture 04 â€” Key Takeaways</h3>
+        <h3>Lecture 04 — Key Takeaways</h3>
         <ul>
           <li>Date dimension: one row per day, rich attributes (holiday, weekday, fiscal year), use meaningful labels not 0/1.</li>
           <li>Separate date and time dimensions to avoid row count explosion.</li>
@@ -345,7 +345,7 @@
     </div>
 
     <div class="section" id="checklist">
-      <div class="section-header"><div class="section-num">âœ“</div><h2>Revision Checklist</h2></div>
+      <div class="section-header"><div class="section-num">✓</div><h2>Revision Checklist</h2></div>
       <ul class="checklist">
         <li><div class="check-box"></div>I know why we use a date dimension instead of SQL timestamps</li>
         <li><div class="check-box"></div>I understand why date and time-of-day should be separate dimensions</li>
@@ -363,18 +363,18 @@
     <div class="section" id="questions">
       <div class="section-header"><div class="section-num">?</div><h2>Exam-Style Practice Questions</h2></div>
       <div class="quiz">
-        <div class="quiz-item"><p><strong>A customer named Alice moves from Crawley to Claremont. Explain how SCD Type 1 and Type 2 would each handle this change. Which should you choose and why?</strong></p><p class="hint">Hint: Type 1 = overwrite Crawley with Claremont (old sales now attributed to Claremont â€” incorrect!). Type 2 = add new row for Claremont, keep Crawley row as expired. Type 2 is correct â€” location matters for historical sales attribution.</p></div>
-        <div class="quiz-item"><p><strong>A WA airline fact table needs to record both departure and arrival airports for each flight. Should you create two separate airport dimension tables or one? Explain.</strong></p><p class="hint">Hint: One airport dimension table. Two foreign keys in the fact table: departure_airport_key and arrival_airport_key. This is a "dimension role" â€” same table, different roles. Creating two identical tables is redundant.</p></div>
-        <div class="quiz-item"><p><strong>Explain why a bank account balance is a semi-additive fact. Give an example of a calculation that IS valid and one that is NOT.</strong></p><p class="hint">Hint: Valid: sum balances across accounts (total money in the bank). Invalid: sum balance on Monday + Tuesday + Wednesday (double-counting â€” the same money counted multiple times).</p></div>
+        <div class="quiz-item"><p><strong>A customer named Alice moves from Crawley to Claremont. Explain how SCD Type 1 and Type 2 would each handle this change. Which should you choose and why?</strong></p><p class="hint">Hint: Type 1 = overwrite Crawley with Claremont (old sales now attributed to Claremont — incorrect!). Type 2 = add new row for Claremont, keep Crawley row as expired. Type 2 is correct — location matters for historical sales attribution.</p></div>
+        <div class="quiz-item"><p><strong>A WA airline fact table needs to record both departure and arrival airports for each flight. Should you create two separate airport dimension tables or one? Explain.</strong></p><p class="hint">Hint: One airport dimension table. Two foreign keys in the fact table: departure_airport_key and arrival_airport_key. This is a "dimension role" — same table, different roles. Creating two identical tables is redundant.</p></div>
+        <div class="quiz-item"><p><strong>Explain why a bank account balance is a semi-additive fact. Give an example of a calculation that IS valid and one that is NOT.</strong></p><p class="hint">Hint: Valid: sum balances across accounts (total money in the bank). Invalid: sum balance on Monday + Tuesday + Wednesday (double-counting — the same money counted multiple times).</p></div>
         <div class="quiz-item"><p><strong>Given the transactional table below, construct the daily snapshot for Jim and Lucy assuming starting balance = 0. Transactions: Jim Mar 20 +20, Jim Mar 20 -5, Lucy Mar 20 +40, Jim Mar 22 -10, Lucy Mar 22 -5, Lucy Mar 22 +10.</strong></p><p class="hint">Hint: Jim Mar 20=15, Mar 21=15 (no transactions), Mar 22=5. Lucy Mar 20=40, Mar 21=40 (no transactions), Mar 22=45.</p></div>
-        <div class="quiz-item"><p><strong>What is a surrogate key? Give three reasons why it is preferred over a natural key (like a passport number) as the primary key in a dimension table.</strong></p><p class="hint">Hint: Surrogate = meaningless integer. Reasons: (1) insulation â€” natural key can change; (2) integration â€” different source systems use different IDs; (3) storage â€” integer is smaller than full passport number; (4) exceptional cases â€” what if someone has no passport?</p></div>
+        <div class="quiz-item"><p><strong>What is a surrogate key? Give three reasons why it is preferred over a natural key (like a passport number) as the primary key in a dimension table.</strong></p><p class="hint">Hint: Surrogate = meaningless integer. Reasons: (1) insulation — natural key can change; (2) integration — different source systems use different IDs; (3) storage — integer is smaller than full passport number; (4) exceptional cases — what if someone has no passport?</p></div>
         <div class="quiz-item"><p><strong>What is a "junk dimension"? Give an example of when you would create one.</strong></p><p class="hint">Hint: Groups miscellaneous low-cardinality flags (payment method = Cash/Card/Check; bag type = Paper/Plastic/None). Use when these attributes don't logically belong to any existing dimension and would otherwise clutter the fact table.</p></div>
       </div>
     </div>
 
   </div>
 </div>
-<a class="scroll-top" href="#">â†‘</a>
+<a class="scroll-top" href="#">↑</a>
 <script src="assets/js/supabase-config.js"></script>
 <script src="assets/js/notes.js"></script>
 </body>

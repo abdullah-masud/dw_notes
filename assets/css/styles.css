@@ -1,4 +1,4 @@
-﻿:root {
+:root {
     --ink: #1a1208;
     --paper: #faf7f2;
     --cream: #f0ead8;
@@ -19,7 +19,7 @@
     overflow-x: hidden;
   }
 
-  /* â”€â”€ HERO â”€â”€ */
+  /* ── HERO ── */
   .hero {
     padding: 80px 64px 60px;
     position: relative;
@@ -64,7 +64,7 @@
     border-radius: 50%; background: var(--gold);
   }
 
-  /* â”€â”€ GRID â”€â”€ */
+  /* ── GRID ── */
   .grid-section {
     padding: 60px 64px 80px;
   }
@@ -145,7 +145,7 @@
     transform: translateX(4px);
   }
 
-  /* â”€â”€ EXAM BANNER â”€â”€ */
+  /* ── EXAM BANNER ── */
   .exam-section {
     margin: 0 64px;
     background: rgba(184,134,11,0.1);
@@ -162,7 +162,7 @@
   .exam-text p { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.65; }
   .exam-text strong { color: var(--gold-light); }
 
-  /* â”€â”€ FOOTER â”€â”€ */
+  /* ── FOOTER ── */
   footer {
     padding: 40px 64px;
     border-top: 1px solid rgba(255,255,255,0.06);

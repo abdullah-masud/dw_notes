@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lecture 01 â€“ Introduction to Data Warehousing | CITS3401</title>
+<title>Lecture 01 – Introduction to Data Warehousing | CITS3401</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/styles.css">
 <style>
@@ -61,7 +61,7 @@
   li{margin-bottom:6px}
   ul.clean{list-style:none;padding-left:0}
   ul.clean li{padding-left:20px;position:relative}
-  ul.clean li::before{content:'â†’';position:absolute;left:0;color:var(--gold);font-size:13px;top:2px}
+  ul.clean li::before{content:'→';position:absolute;left:0;color:var(--gold);font-size:13px;top:2px}
   code{font-family:'JetBrains Mono',monospace;font-size:13px;background:var(--cream);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--rust)}
   .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:20px 0}
   .compare-card{border:1px solid var(--border);border-radius:10px;overflow:hidden}
@@ -92,7 +92,7 @@
 
 <nav class="sidebar">
   <div class="sidebar-brand">
-    <a href="index.html">â† All Lectures</a>
+    <a href="index.html">← All Lectures</a>
     <strong>Lecture 01</strong>
     <span>Introduction to Data Warehousing</span>
   </div>
@@ -112,12 +112,12 @@
 
 <div class="main">
   <div class="hero">
-    <div class="hero-eyebrow">CITS3401 Â· Week 1 Â· Lecture 01</div>
+    <div class="hero-eyebrow">CITS3401 · Week 1 · Lecture 01</div>
     <h1>Introduction to<br>Data Warehousing</h1>
     <p class="hero-sub">The foundation of everything. Understand why data warehouses exist, what makes them different from databases, and the four core properties that define them.</p>
     <div class="hero-nav">
-      <a class="home" href="index.html">ðŸ  Home</a>
-      <a class="next" href="lecture02.html">Lecture 02 â†’</a>
+      <a class="home" href="index.html">🏠 Home</a>
+      <a class="next" href="lecture02.html">Lecture 02 →</a>
     </div>
   </div>
 
@@ -128,18 +128,18 @@
       <div class="section-header"><div class="section-num">01</div><h2>What Is a Data Warehouse?</h2></div>
 
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Official Definition â€” Memorise This</div>
+        <div class="callout-label">📖 Official Definition — Memorise This</div>
         <p>A data warehouse is a <strong>subject-oriented, integrated, time-variant, and non-volatile</strong> collection of data in support of management's decision-making process. (Inmon's definition)</p>
       </div>
 
       <p>In plain English: a data warehouse is a large, specially structured database that collects data from many sources and organises it so that managers and analysts can ask complex questions, find patterns, and make better decisions.</p>
 
       <div class="callout lecturer">
-        <div class="callout-label">ðŸ’¬ Lecturer's Key Message</div>
-        <p>"For this unit, from week one until the final exam â€” assume you are a <strong>manager, not a developer</strong>. You are using the data warehouse to support decision making, not to record daily transactions."</p>
+        <div class="callout-label">💬 Lecturer's Key Message</div>
+        <p>"For this unit, from week one until the final exam — assume you are a <strong>manager, not a developer</strong>. You are using the data warehouse to support decision making, not to record daily transactions."</p>
       </div>
 
-      <h3>Data Warehouse vs. Relational Database â€” The Big Picture</h3>
+      <h3>Data Warehouse vs. Relational Database — The Big Picture</h3>
       <div class="compare-grid">
         <div class="compare-card">
           <div class="compare-card-head a">Relational Database</div>
@@ -149,7 +149,7 @@
               <li>One department or organisation</li>
               <li>Simple, fast queries</li>
               <li>Shows <em>what is</em> (facts only)</li>
-              <li>Passive â€” can't forecast or find trends</li>
+              <li>Passive — can't forecast or find trends</li>
               <li>Current data only</li>
             </ul>
           </div>
@@ -162,8 +162,8 @@
               <li>Multiple departments / whole organisation</li>
               <li>Complex analytical queries</li>
               <li>Used for decision making &amp; forecasting</li>
-              <li>Active â€” finds patterns and trends</li>
-              <li>Historical data (5â€“10 years)</li>
+              <li>Active — finds patterns and trends</li>
+              <li>Historical data (5–10 years)</li>
             </ul>
           </div>
         </div>
@@ -174,26 +174,26 @@
     <div class="section" id="relational-db">
       <div class="section-header"><div class="section-num">02</div><h2>Relational Database Recap</h2></div>
 
-      <p>Before building a data warehouse, you need to understand what a relational database is â€” because operational databases are the primary <em>source</em> of data for a warehouse.</p>
+      <p>Before building a data warehouse, you need to understand what a relational database is — because operational databases are the primary <em>source</em> of data for a warehouse.</p>
 
       <h3>Key Concepts</h3>
       <ul class="clean">
         <li><strong>Table:</strong> A 2D structure with rows and columns. Each table has a unique name.</li>
         <li><strong>Column (Attribute):</strong> Represents a property of an entity (e.g., Name, Age, Score).</li>
-        <li><strong>Row (Record/Tuple):</strong> A single entry in the table â€” one real-world instance.</li>
+        <li><strong>Row (Record/Tuple):</strong> A single entry in the table — one real-world instance.</li>
         <li><strong>Primary Key (PK):</strong> A column (or combination) that uniquely identifies each row in a table.</li>
-        <li><strong>Foreign Key (FK):</strong> A column that references the PK of another table â€” used to link tables together.</li>
+        <li><strong>Foreign Key (FK):</strong> A column that references the PK of another table — used to link tables together.</li>
       </ul>
 
       <h3>SQL Operations in a Relational DB</h3>
       <p>The main operations are <strong>join</strong> (combining tables), <strong>selection</strong> (filtering rows), and <strong>projection</strong> (choosing columns). The goal is fast retrieval, accurate updates, and data integrity.</p>
 
       <h3>Transactional Database</h3>
-      <p>A transactional database stores records of individual events. For example: "Customer X bought item Y at time Z." This is called <strong>OLTP</strong> â€” Online Transaction Processing. Think: banking, supermarket checkouts, student enrolments.</p>
+      <p>A transactional database stores records of individual events. For example: "Customer X bought item Y at time Z." This is called <strong>OLTP</strong> — Online Transaction Processing. Think: banking, supermarket checkouts, student enrolments.</p>
 
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Exam Point â€” Passive Nature of RDBMS</div>
-        <p>Relational databases are <em>passive</em> â€” they show you what happened, but can't tell you why or predict the future. That limitation is the core reason we need data warehouses.</p>
+        <div class="callout-label">🎯 Exam Point — Passive Nature of RDBMS</div>
+        <p>Relational databases are <em>passive</em> — they show you what happened, but can't tell you why or predict the future. That limitation is the core reason we need data warehouses.</p>
       </div>
     </div>
 
@@ -218,7 +218,7 @@
           </tr>
           <tr>
             <td><strong>Time-Variant</strong></td>
-            <td>Keeps historical data â€” typically 5â€“10 years. Every key structure contains a time element.</td>
+            <td>Keeps historical data — typically 5–10 years. Every key structure contains a time element.</td>
             <td>Operational DB = current values only. DW = historical perspective. "What were sales in Q3 2019?" is a DW question.</td>
           </tr>
           <tr>
@@ -230,11 +230,11 @@
       </div>
 
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Common Exam Question</div>
-        <p>"List and explain the four main properties of a data warehouse with an example for each." â€” Answer using the table above. A common trap is confusing <em>integrated</em> (multiple sources combined) with <em>non-volatile</em> (data not changed). They are different!</p>
+        <div class="callout-label">🎯 Common Exam Question</div>
+        <p>"List and explain the four main properties of a data warehouse with an example for each." — Answer using the table above. A common trap is confusing <em>integrated</em> (multiple sources combined) with <em>non-volatile</em> (data not changed). They are different!</p>
       </div>
 
-      <h3>Why Integration Is Hard â€” The 80% Problem</h3>
+      <h3>Why Integration Is Hard — The 80% Problem</h3>
       <ul class="clean">
         <li><strong>Poor metadata:</strong> Without a data dictionary, you don't know what columns mean.</li>
         <li><strong>Data quality issues:</strong> Missing values, multiple spellings ("UWA" vs "University of WA"), inconsistent formats.</li>
@@ -247,7 +247,7 @@
       <div class="section-header"><div class="section-num">04</div><h2>OLTP vs. OLAP</h2></div>
 
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Definitions â€” Both Required</div>
+        <div class="callout-label">📖 Definitions — Both Required</div>
         <p><strong>OLTP (Online Transaction Processing)</strong> = the major task of traditional relational databases. Records day-to-day operations (purchasing, banking, registration). Fast, small queries, frequent updates.<br><br>
         <strong>OLAP (Online Analytical Processing)</strong> = the major task of data warehouse systems. Used for data analysis and decision-making. Slow, complex queries on large amounts of data. Infrequent updates.</p>
       </div>
@@ -267,18 +267,18 @@
       </div>
 
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Exam Trap â€” Don't Mix These Up</div>
-        <p>OLTP uses <strong>normalised</strong> schemas (many separate tables, low redundancy, high integrity). OLAP uses <strong>de-normalised</strong> schemas (fewer joins, redundancy acceptable for query speed). If you're asked "which schema does a DW use?" â€” de-normalised is correct for query performance. OLTP normalises; OLAP denormalises.</p>
+        <div class="callout-label">🎯 Exam Trap — Don't Mix These Up</div>
+        <p>OLTP uses <strong>normalised</strong> schemas (many separate tables, low redundancy, high integrity). OLAP uses <strong>de-normalised</strong> schemas (fewer joins, redundancy acceptable for query speed). If you're asked "which schema does a DW use?" — de-normalised is correct for query performance. OLTP normalises; OLAP denormalises.</p>
       </div>
 
-      <h3>Example OLAP Queries (Complex â€” DW Territory)</h3>
+      <h3>Example OLAP Queries (Complex — DW Territory)</h3>
       <ul class="clean">
         <li>Show a list of all items sold in the last quarter</li>
         <li>Show total sales of the last month, grouped by branch</li>
         <li>Which sales person had the highest amount of sales?</li>
         <li>How many sales transactions occurred in September?</li>
       </ul>
-      <p>None of these can be easily answered by a simple OLTP system â€” they require aggregation, grouping, and often multiple source tables.</p>
+      <p>None of these can be easily answered by a simple OLTP system — they require aggregation, grouping, and often multiple source tables.</p>
     </div>
 
     <!-- SECTION 5 -->
@@ -292,13 +292,13 @@
       <p>Example: An OLAP query computing "sum of all sales" acquires a lock on the sales table. A new sales transaction is then blocked until the lock is released.</p>
 
       <h3>Reason 2: Different Data Modelling Requirements</h3>
-      <p>OLTP uses <strong>normalised schemas</strong> â€” many tables, complex relationships, minimal redundancy. OLAP needs <strong>de-normalised schemas</strong> â€” fewer tables, simpler structure, easier for non-technical users to query. A schema designed for OLTP is slow and confusing for OLAP.</p>
+      <p>OLTP uses <strong>normalised schemas</strong> — many tables, complex relationships, minimal redundancy. OLAP needs <strong>de-normalised schemas</strong> — fewer tables, simpler structure, easier for non-technical users to query. A schema designed for OLTP is slow and confusing for OLAP.</p>
 
       <h3>Reason 3: Analysis Needs Data from Many Sources</h3>
-      <p>OLTP systems are built for one specific process (e.g., online ordering). OLAP integrates data from sales, inventory, HR, and purchasing â€” across departments and even different organisations. OLTP schemas are built around one department's needs, not enterprise-wide analysis.</p>
+      <p>OLTP systems are built for one specific process (e.g., online ordering). OLAP integrates data from sales, inventory, HR, and purchasing — across departments and even different organisations. OLTP schemas are built around one department's needs, not enterprise-wide analysis.</p>
 
       <div class="callout tip">
-        <div class="callout-label">âœ… The Solution</div>
+        <div class="callout-label">✅ The Solution</div>
         <p>Build a separate data warehouse that copies data from OLTP systems via ETL (Extract, Transform, Load). OLTP continues running fast; the DW handles analytical queries on a separate, optimised copy of the data. Both systems operate at peak performance independently.</p>
       </div>
 
@@ -341,27 +341,27 @@
       </div>
 
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Exam Point â€” Where Does Metadata Sit?</div>
-        <p>The <strong>metadata repository</strong> sits in the bottom tier (data storage layer). It is fundamental â€” everything else depends on it. Metadata must be understood before data can be loaded. This is why it's at the foundation. (Full metadata coverage in Lecture 6.)</p>
+        <div class="callout-label">🎯 Exam Point — Where Does Metadata Sit?</div>
+        <p>The <strong>metadata repository</strong> sits in the bottom tier (data storage layer). It is fundamental — everything else depends on it. Metadata must be understood before data can be loaded. This is why it's at the foundation. (Full metadata coverage in Lecture 6.)</p>
       </div>
 
       <h3>What Is a Data Mart?</h3>
       <p>A <strong>data mart</strong> is a smaller data warehouse designed for a single department (e.g., Sales, Finance). You can think of it as a subset of the enterprise data warehouse. The lecturer said: "A data mart is for one department; a data warehouse is for the whole company." (Full coverage in Lecture 6.)</p>
 
       <h3>What Is the OLAP Cube?</h3>
-      <p>The cube is a multi-dimensional data structure in the middle tier. Instead of a flat table, data is organised across multiple dimensions (e.g., Product Ã— Location Ã— Time). This allows fast, flexible queries like "How many phones were sold in Chicago in Q1?" without running expensive SQL joins. Full coverage in Lecture 3.</p>
+      <p>The cube is a multi-dimensional data structure in the middle tier. Instead of a flat table, data is organised across multiple dimensions (e.g., Product × Location × Time). This allows fast, flexible queries like "How many phones were sold in Chicago in Q1?" without running expensive SQL joins. Full coverage in Lecture 3.</p>
     </div>
 
     <!-- SECTION 7 -->
     <div class="section" id="etl">
-      <div class="section-header"><div class="section-num">07</div><h2>ETL â€” Extract, Transform, Load</h2></div>
+      <div class="section-header"><div class="section-num">07</div><h2>ETL — Extract, Transform, Load</h2></div>
 
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Definition</div>
+        <div class="callout-label">📖 Definition</div>
         <p><strong>ETL</strong> is the process of moving data from operational source systems into the data warehouse. It has three stages: Extract (pull data from sources), Transform (clean, standardise, integrate), Load (insert into the DW tables).</p>
       </div>
 
-      <p>The lecturer emphasised: <em>"The ETL part contributes the most marks in Project 1."</em> It's also the most time-consuming part of any real DW project â€” roughly 80% of total effort.</p>
+      <p>The lecturer emphasised: <em>"The ETL part contributes the most marks in Project 1."</em> It's also the most time-consuming part of any real DW project — roughly 80% of total effort.</p>
 
       <h3>Why Transformation Is Necessary</h3>
       <ul class="clean">
@@ -373,22 +373,22 @@
       </ul>
 
       <div class="callout tip">
-        <div class="callout-label">ðŸ’¡ Tools Used in This Unit</div>
-        <p>Project 1 uses PostgreSQL (relational DB) and Databricks (ETL + DW). Visualisation: Power BI (Windows) or Tableau (Mac/Windows). You can also use Python, SQL, or R for ETL â€” any tool is acceptable as long as the result is justified.</p>
+        <div class="callout-label">💡 Tools Used in This Unit</div>
+        <p>Project 1 uses PostgreSQL (relational DB) and Databricks (ETL + DW). Visualisation: Power BI (Windows) or Tableau (Mac/Windows). You can also use Python, SQL, or R for ETL — any tool is acceptable as long as the result is justified.</p>
       </div>
     </div>
 
     <!-- SUMMARY -->
     <div class="section" id="summary">
-      <div class="section-header"><div class="section-num">â˜…</div><h2>Summary</h2></div>
+      <div class="section-header"><div class="section-num">★</div><h2>Summary</h2></div>
       <div class="summary-box">
-        <h3>Lecture 01 â€” Key Takeaways</h3>
+        <h3>Lecture 01 — Key Takeaways</h3>
         <ul>
           <li>A data warehouse = subject-oriented, integrated, time-variant, non-volatile collection of data for decision support.</li>
           <li>Relational DBs are for OLTP (transactions); DWs are for OLAP (analysis). They need to be separate systems.</li>
           <li>3 reasons OLTP and OLAP don't mix: performance conflict, different data modelling needs, analysis requires data from many sources.</li>
-          <li>The 3-tier architecture: data storage (bottom) â†’ OLAP server (middle) â†’ front-end tools (top).</li>
-          <li>ETL brings data from source systems into the warehouse â€” it's ~80% of the real-world effort.</li>
+          <li>The 3-tier architecture: data storage (bottom) → OLAP server (middle) → front-end tools (top).</li>
+          <li>ETL brings data from source systems into the warehouse — it's ~80% of the real-world effort.</li>
           <li>Assume you are a manager, not a developer, when answering exam questions.</li>
         </ul>
       </div>
@@ -396,7 +396,7 @@
 
     <!-- CHECKLIST -->
     <div class="section" id="checklist">
-      <div class="section-header"><div class="section-num">âœ“</div><h2>Revision Checklist</h2></div>
+      <div class="section-header"><div class="section-num">✓</div><h2>Revision Checklist</h2></div>
       <ul class="checklist">
         <li><div class="check-box"></div>I can state Inmon's definition of a data warehouse from memory</li>
         <li><div class="check-box"></div>I can explain all 4 DW properties with an example each (subject-oriented, integrated, time-variant, non-volatile)</li>
@@ -415,7 +415,7 @@
       <div class="quiz">
         <div class="quiz-item">
           <p><strong>Define a data warehouse using Inmon's four properties. Explain each property with one example.</strong></p>
-          <p class="hint">Hint: Subject-oriented (organised around Customer/Sales/etc.), Integrated (multiple sources combined), Time-Variant (5â€“10 years of history), Non-Volatile (load + read only).</p>
+          <p class="hint">Hint: Subject-oriented (organised around Customer/Sales/etc.), Integrated (multiple sources combined), Time-Variant (5–10 years of history), Non-Volatile (load + read only).</p>
         </div>
         <div class="quiz-item">
           <p><strong>What is the difference between OLTP and OLAP? Give two examples of queries for each.</strong></p>
@@ -435,7 +435,7 @@
         </div>
         <div class="quiz-item">
           <p><strong>A retail company runs its point-of-sale system (recording every sale in real time) on the same server as its business analytics system (generating monthly trend reports). What problem could arise and how would you fix it?</strong></p>
-          <p class="hint">Hint: OLAP queries lock tables â†’ OLTP transactions are blocked â†’ angry users. Fix: separate into two systems with a DW fed by ETL from the OLTP.</p>
+          <p class="hint">Hint: OLAP queries lock tables → OLTP transactions are blocked → angry users. Fix: separate into two systems with a DW fed by ETL from the OLTP.</p>
         </div>
       </div>
     </div>
@@ -443,7 +443,7 @@
   </div><!-- content -->
 </div><!-- main -->
 
-<a class="scroll-top" href="#">â†‘</a>
+<a class="scroll-top" href="#">↑</a>
 <script src="assets/js/supabase-config.js"></script>
 <script src="assets/js/notes.js"></script>
 </body>

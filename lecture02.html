@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lecture 02 â€“ DW Modelling & OLAP | CITS3401</title>
+<title>Lecture 02 – DW Modelling & OLAP | CITS3401</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/styles.css">
 <style>
@@ -62,7 +62,7 @@
   li{margin-bottom:6px}
   ul.clean{list-style:none;padding-left:0}
   ul.clean li{padding-left:20px;position:relative}
-  ul.clean li::before{content:'â†’';position:absolute;left:0;color:var(--gold);font-size:13px;top:2px}
+  ul.clean li::before{content:'→';position:absolute;left:0;color:var(--gold);font-size:13px;top:2px}
   code{font-family:'JetBrains Mono',monospace;font-size:13px;background:var(--cream);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--rust)}
   pre{background:#1a1208;color:#e8dfc8;border-radius:8px;padding:18px 22px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.6;overflow-x:auto;margin:16px 0}
   pre .kw{color:var(--gold-light)}
@@ -98,7 +98,7 @@
 <body>
 <nav class="sidebar">
   <div class="sidebar-brand">
-    <a href="index.html">â† All Lectures</a>
+    <a href="index.html">← All Lectures</a>
     <strong>Lecture 02</strong><span>DW Modelling & OLAP</span>
   </div>
   <div class="nav-section">Contents</div>
@@ -114,13 +114,13 @@
 </nav>
 <div class="main">
   <div class="hero">
-    <div class="hero-eyebrow">CITS3401 Â· Week 2 Â· Lecture 02</div>
+    <div class="hero-eyebrow">CITS3401 · Week 2 · Lecture 02</div>
     <h1>Data Warehouse Modelling<br>& OLAP Operations</h1>
     <p class="hero-sub">The core building blocks: fact tables, dimension tables, three DW schemas, concept hierarchies, and the OLAP operations you must master.</p>
     <div class="hero-nav">
-      <a class="home" href="index.html">ðŸ  Home</a>
-      <a class="prev" href="lecture01.html">â† Lecture 01</a>
-      <a class="next" href="lecture03.html">Lecture 03 â†’</a>
+      <a class="home" href="index.html">🏠 Home</a>
+      <a class="prev" href="lecture01.html">← Lecture 01</a>
+      <a class="next" href="lecture03.html">Lecture 03 →</a>
     </div>
   </div>
   <div class="content">
@@ -128,32 +128,32 @@
     <div class="section" id="fact-tables">
       <div class="section-header"><div class="section-num">01</div><h2>Fact Tables</h2></div>
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Definition</div>
+        <div class="callout-label">📖 Definition</div>
         <p>A <strong>fact table</strong> is the central table in a data warehouse. It stores measurements (facts/measures) about a business process, and contains foreign keys linking to dimension tables.</p>
       </div>
       <h3>Structure of a Fact Table</h3>
       <p>Every fact table row contains exactly three types of columns:</p>
       <ul class="clean">
         <li><strong>Primary Key (PK):</strong> A single surrogate column that uniquely identifies each row.</li>
-        <li><strong>Foreign Keys (FKs):</strong> One FK for each dimension table â€” these are numerical references. They CAN be duplicate (same location can have many sales).</li>
+        <li><strong>Foreign Keys (FKs):</strong> One FK for each dimension table — these are numerical references. They CAN be duplicate (same location can have many sales).</li>
         <li><strong>Measures:</strong> Numerical values (e.g., units_sold, dollars_sold, avg_sales). All values in a fact table must be numerical.</li>
       </ul>
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Exam Trap â€” Only Numerical in Fact Table</div>
-        <p>If you see gender = "M" or "F" in a fact table, that is WRONG. Convert to numbers: 1 = Female, 2 = Male, 3 = Unknown. All values in a fact table must be numerical. Column names are metadata â€” the data must be numbers.</p>
+        <div class="callout-label">🎯 Exam Trap — Only Numerical in Fact Table</div>
+        <p>If you see gender = "M" or "F" in a fact table, that is WRONG. Convert to numbers: 1 = Female, 2 = Male, 3 = Unknown. All values in a fact table must be numerical. Column names are metadata — the data must be numbers.</p>
       </div>
       <h3>Properties of Fact Tables</h3>
       <ul class="clean">
         <li><strong>Very big:</strong> Often millions or billions of rows</li>
         <li><strong>Narrow:</strong> Small number of columns (PK + FKs + a few measures)</li>
-        <li><strong>Grows over time:</strong> New events â†’ new rows appended</li>
+        <li><strong>Grows over time:</strong> New events → new rows appended</li>
       </ul>
       <h3>The Grain of a Fact Table</h3>
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Definition â€” The Grain</div>
+        <div class="callout-label">📖 Definition — The Grain</div>
         <p>The <strong>grain</strong> = the meaning of ONE row in the fact table. It defines the most detailed level of data stored. Example: "One row = one line item from a cash register receipt."</p>
       </div>
-      <p>Rule of thumb: <strong>err in favour of the finest grain possible.</strong> Store as much detail as you can. If you store only daily totals, you can never answer "what happened at 9am?" But if you store individual transactions, you can always aggregate up. Cloud storage is cheap â€” detail is valuable.</p>
+      <p>Rule of thumb: <strong>err in favour of the finest grain possible.</strong> Store as much detail as you can. If you store only daily totals, you can never answer "what happened at 9am?" But if you store individual transactions, you can always aggregate up. Cloud storage is cheap — detail is valuable.</p>
       <div class="table-wrap"><table>
         <tr><th>Grain Statement</th><th>What one row represents</th></tr>
         <tr><td>Individual transaction grain</td><td>Each product scanned at the register</td></tr>
@@ -163,8 +163,8 @@
       </table></div>
       <h3>Factless Fact Tables</h3>
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Definition</div>
-        <p>A <strong>factless fact table</strong> has no numeric measurements â€” it only records that an event occurred. The measure column always = 1 (event happened). There is NO 0 â€” if the event didn't happen, there is no row.</p>
+        <div class="callout-label">📖 Definition</div>
+        <p>A <strong>factless fact table</strong> has no numeric measurements — it only records that an event occurred. The measure column always = 1 (event happened). There is NO 0 — if the event didn't happen, there is no row.</p>
       </div>
       <p>Example: Recording lecture attendance. Each row = one student at one lecture. The measure = 1 (they attended). If they didn't attend, no row exists.</p>
       <h3>Three Types of Measures</h3>
@@ -172,33 +172,33 @@
         <tr><th>Type</th><th>Meaning</th><th>Examples</th></tr>
         <tr><td><strong>Distributive</strong></td><td>Can be computed by splitting the dataset and applying the same function to each part</td><td>COUNT(), MIN(), MAX()</td></tr>
         <tr><td><strong>Algebraic</strong></td><td>Can be computed from the results of distributive functions</td><td>AVG() = SUM()/COUNT(), STDEV()</td></tr>
-        <tr><td><strong>Holistic</strong></td><td>Require the entire dataset to compute â€” cannot be split</td><td>MEDIAN(), MODE(), RANK()</td></tr>
+        <tr><td><strong>Holistic</strong></td><td>Require the entire dataset to compute — cannot be split</td><td>MEDIAN(), MODE(), RANK()</td></tr>
       </table></div>
       <h3>Four Types of Facts (Measures)</h3>
       <div class="table-wrap"><table>
         <tr><th>Fact Type</th><th>Definition</th><th>Example</th><th>Exam Note</th></tr>
-        <tr><td><strong>Derived</strong></td><td>Calculated from other columns within the same row</td><td>Gross Profit = Revenue â€“ Cost</td><td>Pre-compute in ETL if used frequently</td></tr>
-        <tr><td><strong>Additive</strong></td><td>Can be summed across ALL dimensions</td><td>Total Sales, Units Sold</td><td>Most useful type â€” supports all aggregation</td></tr>
+        <tr><td><strong>Derived</strong></td><td>Calculated from other columns within the same row</td><td>Gross Profit = Revenue – Cost</td><td>Pre-compute in ETL if used frequently</td></tr>
+        <tr><td><strong>Additive</strong></td><td>Can be summed across ALL dimensions</td><td>Total Sales, Units Sold</td><td>Most useful type — supports all aggregation</td></tr>
         <tr><td><strong>Semi-Additive</strong></td><td>Can be summed across SOME dimensions but not all</td><td>Account Balance, Inventory Level</td><td>Cannot sum across time (Monday + Tuesday balance = meaningless)</td></tr>
         <tr><td><strong>Non-Additive</strong></td><td>Cannot be summed across ANY dimension</td><td>Unit Price, Percentages, Ratios</td><td>Summing unit prices across products is meaningless</td></tr>
       </table></div>
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Exam Trap â€” Semi-Additive Facts</div>
-        <p>Bank account balance is semi-additive. You CAN sum across accounts (total money across all accounts), but you CANNOT sum across time (Monday's balance + Tuesday's balance â‰  meaningful total). Same for inventory levels.</p>
+        <div class="callout-label">🎯 Exam Trap — Semi-Additive Facts</div>
+        <p>Bank account balance is semi-additive. You CAN sum across accounts (total money across all accounts), but you CANNOT sum across time (Monday's balance + Tuesday's balance ≠ meaningful total). Same for inventory levels.</p>
       </div>
     </div>
 
     <div class="section" id="dimension-tables">
       <div class="section-header"><div class="section-num">02</div><h2>Dimension Tables</h2></div>
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Definition</div>
+        <div class="callout-label">📖 Definition</div>
         <p>A <strong>dimension table</strong> describes the context of a measurement. It stores descriptive attributes about a real-world object or concept (Customer, Product, Date, Region, Store, etc.).</p>
       </div>
       <h3>Properties of Dimension Tables</h3>
       <ul class="clean">
         <li><strong>Wide:</strong> Many descriptive columns (dozens of attributes)</li>
         <li><strong>Small:</strong> Relatively few rows compared to fact tables (usually &lt;1 million)</li>
-        <li><strong>Static:</strong> Contents don't change often â€” almost like a lookup table</li>
+        <li><strong>Static:</strong> Contents don't change often — almost like a lookup table</li>
       </ul>
       <div class="compare-grid">
         <div class="compare-card"><div class="compare-card-head a">Facts</div><div class="compare-card-body"><ul><li>Narrow (few columns)</li><li>Huge (many rows)</li><li>Numerical values only</li><li>Grows constantly</li></ul></div></div>
@@ -206,13 +206,13 @@
       </div>
       <h3>Uses of Dimension Tables</h3>
       <ul class="clean">
-        <li><strong>Filters:</strong> WHERE location = 'Perth' â€” uses location dimension</li>
-        <li><strong>Grouping:</strong> GROUP BY product_category â€” uses product dimension</li>
+        <li><strong>Filters:</strong> WHERE location = 'Perth' — uses location dimension</li>
+        <li><strong>Grouping:</strong> GROUP BY product_category — uses product dimension</li>
         <li><strong>Reference:</strong> Fact table rows point TO dimension rows via FKs</li>
       </ul>
       <div class="callout lecturer">
-        <div class="callout-label">ðŸ’¬ Lecturer Example</div>
-        <p>"If you buy an apple from Coles â€” 'when' is date, 'what' is product, 'where' is location, 'how' is payment method. Each of those is a dimension that describes the event."</p>
+        <div class="callout-label">💬 Lecturer Example</div>
+        <p>"If you buy an apple from Coles — 'when' is date, 'what' is product, 'where' is location, 'how' is payment method. Each of those is a dimension that describes the event."</p>
       </div>
     </div>
 
@@ -221,16 +221,16 @@
       <p>Hierarchies define how you can roll up or drill down through levels of detail within a dimension.</p>
       <div class="table-wrap"><table>
         <tr><th>Hierarchy Type</th><th>What it is</th><th>Example</th></tr>
-        <tr><td><strong>Schema Hierarchy</strong></td><td>Total or partial order among attributes in a DB schema â€” what the actual table looks like</td><td>street &lt; city &lt; state &lt; country (as columns)</td></tr>
-        <tr><td><strong>Concept Hierarchy</strong></td><td>The generalisation structure used during modelling (before implementation)</td><td>Day â†’ Month â†’ Quarter â†’ Year</td></tr>
-        <tr><td><strong>Set-Grouping Hierarchy</strong></td><td>Created by discretising or grouping values for a dimension</td><td>Marks: 80+ = HD, 70â€“79 = D, 60â€“69 = C; Age: Adult / Non-adult</td></tr>
+        <tr><td><strong>Schema Hierarchy</strong></td><td>Total or partial order among attributes in a DB schema — what the actual table looks like</td><td>street &lt; city &lt; state &lt; country (as columns)</td></tr>
+        <tr><td><strong>Concept Hierarchy</strong></td><td>The generalisation structure used during modelling (before implementation)</td><td>Day → Month → Quarter → Year</td></tr>
+        <tr><td><strong>Set-Grouping Hierarchy</strong></td><td>Created by discretising or grouping values for a dimension</td><td>Marks: 80+ = HD, 70–79 = D, 60–69 = C; Age: Adult / Non-adult</td></tr>
       </table></div>
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Exam Trap â€” Week in the Hierarchy</div>
-        <p>You CANNOT use the path Day â†’ Week â†’ Month because a week can span two months (e.g., a Monday-Sunday week might start in January and end in February). The correct paths are: <strong>Day â†’ Month â†’ Quarter â†’ Year</strong> OR <strong>Day â†’ Week â†’ Year</strong>. Week rolls up to Year, NOT Month. This follows the ISO 8601 standard.</p>
+        <div class="callout-label">🎯 Exam Trap — Week in the Hierarchy</div>
+        <p>You CANNOT use the path Day → Week → Month because a week can span two months (e.g., a Monday-Sunday week might start in January and end in February). The correct paths are: <strong>Day → Month → Quarter → Year</strong> OR <strong>Day → Week → Year</strong>. Week rolls up to Year, NOT Month. This follows the ISO 8601 standard.</p>
       </div>
       <h3>Location Hierarchy Example</h3>
-      <p>Suburb â†’ City â†’ State â†’ Country. Each level is a column in the location dimension table. Rolling up from suburb to city aggregates all suburbs within that city.</p>
+      <p>Suburb → City → State → Country. Each level is a column in the location dimension table. Rolling up from suburb to city aggregates all suburbs within that city.</p>
     </div>
 
     <div class="section" id="schemas">
@@ -238,33 +238,33 @@
       <p>All data warehouses use one of these three schema designs. You must know all three, their differences, and when each is preferred.</p>
       <h3>1. Star Schema</h3>
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Definition</div>
+        <div class="callout-label">📖 Definition</div>
         <p>A <strong>star schema</strong> has ONE central fact table connected to multiple dimension tables. The shape looks like a star. This is the most common and preferred design in modern DW.</p>
       </div>
       <ul class="clean">
-        <li>Fewer tables â†’ faster queries (fewer joins)</li>
+        <li>Fewer tables → faster queries (fewer joins)</li>
         <li>Dimension tables may have some redundant data</li>
         <li>Easier to understand for business users</li>
         <li><strong>Modern recommendation: use star schema</strong></li>
       </ul>
       <h3>2. Snowflake Schema</h3>
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Definition</div>
+        <div class="callout-label">📖 Definition</div>
         <p>A <strong>snowflake schema</strong> normalises some dimension tables by splitting them into sub-dimension tables. Looks like a snowflake branching from the fact table.</p>
       </div>
       <ul class="clean">
         <li>Reduces data redundancy in dimension tables</li>
-        <li>More tables â†’ slower queries (more joins required)</li>
-        <li>Harder to understand â€” more complex</li>
+        <li>More tables → slower queries (more joins required)</li>
+        <li>Harder to understand — more complex</li>
         <li>Example: location dimension splits into location + city sub-dimension</li>
       </ul>
       <h3>3. Galaxy Schema (Fact Constellation)</h3>
       <div class="callout definition">
-        <div class="callout-label">ðŸ“– Definition</div>
+        <div class="callout-label">📖 Definition</div>
         <p>A <strong>galaxy schema</strong> has <em>multiple</em> fact tables that share dimension tables. Used when the DW needs to support multiple related business processes (e.g., Sales and Shipping).</p>
       </div>
       <ul class="clean">
-        <li>Most complex schema â€” used in large organisations</li>
+        <li>Most complex schema — used in large organisations</li>
         <li>Different departments may use different fact tables</li>
         <li>Shared dimensions ensure consistency across processes</li>
       </ul>
@@ -275,7 +275,7 @@
         <tr><td><strong>Galaxy</strong></td><td>Multiple</td><td>Shared across fact tables</td><td>Varies</td><td>Varies</td></tr>
       </table></div>
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Exam Point â€” Modern Design Preference</div>
+        <div class="callout-label">🎯 Exam Point — Modern Design Preference</div>
         <p>Despite the snowflake schema reducing redundancy, <strong>star schema is the preferred choice</strong> in modern data warehousing. Why? The performance gap has narrowed, and star schemas are faster, simpler, and easier for business users. For your project: use star schema unless you can justify otherwise.</p>
       </div>
     </div>
@@ -285,28 +285,28 @@
       <p>These are the four core operations you perform on a data cube. ALL of these are exam-critical.</p>
       <div class="table-wrap"><table>
         <tr><th>Operation</th><th>Direction</th><th>What it does</th><th>Example</th></tr>
-        <tr><td><strong>Roll Up</strong> (Drill Up)</td><td>Bottom â†’ Top</td><td>Summarise / aggregate data by climbing UP a hierarchy or reducing dimensions</td><td>Monthly sales â†’ Quarterly sales â†’ Annual sales</td></tr>
-        <tr><td><strong>Drill Down</strong> (Roll Down)</td><td>Top â†’ Bottom</td><td>Expand detail by going DOWN a hierarchy or introducing new dimensions</td><td>Annual sales â†’ Quarterly â†’ Monthly â†’ Daily</td></tr>
+        <tr><td><strong>Roll Up</strong> (Drill Up)</td><td>Bottom → Top</td><td>Summarise / aggregate data by climbing UP a hierarchy or reducing dimensions</td><td>Monthly sales → Quarterly sales → Annual sales</td></tr>
+        <tr><td><strong>Drill Down</strong> (Roll Down)</td><td>Top → Bottom</td><td>Expand detail by going DOWN a hierarchy or introducing new dimensions</td><td>Annual sales → Quarterly → Monthly → Daily</td></tr>
         <tr><td><strong>Slice</strong></td><td>N/A</td><td>Select ONE value for ONE dimension, reducing the cube by one dimension</td><td>Show only data for "July" (fix the time dimension = July)</td></tr>
-        <tr><td><strong>Dice</strong></td><td>N/A</td><td>Select specific values for MULTIPLE dimensions, creating a sub-cube</td><td>Show data for {VIC, NSW} Ã— {July, August} Ã— {Blue, Red}</td></tr>
-        <tr><td><strong>Pivot (Rotate)</strong></td><td>N/A</td><td>Reorient the cube for different visualisation â€” rotate axes</td><td>Switch rows and columns in a cross-tab report</td></tr>
+        <tr><td><strong>Dice</strong></td><td>N/A</td><td>Select specific values for MULTIPLE dimensions, creating a sub-cube</td><td>Show data for {VIC, NSW} × {July, August} × {Blue, Red}</td></tr>
+        <tr><td><strong>Pivot (Rotate)</strong></td><td>N/A</td><td>Reorient the cube for different visualisation — rotate axes</td><td>Switch rows and columns in a cross-tab report</td></tr>
       </table></div>
       <div class="callout exam">
-        <div class="callout-label">ðŸŽ¯ Exam Trap â€” Slice vs. Dice</div>
-        <p><strong>Slice</strong> = pick ONE value for ONE dimension (e.g., month = July only). Result has one fewer dimension. <strong>Dice</strong> = pick SPECIFIC VALUES for MULTIPLE dimensions (e.g., month âˆˆ {July, Aug} AND state âˆˆ {VIC, NSW}). Result is a sub-cube with the same number of dimensions.</p>
+        <div class="callout-label">🎯 Exam Trap — Slice vs. Dice</div>
+        <p><strong>Slice</strong> = pick ONE value for ONE dimension (e.g., month = July only). Result has one fewer dimension. <strong>Dice</strong> = pick SPECIFIC VALUES for MULTIPLE dimensions (e.g., month ∈ {July, Aug} AND state ∈ {VIC, NSW}). Result is a sub-cube with the same number of dimensions.</p>
       </div>
       <h3>Cross-Tabulation (Cross-Tab)</h3>
-      <p>A cross-tab report shows data grouped by 2 dimensions with subtotals. For example: rows = months (Jul, Aug, Sep), columns = states (VIC, NSW, WA), cells = auto sales, plus row and column totals. A simple GROUP BY in SQL cannot produce the totals â€” you need GROUP BY CUBE or UNION ALL.</p>
+      <p>A cross-tab report shows data grouped by 2 dimensions with subtotals. For example: rows = months (Jul, Aug, Sep), columns = states (VIC, NSW, WA), cells = auto sales, plus row and column totals. A simple GROUP BY in SQL cannot produce the totals — you need GROUP BY CUBE or UNION ALL.</p>
       <div class="callout lecturer">
-        <div class="callout-label">ðŸ’¬ Lecturer on Roll Up vs. Drill Down</div>
+        <div class="callout-label">💬 Lecturer on Roll Up vs. Drill Down</div>
         <p>"Roll up = from the bottom to the top. Drill down = from the top to the bottom. Think of it like zooming in (drill down) and zooming out (roll up) on a map."</p>
       </div>
     </div>
 
     <div class="section" id="summary">
-      <div class="section-header"><div class="section-num">â˜…</div><h2>Summary</h2></div>
+      <div class="section-header"><div class="section-num">★</div><h2>Summary</h2></div>
       <div class="summary-box">
-        <h3>Lecture 02 â€” Key Takeaways</h3>
+        <h3>Lecture 02 — Key Takeaways</h3>
         <ul>
           <li>Fact table: centre of the DW. Contains PK + FKs + numerical measures only. Very big, narrow, grows over time.</li>
           <li>Grain = meaning of one fact table row. Always go as fine-grained as possible.</li>
@@ -316,13 +316,13 @@
           <li>3 hierarchy types: Schema (tables), Concept (modelling), Set-Grouping (discretised).</li>
           <li>Week rolls up to YEAR not Month (ISO 8601 standard).</li>
           <li>3 schemas: Star (preferred, 1 fact table), Snowflake (normalised dims), Galaxy (multiple fact tables).</li>
-          <li>5 OLAP ops: Roll Up â†‘, Drill Down â†“, Slice (1 dim, 1 value), Dice (multi-dim, multi-value), Pivot (rotate).</li>
+          <li>5 OLAP ops: Roll Up ↑, Drill Down ↓, Slice (1 dim, 1 value), Dice (multi-dim, multi-value), Pivot (rotate).</li>
         </ul>
       </div>
     </div>
 
     <div class="section" id="checklist">
-      <div class="section-header"><div class="section-num">âœ“</div><h2>Revision Checklist</h2></div>
+      <div class="section-header"><div class="section-num">✓</div><h2>Revision Checklist</h2></div>
       <ul class="checklist">
         <li><div class="check-box"></div>I can describe the structure of a fact table (PK + FKs + numerical measures)</li>
         <li><div class="check-box"></div>I know what the "grain" of a fact table means and why finer grain is better</li>
@@ -330,7 +330,7 @@
         <li><div class="check-box"></div>I can classify any measure as Additive, Semi-Additive, or Non-Additive</li>
         <li><div class="check-box"></div>I can describe a dimension table's properties and uses</li>
         <li><div class="check-box"></div>I know the difference between Schema Hierarchy, Concept Hierarchy, and Set-Grouping Hierarchy</li>
-        <li><div class="check-box"></div>I know why Week â†’ Month is wrong and the correct paths in the date hierarchy</li>
+        <li><div class="check-box"></div>I know why Week → Month is wrong and the correct paths in the date hierarchy</li>
         <li><div class="check-box"></div>I can draw and explain Star, Snowflake, and Galaxy schemas</li>
         <li><div class="check-box"></div>I can explain all 5 OLAP operations: Roll Up, Drill Down, Slice, Dice, Pivot</li>
         <li><div class="check-box"></div>I understand the difference between Slice (1 dim, 1 value) and Dice (multiple dims)</li>
@@ -341,17 +341,17 @@
       <div class="section-header"><div class="section-num">?</div><h2>Exam-Style Practice Questions</h2></div>
       <div class="quiz">
         <div class="quiz-item"><p><strong>Describe the difference between a fact table and a dimension table. Include at least three properties of each.</strong></p><p class="hint">Hint: Fact = narrow, big, numerical, grows. Dimension = wide, small, descriptive, static.</p></div>
-        <div class="quiz-item"><p><strong>A data analyst claims that "account balance" is an additive fact because you can sum balances across different accounts. Is this correct? Explain.</strong></p><p class="hint">Hint: Semi-additive â€” can sum across accounts (space/dimension) but NOT across time. Monday's balance + Tuesday's balance doesn't give meaningful total.</p></div>
+        <div class="quiz-item"><p><strong>A data analyst claims that "account balance" is an additive fact because you can sum balances across different accounts. Is this correct? Explain.</strong></p><p class="hint">Hint: Semi-additive — can sum across accounts (space/dimension) but NOT across time. Monday's balance + Tuesday's balance doesn't give meaningful total.</p></div>
         <div class="quiz-item"><p><strong>Compare the Star Schema and Snowflake Schema. Which is preferred in modern data warehousing and why?</strong></p><p class="hint">Hint: Star = fewer tables, faster queries, more redundancy. Snowflake = more tables, less redundancy, slower. Star preferred due to query speed and simplicity.</p></div>
         <div class="quiz-item"><p><strong>Explain the difference between Roll Up and Drill Down with an example using a sales data cube with dimensions: Time (Day/Month/Quarter/Year), Location (Suburb/City/State), Product.</strong></p><p class="hint">Hint: Roll Up = from Day to Month to Quarter (summarise). Drill Down = from Year to Quarter to Month (more detail). Direction is key.</p></div>
-        <div class="quiz-item"><p><strong>In a date hierarchy, why can't you use the path Day â†’ Week â†’ Month? What are the two correct hierarchy paths?</strong></p><p class="hint">Hint: A week can span two months (e.g., Monday in Jan and Sunday in Feb). Correct: Day â†’ Month â†’ Quarter â†’ Year  OR  Day â†’ Week â†’ Year.</p></div>
+        <div class="quiz-item"><p><strong>In a date hierarchy, why can't you use the path Day → Week → Month? What are the two correct hierarchy paths?</strong></p><p class="hint">Hint: A week can span two months (e.g., Monday in Jan and Sunday in Feb). Correct: Day → Month → Quarter → Year  OR  Day → Week → Year.</p></div>
         <div class="quiz-item"><p><strong>Explain what a "factless fact table" is. Give an example and explain why the measure column is always 1 and never 0.</strong></p><p class="hint">Hint: Records events (e.g., student attended lecture). If event happened = row with measure 1. If not happened = no row at all. 0 is never stored.</p></div>
       </div>
     </div>
 
   </div>
 </div>
-<a class="scroll-top" href="#">â†‘</a>
+<a class="scroll-top" href="#">↑</a>
 <script src="assets/js/supabase-config.js"></script>
 <script src="assets/js/notes.js"></script>
 </body>
