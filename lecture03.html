@@ -1,0 +1,328 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lecture 03 â€“ Data Cube Technologies | CITS3401</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+<style>
+  :root{--accent:#2a9a6a}
+  :root{--ink:#1a1208;--paper:#faf7f2;--cream:#f0ead8;--gold:#b8860b;--gold-light:#d4a820;--teal:#1a5f6a;--rust:#8b3a1a;--muted:#6b6050;--border:#d4c9a8;--sidebar-w:260px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Source Serif 4',Georgia,serif;background:var(--paper);color:var(--ink);font-size:17px;line-height:1.75}
+  .sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--ink);color:#e8dfc8;overflow-y:auto;z-index:100;display:flex;flex-direction:column;padding:0 0 40px 0}
+  .sidebar-brand{padding:20px 22px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+  .sidebar-brand a{text-decoration:none;color:rgba(255,255,255,.4);font-size:12px;font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:6px;margin-bottom:10px}
+  .sidebar-brand a:hover{color:var(--gold-light)}
+  .sidebar-brand strong{display:block;font-family:'Playfair Display',serif;font-size:16px;color:#fff}
+  .sidebar-brand span{display:block;font-size:12px;color:#2a9a6a}
+  .nav-section{padding:16px 22px 4px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+  .nav-link{display:block;padding:7px 22px;color:rgba(232,223,200,.7);font-size:13.5px;text-decoration:none;line-height:1.4;transition:all .15s}
+  .nav-link:hover{color:#fff;background:rgba(255,255,255,.06);padding-left:28px}
+  .nav-link.active{color:#2a9a6a;border-left:2px solid #2a9a6a;padding-left:20px}
+  .main{margin-left:var(--sidebar-w);min-height:100vh}
+  .hero{background:var(--ink);color:#fff;padding:52px 64px 44px;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-60px;right:-40px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(42,154,106,.2) 0%,transparent 70%)}
+  .hero-eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#2a9a6a;margin-bottom:12px;font-family:'JetBrains Mono',monospace}
+  .hero h1{font-family:'Playfair Display',serif;font-size:38px;line-height:1.15;margin-bottom:12px}
+  .hero-sub{color:rgba(255,255,255,.5);font-size:15px;max-width:560px}
+  .hero-nav{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap}
+  .hero-nav a{font-family:'JetBrains Mono',monospace;font-size:12px;padding:8px 16px;border-radius:5px;text-decoration:none;transition:all .15s}
+  .hero-nav a.home{background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.12)}
+  .hero-nav a.prev{background:rgba(255,255,255,.07);color:rgba(255,255,255,.6)}
+  .hero-nav a.next{background:#2a9a6a;color:#fff;font-weight:600}
+  .hero-nav a:hover{opacity:.85}
+  .content{padding:48px 64px;max-width:900px}
+  .section{margin-bottom:60px}
+  .section-header{display:flex;align-items:center;gap:14px;margin-bottom:28px;padding-bottom:12px;border-bottom:2px solid var(--border)}
+  .section-num{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;color:var(--border);line-height:1;min-width:40px}
+  .section-header h2{font-family:'Playfair Display',serif;font-size:24px;color:var(--ink)}
+  h3{font-family:'Playfair Display',serif;font-size:19px;margin:28px 0 10px;color:var(--teal)}
+  h4{font-size:16px;font-weight:600;margin:20px 0 8px}
+  p{margin-bottom:13px}
+  .callout{border-radius:8px;padding:16px 20px;margin:20px 0;border-left:4px solid}
+  .callout.definition{background:#e0eaf8;border-color:var(--teal)}
+  .callout.exam{background:#fff3cd;border-color:var(--gold)}
+  .callout.warning{background:#fde8e0;border-color:var(--rust)}
+  .callout.tip{background:#e0f0e8;border-color:#2a7a4a}
+  .callout.lecturer{background:#f4e8f8;border-color:#7a3a7a}
+  .callout-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:600;margin-bottom:5px}
+  .callout.definition .callout-label{color:var(--teal)}
+  .callout.exam .callout-label{color:#8a6a00}
+  .callout.warning .callout-label{color:var(--rust)}
+  .callout.tip .callout-label{color:#2a7a4a}
+  .callout.lecturer .callout-label{color:#7a3a7a}
+  .callout p{margin:0;font-size:15.5px}
+  .table-wrap{overflow-x:auto;margin:20px 0}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th{background:var(--ink);color:var(--gold-light);padding:9px 13px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600}
+  td{padding:9px 13px;border-bottom:1px solid var(--border);vertical-align:top}
+  tr:nth-child(even) td{background:var(--cream)}
+  ul,ol{padding-left:22px;margin-bottom:13px}
+  li{margin-bottom:6px}
+  ul.clean{list-style:none;padding-left:0}
+  ul.clean li{padding-left:20px;position:relative}
+  ul.clean li::before{content:'â†’';position:absolute;left:0;color:var(--gold);font-size:13px;top:2px}
+  code{font-family:'JetBrains Mono',monospace;font-size:13px;background:var(--cream);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--rust)}
+  pre{background:#1a1208;color:#e8dfc8;border-radius:8px;padding:18px 22px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.6;overflow-x:auto;margin:16px 0}
+  .formula{background:var(--ink);color:var(--gold-light);border-radius:8px;padding:14px 20px;margin:16px 0;font-family:'JetBrains Mono',monospace;font-size:14px;text-align:center}
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:20px 0}
+  .compare-card{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .compare-card-head{padding:11px 16px;font-family:'Playfair Display',serif;font-size:15px;font-weight:700}
+  .compare-card-head.a{background:var(--teal);color:#fff}
+  .compare-card-head.b{background:var(--rust);color:#fff}
+  .compare-card-body{padding:13px 16px;font-size:14px}
+  .compare-card-body ul{margin:0}
+  .summary-box{background:var(--ink);color:#e8dfc8;border-radius:12px;padding:26px 30px;margin:28px 0}
+  .summary-box h3{color:var(--gold-light);margin-top:0;font-size:16px}
+  .summary-box ul{padding-left:20px}
+  .summary-box li{margin-bottom:7px;font-size:14.5px}
+  .quiz{counter-reset:quiz}
+  .quiz-item{background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin-bottom:12px;counter-increment:quiz;position:relative}
+  .quiz-item::before{content:'Q' counter(quiz);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--gold);position:absolute;top:12px;right:14px}
+  .quiz-item p{margin:0;font-size:15px}
+  .quiz-item .hint{font-size:13px;color:var(--muted);margin-top:7px;font-style:italic}
+  .checklist{list-style:none;padding:0}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:15px}
+  .checklist li:last-child{border:none}
+  .check-box{width:17px;height:17px;min-width:17px;border:2px solid var(--border);border-radius:3px;margin-top:3px}
+  .scroll-top{position:fixed;bottom:24px;right:24px;width:42px;height:42px;background:var(--ink);color:var(--gold-light);border:none;border-radius:50%;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.3);text-decoration:none}
+  @media(max-width:900px){.sidebar{display:none}.main{margin-left:0}.content,.hero{padding:28px}.compare-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <a href="index.html">â† All Lectures</a>
+    <strong>Lecture 03</strong><span>Data Cube Technologies</span>
+  </div>
+  <div class="nav-section">Contents</div>
+  <a class="nav-link" href="#starnet">1. Starnet Model</a>
+  <a class="nav-link" href="#kimball">2. Kimball's 4 Steps</a>
+  <a class="nav-link" href="#measures">3. Types of Measures</a>
+  <a class="nav-link" href="#datacube">4. Data Cube</a>
+  <a class="nav-link" href="#cuboids">5. Cuboids & Lattice</a>
+  <a class="nav-link" href="#sql-cube">6. SQL CUBE & ROLLUP</a>
+  <div class="nav-section">Revision</div>
+  <a class="nav-link" href="#summary">Summary</a>
+  <a class="nav-link" href="#checklist">Checklist</a>
+  <a class="nav-link" href="#questions">Exam Questions</a>
+</nav>
+<div class="main">
+  <div class="hero">
+    <div class="hero-eyebrow">CITS3401 Â· Week 3 Â· Lecture 03</div>
+    <h1>Data Cube Technologies</h1>
+    <p class="hero-sub">Starnet models, Kimball's 4-step methodology, data cubes, cuboid lattices, and SQL GROUP BY CUBE/ROLLUP. This lecture directly feeds into the exam scenario questions.</p>
+    <div class="hero-nav">
+      <a class="home" href="index.html">ðŸ  Home</a>
+      <a class="prev" href="lecture02.html">â† Lecture 02</a>
+      <a class="next" href="lecture04.html">Lecture 04 â†’</a>
+    </div>
+  </div>
+  <div class="content">
+
+    <div class="section" id="starnet">
+      <div class="section-header"><div class="section-num">01</div><h2>The Starnet Model</h2></div>
+      <div class="callout definition">
+        <div class="callout-label">ðŸ“– Definition</div>
+        <p>A <strong>starnet</strong> is a diagram used to visualise the multi-dimensional structure of a data warehouse for querying purposes. It shows dimensions as radial lines from a central point, with each line representing one dimension's concept hierarchy.</p>
+      </div>
+      <div class="callout exam">
+        <div class="callout-label">ðŸŽ¯ Exam Alert â€” Starnets Appear Every Year</div>
+        <p>The lecturer explicitly said: "Every year we have this question in the final exam â€” you design a starnet to answer the given query." You MUST know how to draw one correctly.</p>
+      </div>
+      <h3>Required Components of a Starnet</h3>
+      <ul class="clean">
+        <li><strong>Dimension names:</strong> Each line must be labelled with the dimension name (e.g., Location, Date, Product)</li>
+        <li><strong>"All" node:</strong> Every dimension MUST have an "All" node. This represents the total/aggregate across that dimension.</li>
+        <li><strong>Hierarchy levels:</strong> Each line must show the levels (e.g., Suburb â†’ City â†’ State â†’ Country)</li>
+      </ul>
+      <h3>Footprints</h3>
+      <div class="callout definition">
+        <div class="callout-label">ðŸ“– Definition</div>
+        <p>A <strong>footprint</strong> is a circle drawn through specific levels of each dimension to answer a particular query. It shows which granularity is being used for each dimension in that query.</p>
+      </div>
+      <p>Rules for footprints:</p>
+      <ul class="clean">
+        <li>The footprint MUST form a complete circle â€” touching exactly one node per dimension</li>
+        <li>If a dimension is NOT used in the query, connect to its "All" node</li>
+        <li>Never leave any dimension unconnected â€” even unused dimensions must connect to "All"</li>
+        <li>A starnet contains ONLY dimension information â€” NEVER include measures or facts</li>
+      </ul>
+      <h3>Common Starnet Errors</h3>
+      <div class="callout warning">
+        <div class="callout-label">âš ï¸ Common Mistakes â€” These Cost Marks</div>
+        <p><strong>Error 1:</strong> Footprint is not a complete circle â€” missing a connection on one dimension. <strong>Error 2:</strong> Missing a dimension entirely (even unused dimensions must connect to "All"). <strong>Error 3:</strong> Including a measure or fact in the starnet (starnets = dimensions ONLY). <strong>Error 4:</strong> Incomplete cycle â€” not connecting through all hierarchy levels properly.</p>
+      </div>
+      <h3>Starnet Design Example</h3>
+      <p>Query: "How many X brand ice cream were sold in Australia in January 2026?"</p>
+      <p>Dimensions needed: Brand (item), Location, Date, Supermarket (if included). For this query: connect Brand â†’ brand name level; Location â†’ country level; Date â†’ month level; Supermarket â†’ All (not used in query).</p>
+      <div class="callout lecturer">
+        <div class="callout-label">ðŸ’¬ Lecturer on "How many dimensions in the starnet?"</div>
+        <p>"If query 1 asks for 3 dimensions, query 2 asks for 4, query 3 asks for 5 â€” you design ONE starnet with 5 dimensions because the starnet must be able to answer ALL queries."</p>
+      </div>
+    </div>
+
+    <div class="section" id="kimball">
+      <div class="section-header"><div class="section-num">02</div><h2>Kimball's 4-Step Dimensional Modelling</h2></div>
+      <p>This is a systematic approach to designing a data warehouse. The 4 steps are always done in order.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Step</th><th>Name</th><th>What you do</th></tr>
+        <tr><td><strong>1</strong></td><td>Identify the Process</td><td>Choose which business process to model (e.g., Ice Cream Sales, not all processes at once). Think about what business questions you need to answer.</td></tr>
+        <tr><td><strong>2</strong></td><td>Determine the Grain</td><td>Decide the most detailed level of one fact table row. Rule: go as fine-grained as possible (individual transaction if possible).</td></tr>
+        <tr><td><strong>3</strong></td><td>Choose Dimensions</td><td>Identify candidate key from grain statement, then add other relevant dimensions functionally determined by that key.</td></tr>
+        <tr><td><strong>4</strong></td><td>Identify Measures</td><td>Choose numeric measures for the fact table. Classify each as Derived, Additive, Semi-Additive, or Non-Additive.</td></tr>
+      </table></div>
+      <div class="callout exam">
+        <div class="callout-label">ðŸŽ¯ How Step 3 Works â€” Choosing Dimensions</div>
+        <p>Start with the grain statement. Example: "line item from cash register receipt" â†’ candidate key = (Transaction ID, Product SKU). Then add more dimensions that are determined by the key: Store (where did the transaction happen?), Date (when?), Promotion (what promotion was active?). The candidate key gives you the minimum; business needs give you the rest.</p>
+      </div>
+    </div>
+
+    <div class="section" id="measures">
+      <div class="section-header"><div class="section-num">03</div><h2>Types of Numeric Measures (Step 4 Detail)</h2></div>
+      <div class="table-wrap"><table>
+        <tr><th>Measure Type</th><th>Definition</th><th>Example</th><th>Key Rule</th></tr>
+        <tr><td><strong>Derived Fact</strong></td><td>Calculated from other columns within the same row</td><td>Gross Profit = Revenue âˆ’ Cost; Total = Price Ã— Units</td><td>Pre-compute in ETL if frequently used (reduces latency, ensures consistency)</td></tr>
+        <tr><td><strong>Additive Fact</strong></td><td>Can be meaningfully summed across ALL dimensions</td><td>Total Cost, Units Sold, Revenue</td><td>The most useful type â€” supports all OLAP operations without special handling</td></tr>
+        <tr><td><strong>Semi-Additive Fact</strong></td><td>Can be summed across SOME dimensions but NOT across time</td><td>Bank account balance, Inventory level</td><td>Sum by account or product is fine. Sum by date (Monday + Tuesday) is meaningless</td></tr>
+        <tr><td><strong>Non-Additive Fact</strong></td><td>Cannot be summed across ANY dimension</td><td>Unit price, percentages, ratios</td><td>Cannot be summed â€” use BI tools to calculate from other facts</td></tr>
+      </table></div>
+      <div class="callout tip">
+        <div class="callout-label">ðŸ’¡ Why Pre-Compute Derived Facts?</div>
+        <p>If "Gross Profit" is queried 1000 times per day, recalculating Revenue âˆ’ Cost every time wastes resources. Pre-computing it in ETL: reduces query latency, ensures consistent calculation (no different users applying different formulas), simplifies reports for business users.</p>
+      </div>
+    </div>
+
+    <div class="section" id="datacube">
+      <div class="section-header"><div class="section-num">04</div><h2>The Data Cube</h2></div>
+      <div class="callout definition">
+        <div class="callout-label">ðŸ“– Definition</div>
+        <p>A <strong>data cube</strong> is a multi-dimensional data structure that organises data around a central theme (e.g., Sales). It allows data to be viewed and analysed from multiple dimensions simultaneously. It is constructed from fact and dimension tables.</p>
+      </div>
+      <h3>Key Concepts</h3>
+      <ul class="clean">
+        <li><strong>Cells:</strong> Each intersection point in the cube holds a numeric measure (e.g., sales = 45). A cell is defined by a specific combination of dimension values.</li>
+        <li><strong>Hypercube:</strong> When a data cube has more than 3 dimensions, it's called a hypercube.</li>
+        <li><strong>Notation:</strong> (Jan, *, Phone, 150) means "in January, all locations, Phone product, sales = 150". * means "all values aggregated".</li>
+      </ul>
+      <h3>Why Use a Data Cube? (The Apple Analogy)</h3>
+      <div class="callout lecturer">
+        <div class="callout-label">ðŸ’¬ Lecturer's Analogy</div>
+        <p>"For the cube solution â€” you already bought apples and put them in your fridge. You just take one out and eat it. For the database table solution â€” you want an apple, you go to the supermarket, buy it, come home, wash it, then eat it. The cube pre-prepares everything."</p>
+      </div>
+      <p>The benefit: pre-computed aggregations mean queries are answered instantly by reading from the cube rather than recalculating every time.</p>
+      <h3>Reading Cube Notation</h3>
+      <p>Format: (Date, Location, Item, Measure). An asterisk (*) means "aggregated across all values of that dimension."</p>
+      <ul class="clean">
+        <li>(Jan, *, *, 2800) = Total sales across all cities and all items in January = 2800</li>
+        <li>(*, Perth, *, 1200) = Total sales in Perth across all months and items = 1200</li>
+        <li>(Jan, Perth, Phone, 45) = Phone sales in Perth in January = 45</li>
+      </ul>
+    </div>
+
+    <div class="section" id="cuboids">
+      <div class="section-header"><div class="section-num">05</div><h2>Cuboids and the Lattice</h2></div>
+      <div class="callout definition">
+        <div class="callout-label">ðŸ“– Definition</div>
+        <p>A <strong>cuboid</strong> is a subset of the full data cube â€” a "chunk" representing data aggregated at a specific combination of dimension levels. A <strong>lattice of cuboids</strong> is the complete set of all possible cuboids for a given set of dimensions.</p>
+      </div>
+      <h3>Key Cuboid Concepts</h3>
+      <ul class="clean">
+        <li><strong>Base cuboid (bottom):</strong> The most detailed â€” no aggregation. Contains all dimension combinations.</li>
+        <li><strong>Apex cuboid (top):</strong> The most general â€” everything aggregated into a single total cell. Always labelled "All".</li>
+        <li>Each cuboid represents one possible GROUP BY combination.</li>
+      </ul>
+      <h3>How to Calculate the Number of Cuboids</h3>
+      <div class="callout exam">
+        <div class="callout-label">ðŸŽ¯ Formula â€” Must Know for Exam</div>
+        <p><strong>No hierarchies:</strong> If you have n dimensions with no levels, total cuboids = <strong>2<sup>n</sup></strong></p>
+        <p><strong>With hierarchies:</strong> If dimension i has L<sub>i</sub> levels, total cuboids = <strong>(L<sub>1</sub>+1) Ã— (L<sub>2</sub>+1) Ã— ... Ã— (L<sub>n</sub>+1)</strong></p>
+      </div>
+      <div class="callout tip">
+        <div class="callout-label">ðŸ’¡ Worked Example</div>
+        <p>Date dimension: 4 levels (Day, Month, Quarter, Year). Location dimension: 3 levels (City, State, Country).<br>
+        Cuboids = (4+1) Ã— (3+1) = 5 Ã— 4 = <strong>20 cuboids</strong>.<br><br>
+        Why +1? Because "All" (total aggregation) counts as an additional level at the top.</p>
+      </div>
+      <h3>Drawing a Cuboid Lattice</h3>
+      <p>The lattice diagram must include:</p>
+      <ul class="clean">
+        <li>An "All" node at the top (apex)</li>
+        <li>All dimension combinations at the bottom (base cuboid)</li>
+        <li>All intermediate cuboids labelled with their dimension names</li>
+        <li>Arrows showing the direction of roll-up (bottom to top)</li>
+      </ul>
+      <p>For ROLLUP(colour, month, state): the path is colour+month+state â†’ colour+month â†’ colour â†’ All. The rightmost dimension is dropped first (state), then month, then colour.</p>
+    </div>
+
+    <div class="section" id="sql-cube">
+      <div class="section-header"><div class="section-num">06</div><h2>SQL GROUP BY CUBE and ROLLUP</h2></div>
+      <div class="callout exam">
+        <div class="callout-label">ðŸŽ¯ Exam Note â€” No SQL Writing Required</div>
+        <p>The lecturer confirmed: "In the final exam, you don't need to write any SQL query. You just need to explain something." But you must understand what CUBE and ROLLUP produce.</p>
+      </div>
+      <h3>The Problem with Regular GROUP BY</h3>
+      <p>A normal <code>GROUP BY state, month</code> query only gives you data for each (state, month) combination. It does NOT give you: subtotals per state, subtotals per month, or a grand total. Without CUBE or ROLLUP, you'd need multiple UNION ALL queries â€” one per combination.</p>
+      <h3>GROUP BY CUBE</h3>
+      <p>Computes ALL possible subtotals for all combinations of the grouped attributes. For <code>CUBE(month, state)</code> this produces: (month, state), (month, All), (All, state), (All, All) â€” 4 combinations = 2Â² = 2<sup>n</sup>.</p>
+      <p>NULL values in the result represent "All" for that dimension.</p>
+      <h3>GROUP BY ROLLUP</h3>
+      <p>Computes subtotals along ONE PATH through the lattice â€” following the order of the attributes listed. <code>ROLLUP(A, B, C)</code> produces: (A,B,C), (A,B), (A), () [grand total]. Order matters â€” it drops the last attribute first.</p>
+      <div class="compare-grid">
+        <div class="compare-card"><div class="compare-card-head a">CUBE</div><div class="compare-card-body"><ul><li>Computes the ENTIRE lattice</li><li>All 2<sup>n</sup> combinations</li><li>n=2: gives 4 subtotal sets</li><li>More comprehensive</li></ul></div></div>
+        <div class="compare-card"><div class="compare-card-head b">ROLLUP</div><div class="compare-card-body"><ul><li>Computes ONE PATH through lattice</li><li>Order of GROUP BY matters</li><li>Drops last attribute first</li><li>Fewer rows, less comprehensive</li></ul></div></div>
+      </div>
+    </div>
+
+    <div class="section" id="summary">
+      <div class="section-header"><div class="section-num">â˜…</div><h2>Summary</h2></div>
+      <div class="summary-box">
+        <h3>Lecture 03 â€” Key Takeaways</h3>
+        <ul>
+          <li>Starnet = diagram showing dimensions with hierarchy levels. Required: dimension names, "All" nodes, footprint as complete circle touching all dimensions.</li>
+          <li>Footprint answers a specific query â€” must touch one node per dimension (unused = "All").</li>
+          <li>Kimball's 4 steps: (1) Identify process, (2) Determine grain, (3) Choose dimensions, (4) Identify measures.</li>
+          <li>Data cube = multi-dimensional structure pre-computing aggregations for fast queries.</li>
+          <li>Cuboid = subset of the cube (a specific GROUP BY combination).</li>
+          <li>No hierarchies: cuboids = 2<sup>n</sup>. With hierarchies: âˆ(L<sub>i</sub>+1).</li>
+          <li>CUBE = entire lattice (all combinations). ROLLUP = one path (drops rightmost first).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section" id="checklist">
+      <div class="section-header"><div class="section-num">âœ“</div><h2>Revision Checklist</h2></div>
+      <ul class="checklist">
+        <li><div class="check-box"></div>I can draw a starnet for a given set of business queries</li>
+        <li><div class="check-box"></div>I know the 3 required components of a starnet (dimension names, All nodes, levels)</li>
+        <li><div class="check-box"></div>I know the 3 common starnet errors to avoid</li>
+        <li><div class="check-box"></div>I can draw a correct footprint for a specific query</li>
+        <li><div class="check-box"></div>I can apply Kimball's 4 steps to design a data warehouse from a scenario</li>
+        <li><div class="check-box"></div>I can classify measures as Derived, Additive, Semi-Additive, or Non-Additive</li>
+        <li><div class="check-box"></div>I understand what a data cube is and how cells are read (Jan, *, Phone, 45)</li>
+        <li><div class="check-box"></div>I can calculate the number of cuboids for n dimensions (with and without hierarchies)</div></li>
+        <li><div class="check-box"></div>I know the difference between GROUP BY CUBE and GROUP BY ROLLUP</li>
+      </ul>
+    </div>
+
+    <div class="section" id="questions">
+      <div class="section-header"><div class="section-num">?</div><h2>Exam-Style Practice Questions</h2></div>
+      <div class="quiz">
+        <div class="quiz-item"><p><strong>A supermarket manager wants to analyse ice cream sales. The business queries are: (1) Which brand had highest sales in Claremont in 2025? (2) Total ice cream sales in Perth in Q4 2025? (3) Which supermarket sold most units in WA in December 2025? Draw a starnet and identify the dimensions and measures.</strong></p><p class="hint">Hint: Dimensions: Brand, Location (Suburbâ†’Cityâ†’State), Date (Monthâ†’Quarterâ†’Year), Supermarket. Measure: units sold / sales.</p></div>
+        <div class="quiz-item"><p><strong>A data cube has 3 dimensions with no hierarchies: Product, Month, State. How many cuboids are in the lattice? List them all.</strong></p><p class="hint">Hint: 2Â³ = 8 cuboids: All; Product; Month; State; Product+Month; Product+State; Month+State; Product+Month+State.</p></div>
+        <div class="quiz-item"><p><strong>A data cube has 2 dimensions: Date (Day, Month, Quarter, Year = 4 levels) and Location (City, State, Country = 3 levels). How many cuboids are in the lattice?</strong></p><p class="hint">Hint: (4+1) Ã— (3+1) = 5 Ã— 4 = 20 cuboids.</p></div>
+        <div class="quiz-item"><p><strong>Explain the difference between GROUP BY CUBE and GROUP BY ROLLUP. When would you use each?</strong></p><p class="hint">Hint: CUBE = all possible subtotal combinations (entire lattice). ROLLUP = one hierarchical path, drops last attribute first. ROLLUP used for hierarchical summaries; CUBE used for full cross-dimensional analysis.</p></div>
+        <div class="quiz-item"><p><strong>A student claims that "inventory level" is an additive fact because you can add the inventory of different products together. Is this claim fully correct? Explain.</strong></p><p class="hint">Hint: Semi-additive. You CAN add across products (total inventory). You CANNOT add across time (Monday inventory + Tuesday inventory â‰  meaningful total â€” it double-counts).</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<a class="scroll-top" href="#">â†‘</a>
+<script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/notes.js"></script>
+</body>
+</html>
+
+

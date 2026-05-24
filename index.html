@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CITS3401 / CITS5504 â€” Data Warehousing Study Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="eyebrow">CITS3401 / CITS5504 Â· University of Western Australia</div>
+  <h1>Data Warehousing<br><span>Study Notes</span></h1>
+  <p class="hero-desc">Complete, exam-focused notes for all 6 lectures. Built from lecture slides and live class transcripts, written in plain English so you can explain the material to anyone.</p>
+  <div class="hero-meta">
+    <span>6 Lectures</span>
+    <span>Slides + Transcripts</span>
+    <span>Exam-Ready</span>
+    <span>2026 Semester</span>
+  </div>
+</div>
+
+<!-- EXAM BANNER -->
+<div class="exam-section">
+  <div class="exam-icon">ðŸŽ¯</div>
+  <div class="exam-text">
+    <h3>Final Exam Structure â€” Know This</h3>
+    <p>The final exam has <strong>5 questions</strong>, all based on a single scenario. <strong>Q1 &amp; Q2:</strong> Data Warehouse (40 marks) Â· <strong>Q3:</strong> Metadata + Association Rule Mining (20 marks) Â· <strong>Q4 &amp; Q5:</strong> Graph Database (40 marks). Closed book â€” you may bring <strong>one double-sided A4 page</strong>.</p>
+  </div>
+</div>
+
+<!-- LECTURE CARDS -->
+<div class="grid-section">
+  <div class="grid-label">All Lectures</div>
+  <div class="cards">
+
+    <a class="card accent-lecture-1" href="lecture01.html">
+      <div class="card-week">Week 1 Â· Lecture 01</div>
+      <div class="card-title">Introduction to Data Warehousing</div>
+      <div class="card-desc">The foundation: what a data warehouse is, how it differs from relational databases, and why OLTP and OLAP must be kept separate.</div>
+      <div class="card-topics">
+        <span class="topic-tag">OLTP vs OLAP</span>
+        <span class="topic-tag">4 DW Properties</span>
+        <span class="topic-tag">3-Tier Architecture</span>
+        <span class="topic-tag">ETL Intro</span>
+      </div>
+      <div class="card-arrow">â†’</div>
+    </a>
+
+    <a class="card accent-lecture-2" href="lecture02.html">
+      <div class="card-week">Week 2 Â· Lecture 02</div>
+      <div class="card-title">DW Modelling &amp; OLAP</div>
+      <div class="card-desc">Fact tables, dimension tables, the three schemas (Star, Snowflake, Galaxy), and the core OLAP operations you must master for the exam.</div>
+      <div class="card-topics">
+        <span class="topic-tag">Star Schema</span>
+        <span class="topic-tag">Snowflake Schema</span>
+        <span class="topic-tag">Roll Up / Drill Down</span>
+        <span class="topic-tag">Slice &amp; Dice</span>
+      </div>
+      <div class="card-arrow">â†’</div>
+    </a>
+
+    <a class="card accent-lecture-3" href="lecture03.html">
+      <div class="card-week">Week 3 Â· Lecture 03</div>
+      <div class="card-title">Data Cube Technologies</div>
+      <div class="card-desc">The Starnet model, Kimball's 4-step design methodology, data cubes, cuboid lattices, and GROUP BY CUBE/ROLLUP in SQL.</div>
+      <div class="card-topics">
+        <span class="topic-tag">Starnet + Footprints</span>
+        <span class="topic-tag">Kimball's 4 Steps</span>
+        <span class="topic-tag">Cuboid Lattice</span>
+        <span class="topic-tag">CUBE / ROLLUP SQL</span>
+      </div>
+      <div class="card-arrow">â†’</div>
+    </a>
+
+    <a class="card accent-lecture-4" href="lecture04.html">
+      <div class="card-week">Week 4 Â· Lecture 04</div>
+      <div class="card-title">Practical Dimensional Modelling</div>
+      <div class="card-desc">Real-world design concerns: date dimensions, surrogate keys, slowly changing dimensions (SCD Types 1/2/3), junk dimensions, and transactional vs. snapshot facts.</div>
+      <div class="card-topics">
+        <span class="topic-tag">SCD Type 1/2/3</span>
+        <span class="topic-tag">Surrogate Keys</span>
+        <span class="topic-tag">Dimension Roles</span>
+        <span class="topic-tag">Snapshot Facts</span>
+      </div>
+      <div class="card-arrow">â†’</div>
+    </a>
+
+    <a class="card accent-lecture-5" href="lecture05.html">
+      <div class="card-week">Week 5 Â· Lecture 05</div>
+      <div class="card-title">Pattern &amp; Association Rule Mining</div>
+      <div class="card-desc">Frequent itemsets, closed patterns, max-patterns, the Apriori algorithm, and association rule mining with support, confidence, and lift.</div>
+      <div class="card-topics">
+        <span class="topic-tag">Support / Confidence</span>
+        <span class="topic-tag">Lift</span>
+        <span class="topic-tag">Apriori Algorithm</span>
+        <span class="topic-tag">Closed / Max Patterns</span>
+      </div>
+      <div class="card-arrow">â†’</div>
+    </a>
+
+    <a class="card accent-lecture-6" href="Lecture06.html">
+      <div class="card-week">Week 6 Â· Lecture 06</div>
+      <div class="card-title">Metadata &amp; Data Marts</div>
+      <div class="card-desc">What metadata is, its 7 kinds, 3 categories, the metadata repository, data lakes, data marts, Inmon vs. Kimball, and implementing a data mart.</div>
+      <div class="card-topics">
+        <span class="topic-tag">7 Kinds of Metadata</span>
+        <span class="topic-tag">Business/Tech/Ops</span>
+        <span class="topic-tag">Inmon vs Kimball</span>
+        <span class="topic-tag">Data Mart Types</span>
+      </div>
+      <div class="card-arrow">â†’</div>
+    </a>
+
+  </div>
+</div>
+
+<footer>
+  <span>CITS3401 / CITS5504 Â· Data Warehousing Â· UWA 2026</span>
+  <span class="footer-mono">Slides + Live Transcripts â†’ Study Notes</span>
+</footer>
+
+<script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/notes.js"></script>
+</body>
+</html>
+
+
+
+

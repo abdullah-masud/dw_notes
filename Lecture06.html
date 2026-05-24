@@ -1,0 +1,1336 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CITS3401 â€“ Lecture 6: Metadata & Data Marts | Study Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+<style>
+  :root {
+    --ink: #1a1208;
+    --paper: #faf7f2;
+    --cream: #f0ead8;
+    --gold: #b8860b;
+    --gold-light: #d4a820;
+    --rust: #8b3a1a;
+    --teal: #1a5f6a;
+    --teal-light: #2a7f8e;
+    --muted: #6b6050;
+    --border: #d4c9a8;
+    --highlight: #fff3cd;
+    --highlight-red: #fde8e0;
+    --highlight-green: #e0f0e8;
+    --highlight-blue: #e0eaf8;
+    --sidebar-w: 260px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.75;
+  }
+
+  /* â”€â”€ SIDEBAR NAV â”€â”€ */
+  .sidebar {
+    position: fixed; top: 0; left: 0;
+    width: var(--sidebar-w); height: 100vh;
+    background: var(--ink);
+    color: #e8dfc8;
+    overflow-y: auto;
+    z-index: 100;
+    display: flex; flex-direction: column;
+    padding: 0 0 40px 0;
+  }
+  .sidebar-brand {
+    padding: 28px 22px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    letter-spacing: .05em;
+    color: var(--gold-light);
+    text-transform: uppercase;
+  }
+  .sidebar-brand strong { display: block; font-size: 18px; color: #fff; margin-bottom: 2px; }
+  .nav-section { padding: 18px 22px 4px; font-size: 10px; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+  .nav-link {
+    display: block; padding: 7px 22px;
+    color: rgba(232,223,200,0.75); font-size: 13.5px;
+    text-decoration: none; line-height: 1.4;
+    transition: all .15s;
+  }
+  .nav-link:hover { color: #fff; background: rgba(255,255,255,0.06); padding-left: 28px; }
+  .nav-link.active { color: var(--gold-light); border-left: 2px solid var(--gold-light); padding-left: 20px; }
+
+  /* â”€â”€ MAIN CONTENT â”€â”€ */
+  .main {
+    margin-left: var(--sidebar-w);
+    min-height: 100vh;
+  }
+
+  /* â”€â”€ HERO â”€â”€ */
+  .hero {
+    background: var(--ink);
+    color: #fff;
+    padding: 60px 64px 50px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -60px; right: -40px;
+    width: 340px; height: 340px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(184,134,11,0.25) 0%, transparent 70%);
+  }
+  .hero-eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-light); margin-bottom: 14px; }
+  .hero h1 { font-family: 'Playfair Display', serif; font-size: 42px; line-height: 1.15; margin-bottom: 14px; }
+  .hero-sub { color: rgba(255,255,255,0.55); font-size: 15px; max-width: 560px; }
+  .exam-banner {
+    margin-top: 28px;
+    display: inline-flex; align-items: center; gap: 10px;
+    background: rgba(184,134,11,0.2); border: 1px solid var(--gold);
+    border-radius: 6px; padding: 10px 18px;
+    font-size: 13.5px; color: var(--gold-light);
+  }
+
+  /* â”€â”€ CONTENT AREA â”€â”€ */
+  .content { padding: 52px 64px; max-width: 900px; }
+
+  /* â”€â”€ SECTIONS â”€â”€ */
+  .section { margin-bottom: 64px; }
+  .section-header {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 30px; padding-bottom: 14px;
+    border-bottom: 2px solid var(--border);
+  }
+  .section-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px; font-weight: 900;
+    color: var(--border); line-height: 1;
+    min-width: 44px;
+  }
+  .section-header h2 { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--ink); }
+
+  h3 { font-family: 'Playfair Display', serif; font-size: 20px; margin: 32px 0 12px; color: var(--teal); }
+  h4 { font-size: 16px; font-weight: 600; margin: 22px 0 8px; color: var(--ink); }
+  p { margin-bottom: 14px; }
+
+  /* â”€â”€ CALLOUT BOXES â”€â”€ */
+  .callout {
+    border-radius: 8px; padding: 18px 22px; margin: 22px 0;
+    border-left: 4px solid;
+  }
+  .callout.definition { background: var(--highlight-blue); border-color: var(--teal); }
+  .callout.exam { background: var(--highlight); border-color: var(--gold); }
+  .callout.warning { background: var(--highlight-red); border-color: var(--rust); }
+  .callout.tip { background: var(--highlight-green); border-color: #2a7a4a; }
+  .callout-label {
+    font-size: 10px; letter-spacing: .15em; text-transform: uppercase;
+    font-weight: 600; margin-bottom: 6px;
+  }
+  .callout.definition .callout-label { color: var(--teal); }
+  .callout.exam .callout-label { color: var(--gold); }
+  .callout.warning .callout-label { color: var(--rust); }
+  .callout.tip .callout-label { color: #2a7a4a; }
+  .callout p { margin: 0; font-size: 15.5px; }
+
+  /* â”€â”€ TABLES â”€â”€ */
+  .table-wrap { overflow-x: auto; margin: 22px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  th {
+    background: var(--ink); color: var(--gold-light);
+    padding: 10px 14px; text-align: left;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .04em;
+    font-weight: 600;
+  }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--cream); }
+
+  /* â”€â”€ LISTS â”€â”€ */
+  ul, ol { padding-left: 22px; margin-bottom: 14px; }
+  li { margin-bottom: 6px; }
+  ul.clean { list-style: none; padding-left: 0; }
+  ul.clean li { padding-left: 20px; position: relative; }
+  ul.clean li::before { content: 'â†’'; position: absolute; left: 0; color: var(--gold); font-size: 13px; top: 2px; }
+
+  /* â”€â”€ CODE / MONO â”€â”€ */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; background: var(--cream);
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 2px 6px; color: var(--rust);
+  }
+  pre {
+    background: #1a1208; color: #e8dfc8;
+    border-radius: 8px; padding: 20px 24px;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    line-height: 1.6; overflow-x: auto; margin: 18px 0;
+  }
+  pre .comment { color: #8a7a5a; }
+  pre .kw { color: var(--gold-light); }
+  pre .str { color: #8fc888; }
+
+  /* â”€â”€ COMPARISON CARDS â”€â”€ */
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 22px 0; }
+  .compare-card {
+    border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden;
+  }
+  .compare-card-head {
+    padding: 12px 18px;
+    font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700;
+  }
+  .compare-card-head.inmon { background: var(--teal); color: #fff; }
+  .compare-card-head.kimball { background: var(--rust); color: #fff; }
+  .compare-card-head.dep { background: var(--teal); color: #fff; }
+  .compare-card-head.indep { background: #6b5030; color: #fff; }
+  .compare-card-body { padding: 14px 18px; }
+  .compare-card-body ul { margin: 0; }
+
+  /* â”€â”€ TYPE CARDS â”€â”€ */
+  .type-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+  .type-card {
+    border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+  }
+  .type-card-head { padding: 14px 16px; font-weight: 700; font-size: 15px; }
+  .type-card-head.biz { background: #e8f4f8; border-bottom: 2px solid var(--teal); color: var(--teal); }
+  .type-card-head.tech { background: #f4e8f4; border-bottom: 2px solid #7a3a7a; color: #7a3a7a; }
+  .type-card-head.ops { background: #f8f0e8; border-bottom: 2px solid var(--rust); color: var(--rust); }
+  .type-card-body { padding: 12px 16px; font-size: 14px; }
+  .type-card-body ul { padding-left: 16px; }
+  .type-card-body li { margin-bottom: 4px; }
+
+  /* â”€â”€ STEPS â”€â”€ */
+  .steps { margin: 18px 0; }
+  .step {
+    display: flex; gap: 18px; align-items: flex-start;
+    margin-bottom: 18px;
+  }
+  .step-num {
+    min-width: 36px; height: 36px;
+    background: var(--ink); color: var(--gold-light);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .step-body { flex: 1; }
+  .step-body strong { display: block; font-size: 15.5px; margin-bottom: 4px; }
+  .step-body p { margin: 0; font-size: 14.5px; color: var(--muted); }
+
+  /* â”€â”€ QUIZ SECTION â”€â”€ */
+  .quiz { counter-reset: quiz; }
+  .quiz-item {
+    background: var(--cream); border: 1px solid var(--border);
+    border-radius: 8px; padding: 18px 22px; margin-bottom: 14px;
+    counter-increment: quiz;
+    position: relative;
+  }
+  .quiz-item::before {
+    content: 'Q' counter(quiz);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+    color: var(--gold); position: absolute; top: 14px; right: 16px;
+  }
+  .quiz-item p { margin: 0; font-size: 15px; }
+  .quiz-item .hint { font-size: 13px; color: var(--muted); margin-top: 8px; font-style: italic; }
+
+  /* â”€â”€ CHECKLIST â”€â”€ */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 0; border-bottom: 1px solid var(--border);
+    font-size: 15px;
+  }
+  .checklist li:last-child { border: none; }
+  .check-box {
+    width: 18px; height: 18px; min-width: 18px;
+    border: 2px solid var(--border); border-radius: 3px;
+    margin-top: 2px;
+  }
+
+  /* â”€â”€ FORMULA BOX â”€â”€ */
+  .formula {
+    background: var(--ink); color: var(--gold-light);
+    border-radius: 8px; padding: 16px 22px; margin: 18px 0;
+    font-family: 'JetBrains Mono', monospace; font-size: 14px; text-align: center;
+  }
+
+  /* â”€â”€ PULL QUOTE â”€â”€ */
+  .pullquote {
+    border-left: 4px solid var(--gold); padding: 14px 22px;
+    margin: 22px 0; font-style: italic; font-size: 18px;
+    color: var(--muted);
+  }
+
+  /* â”€â”€ SUMMARY BOX â”€â”€ */
+  .summary-box {
+    background: var(--ink); color: #e8dfc8;
+    border-radius: 12px; padding: 28px 32px; margin: 30px 0;
+  }
+  .summary-box h3 { color: var(--gold-light); margin-top: 0; font-size: 17px; }
+  .summary-box ul { padding-left: 20px; }
+  .summary-box li { margin-bottom: 8px; font-size: 14.5px; }
+
+  /* â”€â”€ TAG BADGES â”€â”€ */
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    letter-spacing: .06em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 4px; margin-right: 6px;
+  }
+  .badge.exam-important { background: var(--gold); color: var(--ink); }
+  .badge.lecturer-said { background: var(--teal); color: #fff; }
+  .badge.exam-trap { background: var(--rust); color: #fff; }
+
+  /* â”€â”€ SCROLL TOP â”€â”€ */
+  .scroll-top {
+    position: fixed; bottom: 28px; right: 28px;
+    width: 44px; height: 44px; background: var(--ink); color: var(--gold-light);
+    border: none; border-radius: 50%; cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    text-decoration: none;
+  }
+
+  /* â”€â”€ DIVIDER â”€â”€ */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+  /* â”€â”€ RESPONSIVE PRINT â”€â”€ */
+  @media print {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .hero { padding: 30px; }
+    .content { padding: 20px; }
+  }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .content { padding: 28px; }
+    .hero { padding: 28px; }
+    .compare-grid { grid-template-columns: 1fr; }
+    .type-cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <strong>CITS3401 / CITS5504</strong>
+    Lecture 6 Study Notes
+  </div>
+
+  <div class="nav-section">Part A â€“ Metadata</div>
+  <a class="nav-link" href="#intro">1. What Is Metadata?</a>
+  <a class="nav-link" href="#examples">2. Metadata Examples</a>
+  <a class="nav-link" href="#dw-metadata">3. Metadata in Data Warehouses</a>
+  <a class="nav-link" href="#seven-kinds">4. The 7 Kinds of Metadata</a>
+  <a class="nav-link" href="#repository">5. Metadata Repository</a>
+  <a class="nav-link" href="#categories">6. The 3 Categories</a>
+  <a class="nav-link" href="#roles">7. Roles of Metadata</a>
+  <a class="nav-link" href="#challenges">8. Management Challenges</a>
+
+  <div class="nav-section">Part B â€“ Data Lake &amp; Mart</div>
+  <a class="nav-link" href="#datalake">9. Data Lake</a>
+  <a class="nav-link" href="#datamart">10. What Is a Data Mart?</a>
+  <a class="nav-link" href="#types">11. Types of Data Mart</a>
+  <a class="nav-link" href="#inmon-kimball">12. Inmon vs. Kimball</a>
+  <a class="nav-link" href="#implementing">13. Implementing a Data Mart</a>
+  <a class="nav-link" href="#adv">14. Advantages &amp; Disadvantages</a>
+  <a class="nav-link" href="#comparison">15. DW vs. Data Mart</a>
+
+  <div class="nav-section">Revision</div>
+  <a class="nav-link" href="#summary">Quick Summary</a>
+  <a class="nav-link" href="#checklist">Revision Checklist</a>
+  <a class="nav-link" href="#questions">Exam Questions</a>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">CITS3401 / CITS5504 Â· Data Warehousing</div>
+    <h1>Lecture 6: Metadata &amp;<br>Data Marts</h1>
+    <p class="hero-sub">Complete exam-focused study notes combining slides + live lecture transcript. Every concept explained in plain English with examples.</p>
+    <div class="exam-banner">
+      âš ï¸ &nbsp;<strong>Exam note from lecturer:</strong> Metadata &amp; association rules together = 20 marks in final exam (Question 3)
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+         PART A: METADATA
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+
+    <div style="padding: 10px 0 6px; font-family:'Playfair Display',serif; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);">Part A â€” Metadata</div>
+
+    <!-- 1. WHAT IS METADATA? -->
+    <div class="section" id="intro">
+      <div class="section-header">
+        <div class="section-num">01</div>
+        <h2>What Is Metadata?</h2>
+      </div>
+
+      <div class="callout definition">
+        <div class="callout-label">ðŸ“– Key Definition â€” Memorise This</div>
+        <p><strong>Metadata = data about data.</strong> It describes, organises, and explains data â€” but it is NOT the data itself. It tells you what the data is, where it is, and how to use it.</p>
+      </div>
+
+      <p>Think of it this way: if a book is the <em>data</em>, then its title, author name, ISBN, table of contents, and index are its <em>metadata</em>. You can find and understand the book without reading every word â€” the metadata tells you what's inside.</p>
+
+      <div class="callout tip">
+        <div class="callout-label">ðŸ’¡ Lecturer's Analogy (From Transcript)</div>
+        <p>"The dataset dictionary we provided for your project <em>is</em> metadata â€” it tells you what each column means, the data type, and the values. You already used metadata!"</p>
+      </div>
+
+      <h3>Three things metadata does:</h3>
+      <ul class="clean">
+        <li><strong>Leads us to detail</strong> â€” describes the data precisely</li>
+        <li><strong>Helps organise &amp; find data</strong> â€” acts like a search index</li>
+        <li><strong>Helps understand data</strong> â€” explains meaning without opening the data itself</li>
+      </ul>
+
+      <h3>Metadata and the Data Warehouse</h3>
+      <p>The lecturer repeatedly stressed this triple role of metadata in a DW â€” likely exam-worthy:</p>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Role</th><th>What it means</th><th>Simple example</th></tr>
+          <tr><td><strong>Road-map</strong></td><td>Tells you where everything is inside the warehouse</td><td>Like aisle signs in a supermarket</td></tr>
+          <tr><td><strong>Defines warehouse objects</strong></td><td>Describes every table, column, data type, relationship</td><td>CREATE TABLE definition in SQL</td></tr>
+          <tr><td><strong>Directory / locator</strong></td><td>Points you to the exact content you need</td><td>Book index pointing to a page</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2. EXAMPLES -->
+    <div class="section" id="examples">
+      <div class="section-header">
+        <div class="section-num">02</div>
+        <h2>Metadata Examples</h2>
+      </div>
+
+      <p>The lecturer walked through four concrete examples. Understanding these helps you answer "identify the metadata" style exam questions.</p>
+
+      <div class="table-wrap">
+        <table>
+          <tr><th>Context</th><th>Data (the actual content)</th><th>Metadata (about the data)</th></tr>
+          <tr>
+            <td>ðŸ“· Photo</td>
+            <td>The image pixels themselves</td>
+            <td>Date/time taken, filename, camera settings (ISO, aperture), GPS location</td>
+          </tr>
+          <tr>
+            <td>ðŸ“š Book</td>
+            <td>The words/content inside</td>
+            <td>Title, author name, publisher, copyright, table of contents, index, page numbers</td>
+          </tr>
+          <tr>
+            <td>ðŸ—„ï¸ Database Table</td>
+            <td>The rows of data stored</td>
+            <td>Table name, column names, data types, constraints (PK/FK), relationships</td>
+          </tr>
+          <tr>
+            <td>ðŸŒ Webpage / Blog</td>
+            <td>The article text itself</td>
+            <td>Title, author ID, published time, category, tags, URL</td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>SQL as Metadata â€” A Key Example</h3>
+      <p>The lecturer highlighted this SQL statement as having <strong>5 types of metadata</strong> in a single query:</p>
+      <pre><span class="kw">CREATE TABLE</span> customer (         <span class="comment">-- "customer" = TABLE NAME (metadata)</span>
+  customerid   INTEGER <span class="kw">PRIMARY KEY</span>,  <span class="comment">-- Column name + type + constraint</span>
+  customeraltid VARCHAR(10),             <span class="comment">-- Column name + data type</span>
+  customername  VARCHAR(50),             <span class="comment">-- Column name + data type</span>
+  gender        VARCHAR(2),              <span class="comment">-- Column name + data type</span>
+  storeid       INTEGER,
+  <span class="kw">FOREIGN KEY</span> (storeid) <span class="kw">REFERENCES</span> stores(storeid)  <span class="comment">-- Table relationship</span>
+);</pre>
+
+      <div class="callout exam">
+        <div class="callout-label">ðŸŽ¯ Exam Trap â€” Watch Out!</div>
+        <p>Notice: the SQL above creates the table structure but puts NO data in it. That entire statement is just metadata. <strong>Data = the actual rows. Metadata = the table definition.</strong> Don't confuse them.</p>
+      </div>
+
+      <h3>Metadata in a Relational Database</h3>
+      <p>Relational databases store metadata in a structure called the <strong>data dictionary</strong> or <strong>system catalog</strong>. It holds: table names, column names, data types, constraints, and relationships. This is queried automatically by the DBMS engine.</p>
+    </div>
+
+    <!-- 3. DW METADATA -->
+    <div class="section" id="dw-metadata">
+      <div class="section-header">
+        <div class="section-num">03</div>
+        <h2>Metadata in Data Warehouse Architecture</h2>
+      </div>
+
+      <p>The DW has three layers (top = users/reports, middle = OLAP server, bottom = data storage). <strong>The metadata repository sits at the bottom layer</strong>, separate from but connected to everything.</p>
+
+      <div class="callout exam">
+        <div class="callout-label">ðŸŽ¯ Exam Question â€” Why at the Bottom?</div>
+        <p>The lecturer was asked this directly and gave a clear answer: "Metadata is <em>fundamental</em> for everything in the data warehouse. Before you load data, you need to know the tables, the column meanings, where data comes from. Everything depends on it." The metadata repository must exist before data can be loaded.</p>
+      </div>
+
+      <h3>What metadata describes for Tables vs. Columns</h3>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <div class="compare-card-head inmon">Tables</div>
+          <div class="compare-card-body">
+            <ul>
+              <li><strong>Physical Name</strong> â€” actual DB name (e.g., <code>dim_customer</code>)</li>
+              <li><strong>Logical Name</strong> â€” business-friendly label (e.g., "Customer Info Dimension")</li>
+              <li><strong>Type</strong> â€” Fact or Dimension table</li>
+              <li><strong>Role</strong> â€” Legacy, OLTP, or Stage</li>
+              <li><strong>DBMS</strong> â€” which software (Oracle, SQL Server, etc.)</li>
+              <li><strong>Definition / Description</strong> â€” what it contains</li>
+              <li><strong>Location</strong> â€” which server/database</li>
+            </ul>
+          </div>
+        </div>
+        <div class="compare-card">
+          <div class="compare-card-head indep">Columns</div>
+          <div class="compare-card-body">
+            <ul>
+              <li><strong>Physical &amp; Logical Name</strong></li>
+              <li><strong>Order in Table</strong> â€” position for INSERT operations</li>
+              <li><strong>Datatype</strong> â€” VARCHAR, INTEGER, DATEâ€¦</li>
+              <li><strong>Length</strong> â€” max characters/bytes</li>
+              <li><strong>Default Value</strong> â€” if nothing is entered</li>
+              <li><strong>Nullable/Required</strong> â€” can it be NULL?</li>
+              <li><strong>Edit Rules</strong> â€” e.g., gender must be 'M' or 'F'</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-label">ðŸ’¡ Physical vs. Logical Names</div>
+        <p><strong>Physical name</strong> = what the database system uses (e.g., <code>dim_customer</code>). <strong>Logical name</strong> = what business users call it (e.g., "Customer Information Table"). The lecturer said: "You can't say to a manager 'go look at the dim_customer table'. You explain it in plain English."</p>
+      </div>
+    </div>
+
+    <!-- 4. SEVEN KINDS -->
+    <div class="section" id="seven-kinds">
+      <div class="section-header">
+        <div class="section-num">04</div>
+        <h2>The 7 Kinds of DW Metadata</h2>
+      </div>
+
+      <span class="badge exam-important">Exam Important</span>
+      <p>The lecturer introduced all 7 in the transcript, explaining each with an example. Memorise all 7 names and what question each answers.</p>
+
+      <div class="table-wrap">
+        <table>
+          <tr><th>#</th><th>Type</th><th>What question it answers</th><th>Simple explanation</th></tr>
+          <tr>
+            <td>1</td>
+            <td><strong>Data Definition &amp; Mapping Metadata</strong></td>
+            <td>"What does this column mean?" &amp; "Where did this data come from?"</td>
+            <td>Lists every column in every table (DDS, ODS, NDS) with meanings, sample values, and source info. Uses table keys and column keys instead of names. Also called <em>data lineage metadata</em>.</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><strong>Data Structure Metadata</strong></td>
+            <td>"How is the data organised?"</td>
+            <td>Describes the structure of tables: column names, data types, relationships. Think of CREATE TABLE statements and ER diagrams.</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><strong>Source System Metadata</strong></td>
+            <td>"What does the original data source look like?"</td>
+            <td>Describes the data structure of external/internal source databases <em>before</em> ETL. Different from mapping â€” mapping says "where it came from"; this says "what the source looks like".</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><strong>ETL Process Metadata</strong></td>
+            <td>"What happened during loading?"</td>
+            <td>Like an ETL log file. Records: what transformations were applied, where data came from, how data was cleaned, and how it was loaded. The lecturer called it "the log file".</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><strong>Data Quality Metadata</strong></td>
+            <td>"Is the data good?"</td>
+            <td>Describes data quality rules (e.g., no missing values in PK columns), risk levels, and actions taken. Like ETL rules: do we allow NULLs? How do we handle them?</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td><strong>Audit Metadata</strong></td>
+            <td>"What happened in the warehouse, and when?"</td>
+            <td>A record of all processes and activities: who accessed what, when was data updated, what queries ran. Like an access log.</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td><strong>Usage Metadata</strong></td>
+            <td>"How is the warehouse being used?"</td>
+            <td>Event log of application usage: who uses which reports, when, how often. Helps optimise performance and understand business needs.</td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>Deep Dive: Data Definition vs. Mapping Metadata</h3>
+      <p>These two are closely related but different. The slides and lecturer clarified:</p>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <div class="compare-card-head inmon">Data Definition Metadata</div>
+          <div class="compare-card-body">
+            <p>Describes every column in the DW â€” its meaning, description, and sample values. Uses numeric <strong>Table Keys</strong> and <strong>Column Keys</strong> (not actual names) to reference tables and columns.</p>
+            <p><em>Example: "Table Key 56, Column Key 12 = income in Australian dollars after tax"</em></p>
+          </div>
+        </div>
+        <div class="compare-card">
+          <div class="compare-card-head dep">Mapping (Lineage) Metadata</div>
+          <div class="compare-card-body">
+            <p>Tracks where each piece of data in the DW came from in the source system. The <strong>data lineage</strong> trail. Critical for error tracing â€” if a value is wrong, you can trace it back to the original source and identify whether the error is in the source or ETL.</p>
+            <p><em>Example: "DW column X came from source DB column Y, loaded at time Z"</em></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-label">ðŸ’¡ Why Do We Need Mapping Metadata? (Lecturer's Example)</div>
+        <p>"If something is wrong â€” if one data point is not correct â€” we need to go back and check: is it wrong in the original database, or was there a mistake in the ETL? Without mapping metadata, this takes a very long time. With it, you can trace immediately where it came from and how it was processed."</p>
+      </div>
+    </div>
+
+    <!-- 5. METADATA REPOSITORY -->
+    <div class="section" id="repository">
+      <div class="section-header">
+        <div class="section-num">05</div>
+        <h2>Metadata Repository</h2>
+      </div>
+
+      <div class="callout definition">
+        <div class="callout-label">ðŸ“– Definition</div>
+        <p>A <strong>Metadata Repository</strong> is a central catalogue where all metadata is collectively stored, organised, and accessed. It's like a library database that doesn't contain the books, but stores everything <em>about</em> them.</p>
+      </div>
+
+      <p>Each Data Warehouse has <strong>one or more</strong> metadata repositories. The lecturer used the analogy of a library's database system â€” it stores book titles, authors, ISBN numbers, locations, etc., but not the actual book content.</p>
+
+      <h3>What a Metadata Repository Holds:</h3>
+      <ul class="clean">
+        <li><strong>Structure definition</strong> â€” what tables exist (fact tables, dimension tables, schemas)</li>
+        <li><strong>Table structures</strong> â€” columns, data types, constraints, relationships</li>
+        <li><strong>Data flow description</strong> â€” the ETL pipeline: extract â†’ transform â†’ load</li>
+        <li><strong>Outcomes of processes</strong> â€” ETL logs (success/failure records)</li>
+        <li><strong>Who accesses what &amp; when</strong> â€” security and audit information</li>
+        <li><strong>Aggregation info</strong> â€” pre-calculated summaries like monthly sales totals</li>
+      </ul>
+
+      <div class="callout exam">
+        <div class="callout-label">ðŸŽ¯ Exam Short-Answer Setup</div>
+        <p>Know the difference: a metadata repository stores <em>metadata</em> (descriptions, structures, lineage), while the data warehouse stores the actual <em>data</em> (the rows and facts). They are separate but connected.</p>
+      </div>
+    </div>
+
+    <!-- 6. THREE CATEGORIES -->
+    <div class="section" id="categories">
+      <div class="section-header">
+        <div class="section-num">06</div>
+        <h2>The 3 Categories of Metadata</h2>
+      </div>
+
+      <span class="badge exam-important">Exam Important</span>
+      <p>The slides categorise all metadata into three types. Know each type, its characteristics, who uses it, and examples.</p>
+
+      <div class="type-cards">
+        <div class="type-card">
+          <div class="type-card-head biz">1. Business Metadata</div>
+          <div class="type-card-body">
+            <p><strong>For:</strong> Business people â€” managers, analysts, decision-makers</p>
+            <p><strong>Uses logical (plain English) names</strong>, not physical database names</p>
+            <ul>
+              <li>Data ownership information</li>
+              <li>Business definitions of fields</li>
+              <li>Changing policies &amp; rules</li>
+              <li>Report/query definitions</li>
+              <li>High-level field descriptions</li>
+              <li>Info about cubes, aggregates, Data Marts</li>
+            </ul>
+            <p><em>Example: "Revenue = total income minus costs minus GST"</em></p>
+          </div>
+        </div>
+        <div class="type-card">
+          <div class="type-card-head tech">2. Technical Metadata</div>
+          <div class="type-card-body">
+            <p><strong>For:</strong> DBAs, ETL developers, data engineers</p>
+            <p><strong>Uses physical details</strong> â€” actual table names, types, storage locations</p>
+            <ul>
+              <li>Primary &amp; foreign keys</li>
+              <li>Indices</li>
+              <li>Data types &amp; lengths</li>
+              <li>Physical storage location (server, database)</li>
+              <li>Data mapping &amp; transformation info</li>
+              <li>System functions &amp; query optimisation</li>
+            </ul>
+            <p><em>Example: "Column gender is VARCHAR(2), stores 'M' or 'F'"</em></p>
+          </div>
+        </div>
+        <div class="type-card">
+          <div class="type-card-head ops">3. Operational Metadata</div>
+          <div class="type-card-body">
+            <p><strong>For:</strong> Data ops teams, system admins, ETL operators</p>
+            <p><strong>Connects the repository to what's actually happening</strong></p>
+            <ul>
+              <li><strong>Currency of data</strong>: is it active, archived, or purged?</li>
+              <li><strong>Lineage of data</strong>: history of migrations &amp; transformations</li>
+              <li>Source &amp; target locations</li>
+              <li>File sizes, server info</li>
+              <li>Referenced at row level (not just table level)</li>
+            </ul>
+            <p><em>Example: "Row 4521 was loaded on 12/03/2024 from CRM_DB after null-filling transformation"</em></p>
+          </div>
+        </div>
+      </div>
+
+      <h3>Comparison Table: All Three Categories</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Category</th><th>Focus</th><th>Primary Users</th><th>Examples</th></tr>
+          <tr>
+            <td><strong>Business</strong></td>
+            <td>Meaning &amp; business rules</td>
+            <td>Managers, analysts, report authors, cube creators</td>
+            <td>Data ownership, subject area names, query definitions, field descriptions</td>
+          </tr>
+          <tr>
+            <td><strong>Technical</strong></td>
+            <td>Structure &amp; physical details</td>
+            <td>DBAs, ETL developers, data engineers</td>
+            <td>PK/FK attributes, indices, data types, data lengths, physical table names</td>
+          </tr>
+          <tr>
+            <td><strong>Operational</strong></td>
+            <td>State, history &amp; lineage</td>
+            <td>Data ops teams, system admins, ETL operators, reliability engineers</td>
+            <td>Source/target location, file size, data's license, hosting server</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="callout exam">
+        <div class="callout-label">ðŸŽ¯ Common Exam Trap â€” Operational vs. Technical</div>
+        <p>These two are easily confused. Remember: <strong>Technical metadata</strong> describes the <em>structure</em> of data (what type is it, how is it stored?). <strong>Operational metadata</strong> describes the <em>state and history</em> of data (when was it created? was it transformed? is it still active?). Operational is about <em>what the data is doing</em>; Technical is about <em>what the data looks like</em>.</p>
+      </div>
+    </div>
+
+    <!-- 7. ROLES -->
+    <div class="section" id="roles">
+      <div class="section-header">
+        <div class="section-num">07</div>
+        <h2>Roles of Metadata in a Data Warehouse</h2>
+      </div>
+
+      <h3>Application 1: Finding Data</h3>
+      <p>Data warehouses can hold terabytes of data. Searching the data directly would be impossibly slow. Metadata acts as a small, fast index â€” you query the metadata (column names, table names) to find the right data, then retrieve only that.</p>
+
+      <h3>Application 2: Using Data</h3>
+      <p>Metadata lets you understand the structure, terminology, and rules of the DW without looking at individual rows. A manager can understand what "monthly_revenue" means from its business metadata without running a query.</p>
+
+      <h3>Functional Roles (from Slide 31)</h3>
+      <ul class="clean">
+        <li>Helps <strong>decision support systems locate warehouse contents</strong></li>
+        <li>Supports <strong>data mapping during ETL</strong> â€” transforming data from operational to DW environment</li>
+        <li>Used by <strong>query tools</strong> â€” your SQL queries use table/column metadata</li>
+        <li>Used in <strong>extraction, cleansing, reporting, and transformation tools</strong></li>
+        <li>Plays a role in <strong>loading functions</strong> â€” knowing which table/column to load into</li>
+      </ul>
+    </div>
+
+    <!-- 8. CHALLENGES -->
+    <div class="section" id="challenges">
+      <div class="section-header">
+        <div class="section-num">08</div>
+        <h2>Challenges of Metadata Management</h2>
+      </div>
+
+      <div class="callout warning">
+        <div class="callout-label">âš ï¸ Lecturer Said â€” Not in Final Exam</div>
+        <p>"The challenge part â€” it's not in the final exam because it's the business part." You should still understand the concepts, but don't memorise them as deeply.</p>
+      </div>
+
+      <h3>How Metadata is Managed (3 Ways)</h3>
+      <ul class="clean">
+        <li><strong>People (Individual):</strong> Staff must be trained to understand and use metadata. If no one reads it, it's useless.</li>
+        <li><strong>Process:</strong> Metadata management must be built into the DW lifecycle. E.g., when you create a new table, you document it immediately.</li>
+        <li><strong>Tools:</strong> Metadata managers/repositories, ETL tools, BI reporting tools (like Power BI), data modelling tools.</li>
+      </ul>
+
+      <h3>The 3 Core Challenges</h3>
+      <div class="callout definition">
+        <div class="callout-label">Challenge 1 â€” Disparate Information Sources</div>
+        <p>In large organisations, metadata comes from many systems. "Customer ID" in one department might be "Customer Number" in another. Ensuring consistent, unified metadata across all sources is very difficult.</p>
+      </div>
+      <div class="callout definition">
+        <div class="callout-label">Challenge 2 â€” Enforcing Business Rules</div>
+        <p>Metadata must follow business rules (e.g., is price inclusive or exclusive of GST?). Without rules, metadata becomes inconsistent and untrustworthy. Different departments may have different standards.</p>
+      </div>
+      <div class="callout definition">
+        <div class="callout-label">Challenge 3 â€” Effective Communication</div>
+        <p>There are no industry-wide accepted standards for metadata. Within a company, everyone must use the same standard. If metadata is too technical, business users won't use it. If it's out of date, it's dangerous for decision-making.</p>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-label">ðŸ’¡ Lecturer's TV Manual Analogy</div>
+        <p>"The user manual is like metadata â€” it's there, but no one reads it. When something goes wrong, you go to ChatGPT instead of reading the manual. The challenge is getting people to actually use the metadata they already have."</p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+         PART B: DATA LAKE & DATA MART
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+
+    <div style="padding: 10px 0 6px; font-family:'Playfair Display',serif; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);">Part B â€” Data Lake &amp; Data Mart</div>
+
+    <!-- 9. DATA LAKE -->
+    <div class="section" id="datalake">
+      <div class="section-header">
+        <div class="section-num">09</div>
+        <h2>Data Lake</h2>
+      </div>
+
+      <div class="callout definition">
+        <div class="callout-label">ðŸ“– Definition</div>
+        <p>A <strong>Data Lake</strong> is a storage platform that stores <em>any type of data</em> â€” structured, semi-structured, unstructured, and binary â€” at any scale, in its <strong>raw format</strong> with no transformation or indexing required. Data is stored first, analysed later.</p>
+      </div>
+
+      <h3>Key Characteristics:</h3>
+      <ul class="clean">
+        <li><strong>Raw format:</strong> No ETL, no cleaning before storage. Everything goes in as-is.</li>
+        <li><strong>All data types:</strong> Tables, images, videos, text documents â€” anything</li>
+        <li><strong>One central repository:</strong> Everything in one place</li>
+        <li><strong>Flexible analytics:</strong> Supports data science, machine learning, real-time analytics</li>
+      </ul>
+
+      <h3>Data Lake â‰  Data Warehouse</h3>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <div class="compare-card-head inmon">Data Lake</div>
+          <div class="compare-card-body">
+            <ul>
+              <li>Raw, unstructured storage</li>
+              <li>No ETL required upfront</li>
+              <li>Used by data scientists &amp; engineers</li>
+              <li>Flexible â€” supports ML, big data, real-time</li>
+              <li>Storage: e.g., Amazon S3</li>
+            </ul>
+          </div>
+        </div>
+        <div class="compare-card">
+          <div class="compare-card-head indep">Data Warehouse</div>
+          <div class="compare-card-body">
+            <ul>
+              <li>Structured, cleaned, organised tables</li>
+              <li>ETL required before data enters</li>
+              <li>Used by business analysts &amp; managers</li>
+              <li>Optimised for SQL queries &amp; reporting</li>
+              <li>Storage: relational DBMS</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-label">ðŸ’¡ They Complement Each Other â€” Don't Replace!</div>
+        <p>The lecturer was asked "should we use a data lake instead of a data warehouse?" and said: <strong>"No! They play different roles."</strong> The data lake stages raw data from multiple sources; the data warehouse provides the clean, structured data for business reporting. Together they form a complete modern data infrastructure. Some organisations use a <strong>Data Lakehouse</strong> (e.g., Databricks) that combines both.</p>
+      </div>
+    </div>
+
+    <!-- 10. WHAT IS DATA MART -->
+    <div class="section" id="datamart">
+      <div class="section-header">
+        <div class="section-num">10</div>
+        <h2>What Is a Data Mart?</h2>
+      </div>
+
+      <div class="callout definition">
+        <div class="callout-label">ðŸ“– Key Definition â€” Memorise This</div>
+        <p>A <strong>Data Mart</strong> is a <em>subset</em> of a data warehouse, focused on a <strong>specific business line or department</strong> (e.g., Sales, Marketing, Finance). It contains only the data relevant to that area, in a summarised, ready-to-query format.</p>
+      </div>
+
+      <div class="pullquote">"A data mart is a smaller, focused version of a data warehouse â€” built for one department, not the whole enterprise."</div>
+
+      <h3>When Should You Use a Data Mart?</h3>
+      <ul class="clean">
+        <li>You need <strong>access control</strong> â€” only certain users should see certain data</li>
+        <li>A department needs <strong>faster query results</strong> without scanning the entire DW</li>
+        <li>A department needs data on <strong>different hardware/software</strong> platforms</li>
+        <li>Data needs to be <strong>structured differently</strong> to suit specific tools</li>
+      </ul>
+
+      <h3>Key Characteristics of a Data Mart</h3>
+      <ul class="clean">
+        <li><strong>Single subject matter</strong> â€” dedicated to one business function</li>
+        <li><strong>Consolidates &amp; integrates</strong> relevant data from various sources</li>
+        <li><strong>Built using dimensional model</strong> â€” typically uses star schema</li>
+        <li><strong>Supports multidimensional analytics</strong> â€” OLAP-capable</li>
+        <li><strong>Smaller than a DW</strong> â€” usually under 100 GB</li>
+      </ul>
+
+      <h3>Why Use a Data Mart? (Benefits)</h3>
+      <ul class="clean">
+        <li><strong>Faster performance</strong> â€” less data to scan</li>
+        <li><strong>Easier access</strong> â€” only relevant data is present</li>
+        <li><strong>Lower cost</strong> than building a full enterprise DW (from $10,000+)</li>
+        <li><strong>Faster to implement</strong> â€” 3â€“6 months vs. 1+ year for a full DW</li>
+        <li><strong>Agile</strong> â€” smaller, easier to change if requirements shift</li>
+        <li><strong>Granular access control</strong> â€” departments control their own data</li>
+      </ul>
+
+      <h3>DW Architecture with Data Mart (Slide 49)</h3>
+      <p>The data flows: <strong>Source Systems â†’ ETL â†’ Data Warehouse â†’ Data Mart â†’ Business Users</strong>. Data marts sit between the DW and end users, providing a filtered, domain-specific view.</p>
+    </div>
+
+    <!-- 11. TYPES -->
+    <div class="section" id="types">
+      <div class="section-header">
+        <div class="section-num">11</div>
+        <h2>Types of Data Mart</h2>
+      </div>
+
+      <span class="badge exam-important">Exam Important</span>
+      <p>There are three types. Know their definitions, pros, cons, and when to use each.</p>
+
+      <div class="table-wrap">
+        <table>
+          <tr><th>Type</th><th>Definition</th><th>Pros</th><th>Cons</th></tr>
+          <tr>
+            <td><strong>Dependent</strong></td>
+            <td>Created by drawing data directly from a central enterprise data warehouse. The DW is the source.</td>
+            <td>
+              â€¢ Data integrity ensured<br>
+              â€¢ No historical depth limit<br>
+              â€¢ Better data analysis quality<br>
+              â€¢ Centralised (no information islands)
+            </td>
+            <td>
+              â€¢ Takes longer to implement<br>
+              â€¢ More expensive
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Independent</strong></td>
+            <td>Created without any central data warehouse. Data is extracted directly from operational or external sources.</td>
+            <td>
+              â€¢ Easier &amp; faster to implement<br>
+              â€¢ More flexible
+            </td>
+            <td>
+              â€¢ Creates "information islands" â€” data silos<br>
+              â€¢ Not an enterprise solution<br>
+              â€¢ Gets very costly as more are added<br>
+              â€¢ No historical depth like a true DW
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Hybrid</strong></td>
+            <td>Combines data from both the central DW and from operational/external sources.</td>
+            <td>
+              â€¢ Good for ad-hoc integration (e.g., new product line)<br>
+              â€¢ Works with multiple DB environments<br>
+              â€¢ Fast implementation turnaround<br>
+              â€¢ Least data cleansing effort
+            </td>
+            <td>
+              â€¢ Complexity of managing multiple sources
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="callout exam">
+        <div class="callout-label">ðŸŽ¯ Exam Trap â€” Independent Data Mart is NOT Ideal</div>
+        <p>The slide explicitly states: "Implementation of independent data marts is <strong>antithetical</strong> (opposite) to the motivation for building a data warehouse." Why? Because we want a <em>consistent, centralised</em> enterprise data store. Independent marts fragment data into unconnected silos. <strong>Dependent marts are generally considered the better solution.</strong></p>
+      </div>
+
+      <div class="callout definition">
+        <div class="callout-label">ðŸ“– "Information Island" â€” Know This Term</div>
+        <p>When multiple independent data marts grow without coordination, they become <strong>information islands</strong> â€” isolated pockets of data that can't be combined or compared across the organisation. This undermines the whole purpose of a data warehouse.</p>
+      </div>
+    </div>
+
+    <!-- 12. INMON VS KIMBALL -->
+    <div class="section" id="inmon-kimball">
+      <div class="section-header">
+        <div class="section-num">12</div>
+        <h2>Inmon vs. Kimball: Two Approaches to DW Design</h2>
+      </div>
+
+      <span class="badge exam-important">Exam Important</span>
+      <p>Bill Inmon and Ralph Kimball are the two founding fathers of data warehousing. They have fundamentally different philosophies. You must know both and be able to compare them.</p>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <div class="compare-card-head inmon">Bill Inmon â€” Top-Down</div>
+          <div class="compare-card-body">
+            <h4>Philosophy:</h4>
+            <p>Build the enterprise data warehouse first, then create data marts from it. The DW is the <em>single source of truth</em>.</p>
+            <h4>Process:</h4>
+            <ol style="padding-left:20px;">
+              <li>Build centralised corporate data model</li>
+              <li>Data Warehouse is the physical representation of this model</li>
+              <li>Data Marts are created from the DW when needed</li>
+            </ol>
+            <h4>Key point:</h4>
+            <p>DW is <strong>the source</strong> of all data marts. Data flows: Sources â†’ DW â†’ Data Marts.</p>
+            <h4>Data integration:</h4>
+            <p>Ensures <strong>data integrity &amp; consistency</strong> across the entire organisation because everything comes from one place.</p>
+          </div>
+        </div>
+        <div class="compare-card">
+          <div class="compare-card-head kimball">Ralph Kimball â€” Bottom-Up</div>
+          <div class="compare-card-body">
+            <h4>Philosophy:</h4>
+            <p>Build data marts first around key business processes. The DW is simply the <em>collection of all data marts</em>.</p>
+            <h4>Process:</h4>
+            <ol style="padding-left:20px;">
+              <li>Identify most important business processes</li>
+              <li>Create Data Marts for each subject area</li>
+              <li>The "DW" = the union of all data marts</li>
+            </ol>
+            <h4>Key point:</h4>
+            <p><em>"The data warehouse is nothing more than the union of all Data Marts."</em> â€” Kimball's famous quote.</p>
+            <h4>Data integration:</h4>
+            <p>Each data mart is built around business needs. Aggregated together they form the DW. Faster to deliver initial value.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>Summary Comparison</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Aspect</th><th>Inmon (Top-Down)</th><th>Kimball (Bottom-Up)</th></tr>
+          <tr><td>Starting point</td><td>Enterprise data model &amp; DW first</td><td>Individual data marts first</td></tr>
+          <tr><td>Data Warehouse role</td><td>Central source of truth; feeds Data Marts</td><td>Combination / union of all Data Marts</td></tr>
+          <tr><td>Data Marts role</td><td>Derived FROM the DW</td><td>Building blocks OF the DW</td></tr>
+          <tr><td>Data flow</td><td>Sources â†’ DW â†’ Data Marts</td><td>Sources â†’ Data Marts â†’ (together = DW)</td></tr>
+          <tr><td>Integration</td><td>High â€” one central model ensures consistency</td><td>Must carefully align Data Marts to avoid silos</td></tr>
+          <tr><td>Time to first value</td><td>Longer â€” must build DW before data marts</td><td>Faster â€” first data mart delivers value quickly</td></tr>
+        </table>
+      </div>
+
+      <div class="callout exam">
+        <div class="callout-label">ðŸŽ¯ Exam Question Style â€” Scenario Based</div>
+        <p>You may be given a scenario and asked which approach is being used, or to recommend one. Key distinguisher: in <strong>Inmon</strong>, the DW exists before data marts. In <strong>Kimball</strong>, data marts exist first and together they <em>become</em> the DW.</p>
+      </div>
+    </div>
+
+    <!-- 13. IMPLEMENTING -->
+    <div class="section" id="implementing">
+      <div class="section-header">
+        <div class="section-num">13</div>
+        <h2>Implementing a Data Mart</h2>
+      </div>
+
+      <p>The slides give a clear 5-phase process. This is likely to appear as a short-answer question.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Designing</strong>
+            <p>Gather business &amp; technical requirements. Identify data sources. Select the appropriate data subset. Design the logical and physical structure (tables, indexes, star schema).</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Constructing</strong>
+            <p>Implement the physical database from the design. Create tables, indexes, views. No data yet â€” just the structure.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Populating</strong>
+            <p>Map source data to target. Extract from source systems. Clean and transform (ETL). Load into the data mart. Create and store metadata.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Accessing</strong>
+            <p>Query data, create reports and charts. Set up &amp; maintain DB structures. Configure APIs and interfaces for end users.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>Managing</strong>
+            <p>Ongoing user access management. System optimisation &amp; fine-tuning. Adding fresh data continuously. Planning recovery scenarios and ensuring availability.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 14. ADVANTAGES/DISADVANTAGES -->
+    <div class="section" id="adv">
+      <div class="section-header">
+        <div class="section-num">14</div>
+        <h2>Advantages &amp; Disadvantages of Data Marts</h2>
+      </div>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <div class="compare-card-head inmon">âœ… Advantages</div>
+          <div class="compare-card-body">
+            <ul>
+              <li>Efficient, fast access to specific data</li>
+              <li>Inexpensive DW alternative for smaller needs</li>
+              <li>Improves overall DW performance (offloads queries)</li>
+              <li>Departments own and control their own data</li>
+              <li>Agile â€” quick to build and modify</li>
+              <li>Granular access control per department</li>
+            </ul>
+          </div>
+        </div>
+        <div class="compare-card">
+          <div class="compare-card-head indep">âŒ Disadvantages</div>
+          <div class="compare-card-body">
+            <ul>
+              <li>Cannot provide company-wide analysis</li>
+              <li>Too many unrelated marts become unmanageable</li>
+              <li>Data is limited to the specific function only</li>
+              <li>Designed for small needs â€” scaling reduces performance</li>
+              <li>Risk of becoming information islands if not coordinated</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <h3>Real-World Use Cases</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Use Case</th><th>Data Mart or DW?</th><th>Why?</th></tr>
+          <tr>
+            <td>Marketing analysis &amp; reporting for the marketing unit</td>
+            <td><strong>Data Mart</strong></td>
+            <td>Performed by a specialised business unit; doesn't need enterprise-wide data</td>
+          </tr>
+          <tr>
+            <td>Financial analyst creating financial reports</td>
+            <td><strong>Data Mart</strong> (finance)</td>
+            <td>Focused on finance domain; subset of DW</td>
+          </tr>
+          <tr>
+            <td>Company planning an expansion, needing data from sales, marketing, supply chain</td>
+            <td><strong>Data Warehouse</strong></td>
+            <td>Requires cross-organisational data from many sources</td>
+          </tr>
+          <tr>
+            <td>Insurance company reporting profits â€” claims, sales, demographics, investments</td>
+            <td><strong>Data Warehouse</strong></td>
+            <td>Many departments needed; centralised integration required</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 15. DW vs DATA MART COMPARISON -->
+    <div class="section" id="comparison">
+      <div class="section-header">
+        <div class="section-num">15</div>
+        <h2>Full Comparison: Data Mart vs. Data Warehouse</h2>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <tr><th>Dimension</th><th>Data Mart</th><th>Data Warehouse</th></tr>
+          <tr><td><strong>Focus</strong></td><td>Single subject or department</td><td>Enterprise-wide, multiple subjects</td></tr>
+          <tr><td><strong>Data Sources</strong></td><td>Few sources, one line of business</td><td>Many internal &amp; external sources</td></tr>
+          <tr><td><strong>Size</strong></td><td>&lt; 100 GB</td><td>100 GB minimum; often terabytes</td></tr>
+          <tr><td><strong>Schema</strong></td><td>No strong preference (star/snowflake)</td><td>Modern DWs are mostly denormalised for read performance</td></tr>
+          <tr><td><strong>Decision Type</strong></td><td>Tactical (operational) decisions for a business line</td><td>Strategic decisions affecting the whole enterprise</td></tr>
+          <tr><td><strong>Cost</strong></td><td>From ~$10,000</td><td>Often &gt;$100,000; cloud options dramatically cheaper</td></tr>
+          <tr><td><strong>Setup Time</strong></td><td>3â€“6 months</td><td>At least 1 year (on-premise); cloud is faster</td></tr>
+          <tr><td><strong>Data Held</strong></td><td>Typically summarised data</td><td>Raw data, metadata, and summary data</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+         ASSOCIATION RULES RECAP (from transcript)
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <div class="section" id="assoc">
+      <div class="section-header">
+        <div class="section-num">ðŸ”‘</div>
+        <h2>Association Rules Quick Recap (from Transcript)</h2>
+      </div>
+
+      <div class="callout warning">
+        <div class="callout-label">âš ï¸ Exam Confirmed â€” Question 3 covers Metadata AND Association Rules</div>
+        <p>The lecturer confirmed in the transcript: "Question 3 = Metadata and association rule mining, 20 marks." So make sure you've studied both!</p>
+      </div>
+
+      <p>The lecture started with a review of association rules (from Lecture 5). Key formulas:</p>
+
+      <div class="formula">Support(X â†’ Y) = |transactions containing X and Y| / |total transactions|</div>
+      <div class="formula">Confidence(X â†’ Y) = Support(X âˆª Y) / Support(X)</div>
+      <div class="formula">Lift(X â†’ Y) = Confidence(X â†’ Y) / Support(Y) &nbsp; [or equivalently: Support(X âˆª Y) / (Support(X) Ã— Support(Y))]</div>
+
+      <h3>Interpreting Lift:</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Lift Value</th><th>Meaning</th></tr>
+          <tr><td>= 1</td><td>X and Y are independent â€” buying X does not affect buying Y</td></tr>
+          <tr><td>&gt; 1</td><td>Positive correlation â€” buying X makes buying Y more likely</td></tr>
+          <tr><td>&lt; 1</td><td>Negative correlation â€” buying X makes buying Y less likely</td></tr>
+        </table>
+      </div>
+
+      <div class="callout exam">
+        <div class="callout-label">ðŸŽ¯ Key Exam Point â€” Why We Need Lift</div>
+        <p>Confidence alone can be misleading. If B is already very popular (high support), the confidence of "A â†’ B" will be high regardless of whether A actually predicts B. Lift corrects for this by considering the base rate of B. Always evaluate confidence <em>alongside</em> lift.</p>
+      </div>
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+         SUMMARY
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <div class="section" id="summary">
+      <div class="section-header">
+        <div class="section-num">â˜…</div>
+        <h2>Quick Summary of the Entire Lecture</h2>
+      </div>
+
+      <div class="summary-box">
+        <h3>Part A â€” Metadata</h3>
+        <ul>
+          <li>Metadata = data about data. It describes, organises, and helps find data without being the data itself.</li>
+          <li>In a DW, metadata serves as the road-map, object definer, and directory.</li>
+          <li>The metadata repository sits at the bottom tier of the DW architecture and is fundamental to everything.</li>
+          <li>There are 7 kinds of DW metadata: definition &amp; mapping, structure, source system, ETL process, data quality, audit, and usage.</li>
+          <li>Three categories: Business (for managers, in plain language), Technical (for DBAs/ETL devs, physical details), Operational (state, history, lineage).</li>
+          <li>Challenges: disparate sources, enforcing business rules, effective communication. âš ï¸ Not in final exam.</li>
+        </ul>
+
+        <h3 style="margin-top:20px;">Part B â€” Data Lake &amp; Data Mart</h3>
+        <ul>
+          <li>Data Lake = raw, unstructured storage platform. NOT a replacement for a DW â€” a complement.</li>
+          <li>Data Mart = a subject-specific subset of a DW for one department.</li>
+          <li>Three types: Dependent (best â€” from DW), Independent (creates silos â€” not ideal), Hybrid (mix).</li>
+          <li>Inmon = Top-Down: build DW first, then derive data marts from it.</li>
+          <li>Kimball = Bottom-Up: build data marts first; the DW IS the union of all data marts.</li>
+          <li>Implementing a data mart: Design â†’ Construct â†’ Populate â†’ Access â†’ Manage.</li>
+          <li>Data Mart: &lt;100GB, &lt;$10K, 3â€“6 months, tactical decisions. DW: terabytes, &gt;$100K, 1+ year, strategic decisions.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+         CHECKLIST
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <div class="section" id="checklist">
+      <div class="section-header">
+        <div class="section-num">âœ“</div>
+        <h2>Revision Checklist</h2>
+      </div>
+
+      <ul class="checklist">
+        <li><div class="check-box"></div>I can define metadata in plain English and give 3 real-world examples</li>
+        <li><div class="check-box"></div>I can explain the 3 roles of metadata in a Data Warehouse (road-map, defines objects, directory)</li>
+        <li><div class="check-box"></div>I can name and describe all 7 kinds of DW metadata</li>
+        <li><div class="check-box"></div>I can explain why metadata sits at the bottom tier of the DW architecture</li>
+        <li><div class="check-box"></div>I can explain the physical vs. logical name distinction</li>
+        <li><div class="check-box"></div>I can describe all 3 metadata categories (Business, Technical, Operational) with examples and users</li>
+        <li><div class="check-box"></div>I can distinguish Operational from Technical metadata</li>
+        <li><div class="check-box"></div>I can explain what a metadata repository is and what it stores</li>
+        <li><div class="check-box"></div>I can explain data lineage (mapping metadata) and why it matters for error tracing</li>
+        <li><div class="check-box"></div>I can define a Data Lake and explain how it differs from a DW</li>
+        <li><div class="check-box"></div>I can define a Data Mart and explain when to use one</li>
+        <li><div class="check-box"></div>I can describe all 3 types of Data Mart (Dependent, Independent, Hybrid) with pros and cons</li>
+        <li><div class="check-box"></div>I understand why Independent Data Marts create information islands</li>
+        <li><div class="check-box"></div>I can compare Inmon (top-down) and Kimball (bottom-up) and give the key difference</li>
+        <li><div class="check-box"></div>I can recall Kimball's quote about what a DW is</li>
+        <li><div class="check-box"></div>I can list the 5 steps to implement a Data Mart</li>
+        <li><div class="check-box"></div>I can compare a Data Mart vs. Data Warehouse across: focus, size, cost, setup time, data held</li>
+        <li><div class="check-box"></div>I can calculate support, confidence, and lift for association rules</li>
+        <li><div class="check-box"></div>I understand why lift is needed (confidence alone is misleading)</li>
+      </ul>
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+         EXAM QUESTIONS
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <div class="section" id="questions">
+      <div class="section-header">
+        <div class="section-num">?</div>
+        <h2>10 Exam-Style Practice Questions</h2>
+      </div>
+
+      <div class="quiz">
+
+        <div class="quiz-item">
+          <p><strong>Define metadata and explain its three roles in a data warehouse.</strong> Use an example to illustrate each role.</p>
+          <p class="hint">Hint: Road-map, defines warehouse objects, and acts as a directory. Reference the book or supermarket analogies.</p>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>A data warehouse contains tables called <code>dim_customer</code>, <code>fact_sales</code>. Identify which elements are metadata and which are data.</strong> Justify your answer.</p>
+          <p class="hint">Hint: Table names, column names, data types, PK/FK constraints = metadata. The actual row values = data.</p>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>List and briefly describe the 7 kinds of metadata found in a data warehouse.</strong></p>
+          <p class="hint">Hint: Data definition &amp; mapping, data structure, source system, ETL process, data quality, audit, usage. Each answers a different "question" about the data.</p>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>A data warehouse manager notices that a sales figure loaded into the DW is incorrect. Explain how mapping (lineage) metadata helps resolve this issue.</strong></p>
+          <p class="hint">Hint: Trace back to source system â†’ identify if error is in source or ETL â†’ fix at root cause without guessing.</p>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>Compare Business Metadata and Technical Metadata. Who uses each, and what types of information does each contain? Give two examples of each.</strong></p>
+          <p class="hint">Hint: Business = managers, plain English, field descriptions. Technical = DBAs, physical names, PK/FK/data types.</p>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>Explain the difference between a Dependent and an Independent Data Mart. Which is generally considered better and why?</strong></p>
+          <p class="hint">Hint: Dependent = draws from central DW (centralised, data integrity ensured). Independent = no DW (faster but creates information islands). Dependent is better.</p>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>Compare the Inmon and Kimball approaches to data warehouse design. A company builds its Sales and HR data marts first and combines them into a "data warehouse". Which approach is this? Explain.</strong></p>
+          <p class="hint">Hint: Kimball â€” bottom-up. The DW is the union of data marts. Inmon would build the central DW first.</p>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>An organisation is deciding between a Data Lake and a Data Warehouse for storing its data. A business analyst says "We should replace the data warehouse with a data lake." Is this correct? Explain.</strong></p>
+          <p class="hint">Hint: No â€” they serve different purposes and complement each other. Data Lake = raw, flexible storage; DW = structured, clean, business reporting.</p>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>A supermarket dataset has 1000 transactions. Item A appears in 300, Item B appears in 700, and both A &amp; B appear together in 150 transactions. Calculate: (a) Support(A â†’ B), (b) Confidence(A â†’ B), (c) Lift(A â†’ B). Interpret the lift value.</strong></p>
+          <p class="hint">Hint: Support = 150/1000 = 15%. Confidence = 150/300 = 50%. Lift = 0.50 / 0.70 â‰ˆ 0.71 â†’ negative correlation (buying A makes B less likely than by chance).</p>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>[Scenario] A retail company's Finance department needs fast access to financial data but does not need access to HR or logistics data. They want their own controlled environment. What data architecture would you recommend â€” a Data Mart or a Data Warehouse? Justify your recommendation with at least 3 specific reasons.</strong></p>
+          <p class="hint">Hint: Data Mart â€” single subject (finance), access control, faster/cheaper, department-specific tools, no need for enterprise-wide scope.</p>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- end .content -->
+</div><!-- end .main -->
+
+<a class="scroll-top" href="#" title="Back to top">â†‘</a>
+
+<script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/notes.js"></script>
+</body>
+</html>
+
+
+
