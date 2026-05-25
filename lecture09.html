@@ -1,0 +1,1987 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 09 – Introduction to Cypher | CITS3401</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        :root {
+            --ink: #1a1208;
+            --paper: #faf7f2;
+            --cream: #f0ead8;
+            --gold: #b8860b;
+            --gold-light: #d4a820;
+            --teal: #1a5f6a;
+            --rust: #8b3a1a;
+            --muted: #6b6050;
+            --border: #d4c9a8;
+            --sidebar-w: 260px;
+            --accent: #2a5fa8
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Source Serif 4', Georgia, serif;
+            background: var(--paper);
+            color: var(--ink);
+            font-size: 17px;
+            line-height: 1.75
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-w);
+            height: 100vh;
+            background: var(--ink);
+            color: #e8dfc8;
+            overflow-y: auto;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            padding: 0 0 40px 0
+        }
+
+        .sidebar-brand {
+            padding: 20px 22px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, .1)
+        }
+
+        .sidebar-brand a {
+            text-decoration: none;
+            color: rgba(255, 255, 255, .4);
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px
+        }
+
+        .sidebar-brand a:hover {
+            color: var(--gold-light)
+        }
+
+        .sidebar-brand strong {
+            display: block;
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            color: #fff
+        }
+
+        .sidebar-brand span {
+            display: block;
+            font-size: 12px;
+            color: var(--accent)
+        }
+
+        .nav-section {
+            padding: 16px 22px 4px;
+            font-size: 10px;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .3)
+        }
+
+        .nav-link {
+            display: block;
+            padding: 7px 22px;
+            color: rgba(232, 223, 200, .7);
+            font-size: 13.5px;
+            text-decoration: none;
+            line-height: 1.4;
+            transition: all .15s
+        }
+
+        .nav-link:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, .06);
+            padding-left: 28px
+        }
+
+        .nav-link.active {
+            color: var(--accent);
+            border-left: 2px solid var(--accent);
+            padding-left: 20px
+        }
+
+        .main {
+            margin-left: var(--sidebar-w);
+            min-height: 100vh
+        }
+
+        .hero {
+            background: var(--ink);
+            color: #fff;
+            padding: 52px 64px 44px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -40px;
+            width: 340px;
+            height: 340px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(42, 95, 168, .25) 0%, transparent 70%)
+        }
+
+        .hero-eyebrow {
+            font-size: 11px;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 12px;
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            line-height: 1.15;
+            margin-bottom: 12px
+        }
+
+        .hero-sub {
+            color: rgba(255, 255, 255, .5);
+            font-size: 15px;
+            max-width: 560px
+        }
+
+        .hero-nav {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap
+        }
+
+        .hero-nav a {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all .15s
+        }
+
+        .hero-nav a.home {
+            background: rgba(255, 255, 255, .07);
+            color: rgba(255, 255, 255, .6);
+            border: 1px solid rgba(255, 255, 255, .12)
+        }
+
+        .hero-nav a.prev {
+            background: rgba(255, 255, 255, .07);
+            color: rgba(255, 255, 255, .6)
+        }
+
+        .hero-nav a:hover {
+            opacity: .85
+        }
+
+        .content {
+            padding: 48px 64px;
+            max-width: 900px
+        }
+
+        .section {
+            margin-bottom: 60px
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border)
+        }
+
+        .section-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 30px;
+            font-weight: 900;
+            color: var(--border);
+            line-height: 1;
+            min-width: 40px
+        }
+
+        .section-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: var(--ink)
+        }
+
+        h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 19px;
+            margin: 28px 0 10px;
+            color: var(--teal)
+        }
+
+        h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 18px 0 7px
+        }
+
+        p {
+            margin-bottom: 13px
+        }
+
+        .callout {
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 20px 0;
+            border-left: 4px solid
+        }
+
+        .callout.definition {
+            background: #e0eaf8;
+            border-color: var(--teal)
+        }
+
+        .callout.exam {
+            background: #fff3cd;
+            border-color: var(--gold)
+        }
+
+        .callout.warning {
+            background: #fde8e0;
+            border-color: var(--rust)
+        }
+
+        .callout.tip {
+            background: #e0f0e8;
+            border-color: #2a7a4a
+        }
+
+        .callout.lecturer {
+            background: #f4e8f8;
+            border-color: #7a3a7a
+        }
+
+        .callout-label {
+            font-size: 10px;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 5px
+        }
+
+        .callout.definition .callout-label {
+            color: var(--teal)
+        }
+
+        .callout.exam .callout-label {
+            color: #8a6a00
+        }
+
+        .callout.warning .callout-label {
+            color: var(--rust)
+        }
+
+        .callout.tip .callout-label {
+            color: #2a7a4a
+        }
+
+        .callout.lecturer .callout-label {
+            color: #7a3a7a
+        }
+
+        .callout p {
+            margin: 0;
+            font-size: 15.5px
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            margin: 20px 0
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14.5px
+        }
+
+        th {
+            background: var(--ink);
+            color: var(--gold-light);
+            padding: 9px 13px;
+            text-align: left;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600
+        }
+
+        td {
+            padding: 9px 13px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top
+        }
+
+        tr:nth-child(even) td {
+            background: var(--cream)
+        }
+
+        ul,
+        ol {
+            padding-left: 22px;
+            margin-bottom: 13px
+        }
+
+        li {
+            margin-bottom: 6px
+        }
+
+        ul.clean {
+            list-style: none;
+            padding-left: 0
+        }
+
+        ul.clean li {
+            padding-left: 20px;
+            position: relative
+        }
+
+        ul.clean li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+            font-size: 13px;
+            top: 2px
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 6px;
+            color: var(--rust)
+        }
+
+        /* CODE BLOCKS */
+        .code-block {
+            background: #0d1117;
+            color: #e6edf3;
+            border-radius: 10px;
+            padding: 0;
+            margin: 16px 0;
+            overflow: hidden;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13.5px;
+            line-height: 1.7
+        }
+
+        .code-label {
+            background: #161b22;
+            color: #7d8590;
+            font-size: 10px;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            padding: 7px 18px;
+            border-bottom: 1px solid #30363d
+        }
+
+        .code-body {
+            padding: 16px 20px
+        }
+
+        .cy-kw {
+            color: #ff7b72
+        }
+
+        /* CREATE MATCH RETURN WHERE SET DELETE MERGE REMOVE WITH */
+        .cy-label {
+            color: #79c0ff
+        }
+
+        /* :Person :Movie :Company */
+        .cy-prop {
+            color: #ffa657
+        }
+
+        /* name age title */
+        .cy-val {
+            color: #a5d6ff
+        }
+
+        /* "Jennifer" "Wall Street" */
+        .cy-var {
+            color: #d2a8ff
+        }
+
+        /* p c m r */
+        .cy-rel {
+            color: #56d364
+        }
+
+        /* [:WORKS_FOR] [:ACTED_IN] */
+        .cy-comment {
+            color: #8b949e;
+            font-style: italic
+        }
+
+        .cy-dir {
+            color: #f8e3ad
+        }
+
+        /* -> <- -- */
+        .code-english {
+            background: #e0f0e8;
+            border-left: 4px solid #2a7a4a;
+            border-radius: 0 6px 6px 0;
+            padding: 10px 16px;
+            font-size: 14px;
+            color: #27500A;
+            margin-top: 8px
+        }
+
+        .code-english strong {
+            color: #1a5020
+        }
+
+        /* syntax anatomy */
+        .syntax-parts {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 12px 0
+        }
+
+        .syn-part {
+            border-radius: 6px;
+            padding: 7px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            font-weight: 600;
+            flex-shrink: 0
+        }
+
+        .syn-part.round {
+            background: #1a2744;
+            color: #79c0ff;
+            border: 1px solid #30363d
+        }
+
+        .syn-part.square {
+            background: #1a3422;
+            color: #56d364;
+            border: 1px solid #30363d
+        }
+
+        .syn-part.curly {
+            background: #3a2a10;
+            color: #ffa657;
+            border: 1px solid #30363d
+        }
+
+        .syn-part.kw {
+            background: #2d1a1a;
+            color: #ff7b72;
+            border: 1px solid #30363d
+        }
+
+        .syn-part.var {
+            background: #2a1a3a;
+            color: #d2a8ff;
+            border: 1px solid #30363d
+        }
+
+        .syn-part.arrow {
+            background: #2a2400;
+            color: #f8e3ad;
+            border: 1px solid #30363d
+        }
+
+        .syn-desc {
+            font-size: 13px;
+            color: var(--muted);
+            margin-left: 4px;
+            align-self: center;
+            flex-shrink: 0
+        }
+
+        /* summary and quiz */
+        .summary-box {
+            background: var(--ink);
+            color: #e8dfc8;
+            border-radius: 12px;
+            padding: 26px 30px;
+            margin: 28px 0
+        }
+
+        .summary-box h3 {
+            color: var(--gold-light);
+            margin-top: 0;
+            font-size: 16px
+        }
+
+        .summary-box ul {
+            padding-left: 20px
+        }
+
+        .summary-box li {
+            margin-bottom: 7px;
+            font-size: 14.5px
+        }
+
+        .quiz {
+            counter-reset: quiz
+        }
+
+        .quiz-item {
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            counter-increment: quiz;
+            position: relative
+        }
+
+        .quiz-item::before {
+            content: 'Q' counter(quiz);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gold);
+            position: absolute;
+            top: 12px;
+            right: 14px
+        }
+
+        .quiz-item p {
+            margin: 0;
+            font-size: 15px
+        }
+
+        .quiz-item .hint {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 7px;
+            font-style: italic
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0
+        }
+
+        .checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 15px
+        }
+
+        .checklist li:last-child {
+            border: none
+        }
+
+        .check-box {
+            width: 17px;
+            height: 17px;
+            min-width: 17px;
+            border: 2px solid var(--border);
+            border-radius: 3px;
+            margin-top: 3px
+        }
+
+        /* compare grid */
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin: 20px 0
+        }
+
+        .compare-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden
+        }
+
+        .compare-card-head {
+            padding: 11px 16px;
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700
+        }
+
+        .compare-card-head.a {
+            background: var(--teal);
+            color: #fff
+        }
+
+        .compare-card-head.b {
+            background: var(--rust);
+            color: #fff
+        }
+
+        .compare-card-head.c {
+            background: #2a5fa8;
+            color: #fff
+        }
+
+        .compare-card-body {
+            padding: 13px 16px;
+            font-size: 14px
+        }
+
+        .compare-card-body ul {
+            margin: 0
+        }
+
+        /* crud tab */
+        .crud-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 16px 0
+        }
+
+        .crud-card {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border)
+        }
+
+        .crud-head {
+            padding: 9px 14px;
+            font-weight: 700;
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: .05em
+        }
+
+        .crud-head.c {
+            background: #1a3422;
+            color: #56d364
+        }
+
+        .crud-head.r {
+            background: #0d1e35;
+            color: #79c0ff
+        }
+
+        .crud-head.u {
+            background: #2d2000;
+            color: #ffa657
+        }
+
+        .crud-head.d {
+            background: #2d1a1a;
+            color: #ff7b72
+        }
+
+        .crud-body {
+            padding: 10px 14px;
+            background: var(--cream);
+            font-size: 13.5px
+        }
+
+        .scroll-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 42px;
+            height: 42px;
+            background: var(--ink);
+            color: var(--gold-light);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 17px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .3);
+            text-decoration: none
+        }
+
+        @media(max-width:900px) {
+            .sidebar {
+                display: none
+            }
+
+            .main {
+                margin-left: 0
+            }
+
+            .content,
+            .hero {
+                padding: 28px
+            }
+
+            .compare-grid,
+            .crud-grid {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <a href="index.html">← All Lectures</a>
+            <strong>Lecture 09</strong><span>Intro to Cypher</span>
+        </div>
+        <div class="nav-section">Contents</div>
+        <a class="nav-link" href="#what-cypher">1. What is Cypher?</a>
+        <a class="nav-link" href="#syntax">2. Cypher Syntax Basics</a>
+        <a class="nav-link" href="#create">3. CREATE — Adding Data</a>
+        <a class="nav-link" href="#merge">4. MERGE — Safe Create</a>
+        <a class="nav-link" href="#read">5. MATCH &amp; RETURN — Reading</a>
+        <a class="nav-link" href="#where">6. WHERE — Filtering</a>
+        <a class="nav-link" href="#with">7. WITH — Pipelines</a>
+        <a class="nav-link" href="#update">8. SET &amp; REMOVE — Update</a>
+        <a class="nav-link" href="#delete">9. DELETE &amp; DETACH DELETE</a>
+        <a class="nav-link" href="#load-csv">10. LOAD CSV</a>
+        <a class="nav-link" href="#limitations">11. Cypher Limitations</a>
+        <div class="nav-section">Revision</div>
+        <a class="nav-link" href="#cheatsheet">Cheat Sheet</a>
+        <a class="nav-link" href="#summary">Summary</a>
+        <a class="nav-link" href="#checklist">Checklist</a>
+        <a class="nav-link" href="#questions">Exam Questions</a>
+    </nav>
+
+    <div class="main">
+        <div class="hero">
+            <div class="hero-eyebrow">CITS3401 · Week 9 · Lecture 09</div>
+            <h1>Introduction to Cypher<br>Graph Query Language</h1>
+            <p class="hero-sub">Cypher is Neo4j's query language for graph databases. Learn how to Create, Read, Update,
+                and Delete nodes and relationships — plus filtering, pipelines, and loading CSV data.</p>
+            <div class="hero-nav">
+                <a class="home" href="index.html">🏠 Home</a>
+                <a class="prev" href="lecture07.html">← Lecture 07</a>
+            </div>
+        </div>
+
+        <div class="content">
+
+            <div class="callout exam" style="margin-bottom:32px">
+                <div class="callout-label">🎯 Exam &amp; Project Importance</div>
+                <p>The lecturer stated: <strong>"Cypher query is important in the second project and the final
+                        exam."</strong> You need to be able to read and write basic Cypher queries. Q4 and Q5 in the
+                    final exam are both about graph databases — Cypher will be part of those questions.</p>
+            </div>
+
+            <!-- ─── SECTION 1 ─── -->
+            <div class="section" id="what-cypher">
+                <div class="section-header">
+                    <div class="section-num">01</div>
+                    <h2>What is Cypher?</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 Definition</div>
+                    <p><strong>Cypher</strong> is the query language for Neo4j — the most popular graph database. It is
+                        designed to be easy to read and write, resembling plain English. Instead of selecting from
+                        tables (like SQL), Cypher describes a <em>pattern</em> you want to find in the graph.</p>
+                </div>
+
+                <p>Think of it this way: SQL says "select from table." Cypher says "find me things that look like this
+                    pattern." You describe the nodes and relationships you want, and Neo4j finds them.</p>
+
+                <div class="callout lecturer">
+                    <div class="callout-label">💬 Lecturer's Analogy</div>
+                    <p>"How do you describe a graph? Just use your natural language. How many nodes do we have? How many
+                        relationships? Any properties? Once you can describe it in English, you can write it in Cypher."
+                    </p>
+                </div>
+
+                <h3>Cypher vs SQL — The Big Picture</h3>
+                <div class="compare-grid">
+                    <div class="compare-card">
+                        <div class="compare-card-head a">SQL (Relational DB)</div>
+                        <div class="compare-card-body">
+                            <ul>
+                                <li>SELECT — query data</li>
+                                <li>INSERT — add data</li>
+                                <li>UPDATE — modify data</li>
+                                <li>DELETE — remove rows</li>
+                                <li>DROP — remove whole table</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="compare-card">
+                        <div class="compare-card-head c">Cypher (Neo4j)</div>
+                        <div class="compare-card-body">
+                            <ul>
+                                <li>MATCH + RETURN — query data</li>
+                                <li>CREATE or MERGE — add data</li>
+                                <li>SET — modify properties</li>
+                                <li>DELETE / DETACH DELETE — remove nodes/rels</li>
+                                <li>REMOVE — remove a property</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 Key Difference from SQL</div>
+                    <p>In Cypher there is <strong>no GROUP BY</strong>, no HAVING, no subqueries, no window functions,
+                        and limited aggregation functions (only COUNT, SUM, AVG, MIN, MAX). Cypher is for traversing
+                        relationships — use SQL for complex aggregations.</p>
+                </div>
+            </div>
+
+            <!-- ─── SECTION 2 ─── -->
+            <div class="section" id="syntax">
+                <div class="section-header">
+                    <div class="section-num">02</div>
+                    <h2>Cypher Syntax Basics</h2>
+                </div>
+
+                <p>Before writing queries, you need to understand how nodes and relationships are written in Cypher. It
+                    uses ASCII art — symbols that visually look like a graph.</p>
+
+                <h3>Representing Nodes — Round Brackets ( )</h3>
+                <p>Nodes are always written inside <strong>round brackets</strong>. The general format is:</p>
+
+                <div class="code-block">
+                    <div class="code-label">Node syntax</div>
+                    <div class="code-body"><span class="cy-var">(variable</span><span class="cy-label">:Label</span>
+                        {<span class="cy-prop">property</span>: <span class="cy-val">"value"</span>}<span
+                            class="cy-var">)</span></div>
+                </div>
+
+                <div class="syntax-parts">
+                    <span class="syn-part round">( )</span><span class="syn-desc">= round brackets → this is a
+                        NODE</span>
+                    <span class="syn-part var">p1</span><span class="syn-desc">= variable (optional name you can use
+                        later in the query)</span>
+                    <span class="syn-part round">:Person</span><span class="syn-desc">= label (the type of node, like a
+                        table name)</span>
+                    <span class="syn-part curly">{name:"Siri"}</span><span class="syn-desc">= properties (key-value
+                        pairs, like attributes)</span>
+                </div>
+
+                <h4>Real Examples from the slides:</h4>
+                <div class="code-block">
+                    <div class="code-label">Node examples</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// Bare node — no label, no properties</span>
+                        (<span class="cy-var">n</span>)
+
+                        <span class="cy-comment">// Node with a label only</span>
+                        (<span class="cy-label">:Person</span>)
+
+                        <span class="cy-comment">// Node with label and one property</span>
+                        (<span class="cy-label">:Person</span> {<span class="cy-prop">name</span>: <span
+                            class="cy-val">"Siri"</span>})
+
+                        <span class="cy-comment">// Node with label and multiple properties</span>
+                        (<span class="cy-label">:Person</span> {<span class="cy-prop">name</span>: <span
+                            class="cy-val">"Siri"</span>, <span class="cy-prop">gender</span>: <span
+                            class="cy-val">"F"</span>})
+
+                        <span class="cy-comment">// Node with variable + label + property (most common in
+                            queries)</span>
+                        (<span class="cy-var">p1</span><span class="cy-label">:Person</span> {<span
+                            class="cy-prop">name</span>: <span class="cy-val">"Siri"</span>})
+                    </div>
+                </div>
+
+                <h3>Representing Relationships — Square Brackets [ ]</h3>
+                <p>Relationships are always written inside <strong>square brackets</strong>. Direction is shown using
+                    hyphens and arrows.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Relationship syntax</div>
+                    <div class="code-body"><span class="cy-rel">[variable:LABEL {property: "value"}]</span></div>
+                </div>
+
+                <div class="syntax-parts">
+                    <span class="syn-part square">[ ]</span><span class="syn-desc">= square brackets → this is a
+                        RELATIONSHIP</span>
+                    <span class="syn-part square">:WORKS_FOR</span><span class="syn-desc">= relationship type (name of
+                        the relationship)</span>
+                    <span class="syn-part square">{since: 2018}</span><span class="syn-desc">= relationship properties
+                        (optional)</span>
+                </div>
+
+                <h4>Real Examples:</h4>
+                <div class="code-block">
+                    <div class="code-label">Relationship examples</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// Relationship with no properties</span>
+                        <span class="cy-rel">[:WORKS_FOR]</span>
+
+                        <span class="cy-comment">// Relationship with a property</span>
+                        <span class="cy-rel">[:IS_FRIEND_WITH {since: 2018}]</span>
+
+                        <span class="cy-comment">// Relationship with a variable (so you can reference it later)</span>
+                        <span class="cy-rel">[r:READ]</span>
+                    </div>
+                </div>
+
+                <h3>Connecting Nodes and Relationships — The Arrow</h3>
+                <p>You connect nodes and relationships using hyphens <code>-</code> and a greater-than sign
+                    <code>&gt;</code> to show direction. Direction matters — it changes the meaning entirely.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Full pattern syntax</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// Jennifer works FOR Neo4j (direction: Person → Company)</span>
+                        (<span class="cy-var">p</span><span class="cy-label">:Person</span> {<span
+                            class="cy-prop">name</span>: <span class="cy-val">"Jennifer"</span>})<span
+                            class="cy-dir">-[</span><span class="cy-rel">:WORKS_FOR</span><span
+                            class="cy-dir">]-&gt;</span>(<span class="cy-var">c</span><span
+                            class="cy-label">:Company</span>)
+
+                        <span class="cy-comment">// The movie was DIRECTED BY a person (arrow points towards
+                            movie)</span>
+                        (<span class="cy-label">:Movie</span>)<span class="cy-dir">&lt;-[</span><span
+                            class="cy-rel">:DIRECTED</span><span class="cy-dir">]-</span>(<span
+                            class="cy-var">p</span><span class="cy-label">:Person</span>)
+                    </div>
+                </div>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 Direction Matters — Exam Trap</div>
+                    <p>The lecturer emphasised: <strong>"The direction is very important in Neo4j because it tells the
+                            database which way the relationship follows. If you change the direction, the meaning is
+                            totally different."</strong><br>
+                        <code>(:Person)-[:WORKS_FOR]→(:Company)</code> = Person works for Company<br>
+                        <code>(:Company)-[:WORKS_FOR]→(:Person)</code> = completely wrong meaning
+                    </p>
+                </div>
+
+                <h3>Three Things Inside a Node or Relationship</h3>
+                <div class="table-wrap">
+                    <table>
+                        <tr>
+                            <th>Thing</th>
+                            <th>What it is</th>
+                            <th>Optional?</th>
+                            <th>Example</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Variable</strong></td>
+                            <td>A name you give to reference the node/relationship later in the same query</td>
+                            <td>Yes</td>
+                            <td><code>p</code> in <code>(p:Person)</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Label</strong></td>
+                            <td>The type of the node (like a table name). Must have a colon before it.</td>
+                            <td>Yes</td>
+                            <td><code>:Person</code>, <code>:Movie</code>, <code>:Company</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Property</strong></td>
+                            <td>Key-value attribute inside curly braces. Strings need quotes; numbers do not.</td>
+                            <td>Yes</td>
+                            <td><code>{name: "Siri"}</code>, <code>{age: 28}</code></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ─── SECTION 3 ─── -->
+            <div class="section" id="create">
+                <div class="section-header">
+                    <div class="section-num">03</div>
+                    <h2>CREATE — Adding Data</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 What CREATE does</div>
+                    <p><code>CREATE</code> adds new nodes or relationships to the database. It always creates something
+                        new — even if that node or relationship already exists. (Use MERGE if you want to avoid
+                        duplicates.)</p>
+                </div>
+
+                <h3>Creating a bare node (no label, no properties)</h3>
+                <div class="code-block">
+                    <div class="code-label">CREATE bare node</div>
+                    <div class="code-body"><span class="cy-kw">CREATE</span> (<span class="cy-var">n</span>)</div>
+                </div>
+                <p>This creates one empty node. Neo4j automatically assigns it an internal <code>&lt;id&gt;</code>. If
+                    you delete and recreate it, the <code>&lt;id&gt;</code> will change — so don't rely on it. Use your
+                    own surrogate key.</p>
+
+                <h3>Creating a node with a label and property</h3>
+                <div class="code-block">
+                    <div class="code-label">CREATE node — with label and property</div>
+                    <div class="code-body"><span class="cy-kw">CREATE</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>: <span
+                            class="cy-val">"Siri"</span>})</div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>Create a new Person node with the name
+                        "Siri".</strong><br>
+                    Result: "Created 1 node, set 1 property, added 1 label."</div>
+
+                <h3>Creating multiple nodes at once</h3>
+                <div class="code-block">
+                    <div class="code-label">CREATE multiple nodes</div>
+                    <div class="code-body">
+                        <span class="cy-kw">CREATE</span>
+                        (<span class="cy-var">p1</span><span class="cy-label">:Person</span> {<span
+                            class="cy-prop">name</span>: <span class="cy-val">"Siri"</span>}),
+                        (<span class="cy-var">p2</span><span class="cy-label">:Person</span> {<span
+                            class="cy-prop">name</span>: <span class="cy-val">"Jennifer"</span>}),
+                        (<span class="cy-var">c</span><span class="cy-label">:Company</span> {<span
+                            class="cy-prop">name</span>: <span class="cy-val">"Neo4j"</span>}),
+                        (<span class="cy-var">t</span><span class="cy-label">:Technology</span> {<span
+                            class="cy-prop">type</span>: <span class="cy-val">"Graphs"</span>})
+                    </div>
+                </div>
+                <div class="code-english">✅ Creates 4 nodes in one command. Result: "Created 4 nodes, set 4 properties,
+                    added 4 labels."</div>
+
+                <h3>Creating a relationship between EXISTING nodes</h3>
+                <div class="callout warning">
+                    <div class="callout-label">⚠️ Important Rule</div>
+                    <p>You <strong>cannot create a relationship without nodes</strong>. To create a relationship between
+                        existing nodes, you MUST first use MATCH to find them, then CREATE the relationship.</p>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">CREATE relationship between existing nodes</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>: <span
+                            class="cy-val">"Siri"</span>}),
+                        (<span class="cy-var">b</span><span class="cy-label">:Book</span> {<span
+                            class="cy-prop">name</span>: <span class="cy-val">"Harry Potter"</span>})
+                        <span class="cy-kw">CREATE</span> (<span class="cy-var">p</span>)<span
+                            class="cy-dir">-[</span><span class="cy-rel">r:READ</span><span
+                            class="cy-dir">]-&gt;</span>(<span class="cy-var">b</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p</span>, <span class="cy-var">r</span>,
+                        <span class="cy-var">b</span>
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>Find the Person "Siri" and the Book "Harry
+                        Potter", then create a READ relationship from Siri to the book. Return all three.</strong><br>
+                    Note: <code>RETURN</code> is optional here — the CREATE will work even without it.</div>
+            </div>
+
+            <!-- ─── SECTION 4 ─── -->
+            <div class="section" id="merge">
+                <div class="section-header">
+                    <div class="section-num">04</div>
+                    <h2>MERGE — The Safe Way to Create</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 MERGE = "Create if it doesn't exist, use it if it does"</div>
+                    <p><code>MERGE</code> checks the database first. If the node or relationship already exists → it
+                        does nothing (no duplicate). If it doesn't exist → it creates it. This is safer than CREATE for
+                        avoiding duplicates.</p>
+                </div>
+
+                <div class="callout tip">
+                    <div class="callout-label">💡 Easy Way to Remember</div>
+                    <p><strong>CREATE</strong> = always creates (risk of duplicates)<br>
+                        <strong>MERGE</strong> = creates only if it doesn't already exist (no duplicates)
+                    </p>
+                </div>
+
+                <h3>MERGE matching ALL properties</h3>
+                <div class="code-block">
+                    <div class="code-label">MERGE — won't duplicate if node exists</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// Siri already exists with just name. MERGE won't create again.</span>
+                        <span class="cy-kw">MERGE</span> (<span class="cy-label">:Person</span> {<span
+                            class="cy-prop">name</span>: <span class="cy-val">"Siri"</span>})
+
+                        <span class="cy-comment">// But Siri with gender:"F" doesn't exist yet → MERGE creates a NEW
+                            node</span>
+                        <span class="cy-kw">MERGE</span> (<span class="cy-label">:Person</span> {<span
+                            class="cy-prop">name</span>: <span class="cy-val">"Siri"</span>, <span
+                            class="cy-prop">gender</span>: <span class="cy-val">"F"</span>})
+                    </div>
+                </div>
+                <div class="callout warning">
+                    <div class="callout-label">⚠️ MERGE Matches ALL Properties</div>
+                    <p>MERGE checks ALL properties listed. If you add even one extra property (like gender), it treats
+                        it as a different node and creates a new one. Be careful — if you want to match only on ID, only
+                        include the ID in the MERGE clause.</p>
+                </div>
+
+                <h3>MERGE for a relationship between existing nodes</h3>
+                <div class="code-block">
+                    <div class="code-label">MERGE — relationship (use MATCH first)</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>: <span
+                            class="cy-val">"Siri"</span>}),
+                        (<span class="cy-var">b</span><span class="cy-label">:Book</span> {<span
+                            class="cy-prop">name</span>: <span class="cy-val">"Harry Potter"</span>})
+                        <span class="cy-kw">MERGE</span> (<span class="cy-var">p</span>)<span
+                            class="cy-dir">-[</span><span class="cy-rel">r:READ</span><span
+                            class="cy-dir">]-&gt;</span>(<span class="cy-var">b</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p</span>, <span class="cy-var">r</span>,
+                        <span class="cy-var">b</span>
+                    </div>
+                </div>
+                <div class="code-english">✅ If Siri already has a READ relationship to Harry Potter → does nothing. If
+                    not → creates the relationship.</div>
+            </div>
+
+            <!-- ─── SECTION 5 ─── -->
+            <div class="section" id="read">
+                <div class="section-header">
+                    <div class="section-num">05</div>
+                    <h2>MATCH &amp; RETURN — Reading Data</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 How Reading Works in Cypher</div>
+                    <p><strong>MATCH</strong> finds a pattern in the graph (like SQL's FROM/WHERE combined).
+                        <strong>RETURN</strong> specifies what to output (like SQL's SELECT). The simplest query is
+                        MATCH + RETURN.</p>
+                </div>
+
+                <h3>Basic MATCH + RETURN</h3>
+                <div class="code-block">
+                    <div class="code-label">Example 1 — Find companies Jennifer works for</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>: <span
+                            class="cy-val">"Jennifer"</span>})<span class="cy-dir">-[</span><span
+                            class="cy-rel">:WORKS_FOR</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-var">c</span><span class="cy-label">:Company</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p</span>, <span class="cy-var">c</span>
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"Find all companies that Jennifer works
+                        for."</strong><br>
+                    MATCH = find the pattern (Person named Jennifer who works for a Company)<br>
+                    RETURN = show me both: the person (p) and the company (c)</div>
+
+                <h3>Example 2 — Who directed "Wall Street"?</h3>
+                <div class="code-block">
+                    <div class="code-label">MATCH with reversed direction (arrow pointing left)</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-label">:Movie</span>{<span
+                            class="cy-prop">title</span>:<span class="cy-val">'Wall Street'</span>})<span
+                            class="cy-dir">&lt;-[</span><span class="cy-rel">:DIRECTED</span><span
+                            class="cy-dir">]-</span>(<span class="cy-var">p</span><span class="cy-label">:Person</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p</span>
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"Find all people who directed Wall
+                        Street."</strong><br>
+                    Arrow points ← because the Person DIRECTED the Movie (Person → Movie). The movie is the "anchor
+                    point" — Neo4j starts from Wall Street and searches outward for who directed it.<br>
+                    Result: Returns the Person node "Oliver Stone".</div>
+
+                <h3>The Anchor Point concept</h3>
+                <p>Cypher starts the search from a specific known node (the anchor point) and then traverses outward. In
+                    the query above, the Movie "Wall Street" is the anchor — Neo4j finds it first, then finds who
+                    directed it. This is why the query is fast — it only searches the subgraph around Wall Street, not
+                    the whole database.</p>
+
+                <h3>Example 3 — Find actors who acted in the same movie</h3>
+                <div class="code-block">
+                    <div class="code-label">MATCH — two nodes connected through the same middle node</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p1</span><span
+                            class="cy-label">:Person</span>)<span class="cy-dir">-[</span><span
+                            class="cy-rel">r1:ACTED_IN</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-var">m</span><span class="cy-label">:Movie</span>)<span
+                            class="cy-dir">&lt;-[</span><span class="cy-rel">r2:ACTED_IN</span><span
+                            class="cy-dir">]-</span>(<span class="cy-var">p2</span><span
+                            class="cy-label">:Person</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p1</span>, <span class="cy-var">p2</span>
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"Find all pairs of actors who acted in the same
+                        movie together."</strong><br>
+                    p1 acted in movie m, AND p2 also acted in movie m. Return both actors as a pair.</div>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 Why does this return more rows than nodes?</div>
+                    <p>If Wall Street has 3 actors (A, B, C), RETURN p1, p2 gives: AB, AC, BA, BC, CA, CB = <strong>6
+                            pairs</strong>. But there are only 3 nodes. The query returns every ordered combination. To
+                        avoid duplicates, use <code>RETURN DISTINCT p1, p2</code>. The graph view removes duplicates;
+                        the table view keeps all of them.</p>
+                </div>
+
+                <h3>Returning specific properties (not the whole node)</h3>
+                <div class="code-block">
+                    <div class="code-label">Return a property value, not the whole node</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">m</span><span
+                            class="cy-label">:Movie</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">m</span>.<span
+                            class="cy-prop">title</span> <span class="cy-comment">// returns just the title, not the
+                            whole node</span>
+                    </div>
+                </div>
+
+                <h3>Using the pipe symbol | (means OR for labels)</h3>
+                <div class="code-block">
+                    <div class="code-label">Pipe = OR — match multiple relationship types</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-label">:Movie</span>{<span
+                            class="cy-prop">title</span>:<span class="cy-val">'Wall Street'</span>})<span
+                            class="cy-dir">&lt;-[</span><span class="cy-rel">:DIRECTED|ACTED_IN</span><span
+                            class="cy-dir">]-</span>(<span class="cy-var">p</span><span class="cy-label">:Person</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p</span>
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"Find all people who either DIRECTED or ACTED_IN
+                        Wall Street."</strong><br>
+                    The <code>|</code> symbol means OR — it matches either relationship type. Returns both directors and
+                    actors.</div>
+            </div>
+
+            <!-- ─── SECTION 6 ─── -->
+            <div class="section" id="where">
+                <div class="section-header">
+                    <div class="section-num">06</div>
+                    <h2>WHERE — Filtering Results</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 What WHERE does</div>
+                    <p><code>WHERE</code> filters the results of a MATCH — like SQL's WHERE clause. It uses the same
+                        boolean operators: <strong>AND, OR, XOR, NOT</strong>.</p>
+                </div>
+
+                <h3>WHERE with AND</h3>
+                <div class="code-block">
+                    <div class="code-label">WHERE with AND — multiple conditions</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p1</span><span
+                            class="cy-label">:Person</span>)<span class="cy-dir">-[</span><span
+                            class="cy-rel">r1:ACTED_IN</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-var">m</span><span class="cy-label">:Movie</span>)<span
+                            class="cy-dir">&lt;-[</span><span class="cy-rel">r2:ACTED_IN</span><span
+                            class="cy-dir">]-</span>(<span class="cy-var">p2</span><span
+                            class="cy-label">:Person</span>)
+                        <span class="cy-kw">WHERE</span> <span class="cy-var">p1</span>.<span
+                            class="cy-prop">name</span> = <span class="cy-val">"Martin Sheen"</span> <span
+                            class="cy-kw">AND</span> <span class="cy-var">p2</span>.<span class="cy-prop">name</span> =
+                        <span class="cy-val">"Rob Reiner"</span>
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">m</span>.<span
+                            class="cy-prop">title</span>
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"Find movies where Martin Sheen acted AND Rob
+                        Reiner also acted. Return the movie title."</strong></div>
+
+                <h3>Two ways to filter (both are correct)</h3>
+                <div class="compare-grid">
+                    <div class="compare-card">
+                        <div class="compare-card-head a">Style 1 — filter inside MATCH</div>
+                        <div class="compare-card-body">
+                            <div class="code-block" style="margin:0">
+                                <div class="code-body" style="font-size:12px">
+                                    <span class="cy-kw">MATCH</span> (<span class="cy-var">p1</span><span
+                                        class="cy-label">:Person</span> {<span class="cy-prop">name</span>:<span
+                                        class="cy-val">"Martin"</span>})<span class="cy-dir">-[</span><span
+                                        class="cy-rel">:ACTED_IN</span><span class="cy-dir">]-&gt;</span>(<span
+                                        class="cy-var">m</span>)<span class="cy-dir">&lt;-[</span><span
+                                        class="cy-rel">:ACTED_IN</span><span class="cy-dir">]-</span>(<span
+                                        class="cy-var">p2</span>)
+                                    <span class="cy-kw">RETURN</span> <span class="cy-var">p1</span>, <span
+                                        class="cy-var">p2</span>
+                                </div>
+                            </div>
+                            <p style="margin-top:8px;font-size:13px">Filters FIRST, then finds pairs. Faster — the
+                                database starts with Martin immediately.</p>
+                        </div>
+                    </div>
+                    <div class="compare-card">
+                        <div class="compare-card-head b">Style 2 — separate WHERE clause</div>
+                        <div class="compare-card-body">
+                            <div class="code-block" style="margin:0">
+                                <div class="code-body" style="font-size:12px">
+                                    <span class="cy-kw">MATCH</span> (<span class="cy-var">p1</span><span
+                                        class="cy-label">:Person</span>)<span class="cy-dir">-[</span><span
+                                        class="cy-rel">:ACTED_IN</span><span class="cy-dir">]-&gt;</span>(<span
+                                        class="cy-var">m</span>)<span class="cy-dir">&lt;-[</span><span
+                                        class="cy-rel">:ACTED_IN</span><span class="cy-dir">]-</span>(<span
+                                        class="cy-var">p2</span>)
+                                    <span class="cy-kw">WHERE</span> <span class="cy-var">p1</span>.<span
+                                        class="cy-prop">name</span> = <span class="cy-val">"Martin"</span>
+                                    <span class="cy-kw">RETURN</span> <span class="cy-var">p1</span>, <span
+                                        class="cy-var">p2</span>
+                                </div>
+                            </div>
+                            <p style="margin-top:8px;font-size:13px">Finds ALL pairs first, then filters. More readable
+                                for complex conditions.</p>
+                        </div>
+                    </div>
+                </div>
+                <p>Both produce the same result. Lecturer said: "The logic is different, but both are correct."</p>
+
+                <h3>String matching — STARTS WITH, ENDS WITH, CONTAINS</h3>
+                <p>Cypher has built-in string functions (like SQL's LIKE operator):</p>
+                <div class="code-block">
+                    <div class="code-label">String filtering</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// Name starts with "Martin" AND ends with "Sheen"</span>
+                        <span class="cy-kw">WHERE</span> <span class="cy-var">p1</span>.<span
+                            class="cy-prop">name</span> <span class="cy-kw">STARTS WITH</span> <span
+                            class="cy-val">"Martin"</span> <span class="cy-kw">AND</span> <span
+                            class="cy-var">p2</span>.<span class="cy-prop">name</span> <span class="cy-kw">ENDS
+                            WITH</span> <span class="cy-val">"Sheen"</span>
+
+                        <span class="cy-comment">// Name contains "artin" anywhere</span>
+                        <span class="cy-kw">WHERE</span> <span class="cy-var">p</span>.<span class="cy-prop">name</span>
+                        <span class="cy-kw">CONTAINS</span> <span class="cy-val">"artin"</span>
+                    </div>
+                </div>
+                <div class="code-english">💡 These are equivalent to SQL's LIKE '%Martin%' etc. Use them instead of LIKE
+                    in Cypher.</div>
+
+                <h3>RETURN DISTINCT — removing duplicates</h3>
+                <div class="code-block">
+                    <div class="code-label">Remove duplicate results</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p1</span>)<span
+                            class="cy-dir">-[</span><span class="cy-rel">:ACTED_IN</span><span
+                            class="cy-dir">]-&gt;</span>(<span class="cy-var">m</span>)
+                        <span class="cy-kw">RETURN DISTINCT</span> <span class="cy-var">p1</span>.<span
+                            class="cy-prop">name</span>
+                    </div>
+                </div>
+                <div class="code-english">💡 DISTINCT removes duplicate rows — same as SQL's SELECT DISTINCT.</div>
+            </div>
+
+            <!-- ─── SECTION 7 ─── -->
+            <div class="section" id="with">
+                <div class="section-header">
+                    <div class="section-num">07</div>
+                    <h2>WITH — Pipelines and Aggregation</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 What WITH does</div>
+                    <p><code>WITH</code> passes results from one part of the query to the next part — like a pipeline.
+                        It is also used for aggregation (since Cypher has no GROUP BY).</p>
+                </div>
+
+                <h3>WITH as a pipeline</h3>
+                <div class="code-block">
+                    <div class="code-label">WITH — pass results between query parts</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">michael</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>: <span
+                            class="cy-val">"Michael Douglas"</span>})<span class="cy-dir">-[</span><span
+                            class="cy-rel">:ACTED_IN</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-var">m</span><span class="cy-label">:Movie</span>)<span
+                            class="cy-dir">&lt;-[</span><span class="cy-rel">:ACTED_IN</span><span
+                            class="cy-dir">]-</span>(<span class="cy-var">charlie</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>: <span
+                            class="cy-val">"Charlie Sheen"</span>})
+                        <span class="cy-kw">WITH</span> <span class="cy-var">m</span>, <span
+                            class="cy-var">michael</span>, <span class="cy-var">charlie</span>, <span
+                            class="cy-var">m</span>.<span class="cy-prop">title</span> <span class="cy-kw">AS</span>
+                        movieTitle
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">director</span><span
+                            class="cy-label">:Person:Director</span>)<span class="cy-dir">-[</span><span
+                            class="cy-rel">:DIRECTED</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-var">m</span>)
+                        <span class="cy-kw">RETURN</span> movieTitle <span class="cy-kw">AS</span> Movie, <span
+                            class="cy-var">michael</span>.<span class="cy-prop">name</span> <span
+                            class="cy-kw">AS</span> Actor1, <span class="cy-var">charlie</span>.<span
+                            class="cy-prop">name</span> <span class="cy-kw">AS</span> Actor2, <span
+                            class="cy-var">director</span>.<span class="cy-prop">name</span> <span
+                            class="cy-kw">AS</span> Director
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>Part 1: Find movies where both Michael Douglas and
+                        Charlie Sheen acted. Part 2: For those same movies, find the director. Return the movie title,
+                        both actors, and the director.</strong><br>
+                    WITH connects the two parts. The movie variable <code>m</code> flows from Part 1 into Part 2.</div>
+
+                <h3>WITH for aggregation (replacing GROUP BY)</h3>
+                <div class="code-block">
+                    <div class="code-label">WITH + aggregation (Cypher's version of GROUP BY)</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">director</span><span
+                            class="cy-label">:Person:Director</span>)<span class="cy-dir">-[</span><span
+                            class="cy-rel">:DIRECTED</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-var">m</span><span class="cy-label">:Movie</span>)
+                        <span class="cy-kw">WITH</span> <span class="cy-var">m</span>.<span class="cy-prop">title</span>
+                        <span class="cy-kw">AS</span> title, <span class="cy-kw">COUNT</span>(<span
+                            class="cy-var">director</span>) <span class="cy-kw">AS</span> directorCount
+                        <span class="cy-kw">RETURN</span> title, directorCount
+                    </div>
+                </div>
+                <div class="code-english">✅ This is how you do "GROUP BY" in Cypher — using WITH + COUNT. The movie
+                    title is the grouping key; directorCount is the aggregation. Cypher does not have GROUP BY as a
+                    keyword.</div>
+            </div>
+
+            <!-- ─── SECTION 8 ─── -->
+            <div class="section" id="update">
+                <div class="section-header">
+                    <div class="section-num">08</div>
+                    <h2>SET &amp; REMOVE — Updating Data</h2>
+                </div>
+
+                <h3>SET — add or update a property</h3>
+                <div class="callout definition">
+                    <div class="callout-label">📖 How to Update</div>
+                    <p>To update data: MATCH the node first, then SET the property. You can use SET to both add a new
+                        property and update an existing one.</p>
+                </div>
+                <div class="code-block">
+                    <div class="code-label">SET — add a new property</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span>{<span class="cy-prop">name</span>:<span
+                            class="cy-val">"Martin Sheen"</span>})
+                        <span class="cy-kw">SET</span> <span class="cy-var">p</span>.<span
+                            class="cy-prop">birthdate</span> = date(<span class="cy-val">"1940-08-03"</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p</span>
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"Find Martin Sheen's node and add a birthdate
+                        property with value 1940-08-03."</strong><br>
+                    If birthdate already exists → it gets updated. If not → it gets added.<br>
+                    <code>date()</code> converts the string into a proper date data type.
+                </div>
+
+                <h3>REMOVE — delete a property</h3>
+                <div class="code-block">
+                    <div class="code-label">REMOVE — delete a property from a node</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>:<span
+                            class="cy-val">"Siri"</span>})
+                        <span class="cy-kw">REMOVE</span> <span class="cy-var">p</span>.<span
+                            class="cy-prop">name</span>
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p</span>
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"Find Siri's node and remove the name
+                        property."</strong><br>
+                    After this, the node no longer has a name property. (Not NULL — just absent.)</div>
+            </div>
+
+            <!-- ─── SECTION 9 ─── -->
+            <div class="section" id="delete">
+                <div class="section-header">
+                    <div class="section-num">09</div>
+                    <h2>DELETE &amp; DETACH DELETE</h2>
+                </div>
+
+                <div class="callout warning">
+                    <div class="callout-label">⚠️ Golden Rule of Deletion in Neo4j</div>
+                    <p>You <strong>cannot delete a node that still has relationships</strong>. You must delete the
+                        relationships first, then delete the node. If you try to delete a node with relationships, Neo4j
+                        will give an error: <em>"G1001: Dependent object error — edges still exist."</em></p>
+                </div>
+
+                <h3>DELETE a relationship</h3>
+                <div class="code-block">
+                    <div class="code-label">DELETE — remove a relationship (not the nodes)</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>: <span
+                            class="cy-val">"Siri"</span>})<span class="cy-dir">-[</span><span
+                            class="cy-rel">r:READ</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-var">b</span><span class="cy-label">:Book</span> {<span
+                            class="cy-prop">name</span>: <span class="cy-val">"Harry Potter"</span>})
+                        <span class="cy-kw">DELETE</span> <span class="cy-var">r</span>
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"Find Siri's READ relationship to Harry Potter,
+                        and delete the relationship (not the nodes)."</strong><br>
+                    The Siri and Harry Potter nodes still exist after this — only the relationship is removed.</div>
+
+                <h3>DELETE a node (must remove relationships first)</h3>
+                <div class="code-block">
+                    <div class="code-label">DELETE — delete a relationship THEN the node</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// Step 1: Delete the relationship first</span>
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span>{<span class="cy-prop">name</span>:<span
+                            class="cy-val">"Siri"</span>})<span class="cy-dir">-[</span><span
+                            class="cy-rel">r:READ</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-var">b</span><span class="cy-label">:Book</span>)
+                        <span class="cy-kw">DELETE</span> <span class="cy-var">r</span>
+
+                        <span class="cy-comment">// Step 2: Now delete the node safely</span>
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span>{<span class="cy-prop">name</span>:<span
+                            class="cy-val">"Siri"</span>})
+                        <span class="cy-kw">DELETE</span> <span class="cy-var">p</span>
+                    </div>
+                </div>
+
+                <h3>DETACH DELETE — delete node AND all its relationships at once</h3>
+                <div class="callout tip">
+                    <div class="callout-label">💡 DETACH DELETE — the shortcut</div>
+                    <p>Instead of deleting relationships first and the node second, use <code>DETACH DELETE</code> — it
+                        deletes the node AND automatically removes all its relationships in one command.</p>
+                </div>
+                <div class="code-block">
+                    <div class="code-label">DETACH DELETE — delete node + all relationships</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">b</span><span
+                            class="cy-label">:Book</span> {<span class="cy-prop">name</span>: <span
+                            class="cy-val">"Harry Potter"</span>})
+                        <span class="cy-kw">DETACH DELETE</span> <span class="cy-var">b</span>
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"Delete the Harry Potter book node AND delete all
+                        relationships pointing to/from it."</strong></div>
+
+                <h3>Delete EVERYTHING in the database</h3>
+                <div class="code-block">
+                    <div class="code-label">⚠️ DANGER — deletes the entire database</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">n</span>)
+                        <span class="cy-kw">DETACH DELETE</span> <span class="cy-var">n</span>
+                    </div>
+                </div>
+                <div class="callout warning">
+                    <div class="callout-label">⚠️ This deletes everything</div>
+                    <p>This matches ALL nodes (n has no label filter) and detach-deletes all of them — so all nodes, all
+                        relationships, and all properties are gone. Use this only when starting fresh. Lecturer said:
+                        <em>"Use this to clean the environment when you want to start a new project."</em></p>
+                </div>
+            </div>
+
+            <!-- ─── SECTION 10 ─── -->
+            <div class="section" id="load-csv">
+                <div class="section-header">
+                    <div class="section-num">10</div>
+                    <h2>LOAD CSV — Importing Data</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 What LOAD CSV does</div>
+                    <p><code>LOAD CSV</code> reads a CSV file and creates nodes or relationships from each row. This is
+                        how you bulk-import data into Neo4j — instead of creating nodes one by one.</p>
+                </div>
+
+                <h3>How to set up CSV importing</h3>
+                <ol>
+                    <li>Place your CSV files in the Neo4j <strong>import</strong> folder (create it if it doesn't
+                        exist).</li>
+                    <li>Reference the file using the <code>file:///</code> prefix in your Cypher query.</li>
+                    <li>Use <code>WITH HEADERS</code> if your CSV has a header row (recommended).</li>
+                    <li>Use <code>AS row</code> to refer to each line in the CSV as a variable named <code>row</code>.
+                    </li>
+                    <li>Use <code>row.ColumnName</code> to access specific column values.</li>
+                </ol>
+
+                <h3>LOAD CSV — creating nodes from a CSV</h3>
+                <div class="code-block">
+                    <div class="code-label">LOAD CSV — create Order nodes from orders.csv</div>
+                    <div class="code-body">
+                        <span class="cy-kw">LOAD CSV WITH HEADERS FROM</span> <span
+                            class="cy-val">'file:///orders.csv'</span> <span class="cy-kw">AS</span> row
+                        <span class="cy-kw">MERGE</span> (order<span class="cy-label">:Order</span> {<span
+                            class="cy-prop">orderID</span>: row.OrderID})
+                        <span class="cy-kw">ON CREATE SET</span> order.shipName = row.ShipName
+                    </div>
+                </div>
+                <div class="code-english">✅ For each row in orders.csv: create an Order node with the orderID from the
+                    CSV. If it already exists (MERGE), set the shipName property. This avoids duplicates.</div>
+
+                <h3>LOAD CSV — creating relationships from a CSV</h3>
+                <div class="code-block">
+                    <div class="code-label">LOAD CSV — create relationships (must MATCH nodes first)</div>
+                    <div class="code-body">
+                        <span class="cy-kw">LOAD CSV WITH HEADERS FROM</span> <span
+                            class="cy-val">'file:///order_products.csv'</span> <span class="cy-kw">AS</span> row
+                        <span class="cy-kw">MATCH</span> (order<span class="cy-label">:Order</span> {<span
+                            class="cy-prop">orderID</span>: row.OrderID})
+                        <span class="cy-kw">MATCH</span> (product<span class="cy-label">:Product</span> {<span
+                            class="cy-prop">productID</span>: row.ProductID})
+                        <span class="cy-kw">MERGE</span> (order)<span class="cy-dir">-[</span><span
+                            class="cy-rel">r:CONTAINS</span><span class="cy-dir">]-&gt;</span>(product)
+                        <span class="cy-kw">ON CREATE SET</span> r.quantity = toInteger(row.Quantity), r.unitPrice =
+                        toFloat(row.UnitPrice)
+                    </div>
+                </div>
+                <div class="code-english">✅ For each row in the CSV: find the matching Order and Product nodes, then
+                    create a CONTAINS relationship between them with quantity and unitPrice as properties.
+                    <code>toInteger()</code> and <code>toFloat()</code> convert string values to numbers.</div>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 Project/Exam — ETL with LOAD CSV</div>
+                    <p>The lecturer said: <strong>"For Project 2, you must use Cypher to create nodes and relationships.
+                            You are NOT allowed to use the GUI import tool — Cypher contributes to your
+                            marks."</strong><br>
+                        Key rule: You need separate CSV files for nodes and for relationships. A single "everything" CSV
+                        doesn't work well for Neo4j.</p>
+                </div>
+            </div>
+
+            <!-- ─── SECTION 11 ─── -->
+            <div class="section" id="limitations">
+                <div class="section-header">
+                    <div class="section-num">11</div>
+                    <h2>Cypher Limitations vs SQL</h2>
+                </div>
+
+                <p>Cypher is powerful for graph traversal, but it has significant limitations compared to SQL for
+                    analytical work. The lecturer listed these explicitly:</p>
+
+                <div class="table-wrap">
+                    <table>
+                        <tr>
+                            <th>Feature</th>
+                            <th>SQL</th>
+                            <th>Cypher</th>
+                        </tr>
+                        <tr>
+                            <td><strong>GROUP BY</strong></td>
+                            <td>✅ Yes — native keyword</td>
+                            <td>❌ No — use WITH + aggregation instead</td>
+                        </tr>
+                        <tr>
+                            <td><strong>HAVING</strong></td>
+                            <td>✅ Yes</td>
+                            <td>❌ No — use WITH + WHERE instead</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Subqueries</strong></td>
+                            <td>✅ Yes — nested SELECT</td>
+                            <td>❌ No — not supported</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Window functions</strong></td>
+                            <td>✅ Yes — SUM OVER, RANK OVER</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ROLLUP / CUBE</strong></td>
+                            <td>✅ Yes — multi-dimensional analysis</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Aggregation functions</strong></td>
+                            <td>✅ Many — MEDIAN, VARIANCE, STDEV, etc.</td>
+                            <td>⚠️ Limited — only COUNT, SUM, AVG, MIN, MAX, STDEV</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Graph traversal</strong></td>
+                            <td>❌ Slow — complex recursive SQL</td>
+                            <td>✅ Native, fast, simple</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Relationship queries</strong></td>
+                            <td>❌ Complex joins</td>
+                            <td>✅ Simple pattern matching</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="callout lecturer">
+                    <div class="callout-label">💬 Lecturer's Rule</div>
+                    <p><strong>"For Cypher: use it for relationships, nodes, and traversal. For complex aggregations
+                            (GROUP BY, HAVING, window functions, ROLLUP/CUBE) — use SQL."</strong><br>
+                        Cypher is not a replacement for SQL — it's a complement. Use each for what it's good at.</p>
+                </div>
+            </div>
+
+            <!-- ─── CHEAT SHEET ─── -->
+            <div class="section" id="cheatsheet">
+                <div class="section-header">
+                    <div class="section-num">📋</div>
+                    <h2>Quick Cheat Sheet</h2>
+                </div>
+
+                <div class="crud-grid">
+                    <div class="crud-card">
+                        <div class="crud-head c">CREATE</div>
+                        <div class="crud-body">
+                            <code>CREATE (p:Person {name:"Siri"})</code><br>
+                            <code>CREATE (p)-[:KNOWS]->(q)</code><br>
+                            <small>Always creates new. Risk of duplicates.</small>
+                        </div>
+                    </div>
+                    <div class="crud-card">
+                        <div class="crud-head r">READ</div>
+                        <div class="crud-body">
+                            <code>MATCH (p:Person) RETURN p</code><br>
+                            <code>MATCH (p)-[:KNOWS]->(q) RETURN p,q</code><br>
+                            <small>MATCH finds patterns. RETURN shows results.</small>
+                        </div>
+                    </div>
+                    <div class="crud-card">
+                        <div class="crud-head u">UPDATE</div>
+                        <div class="crud-body">
+                            <code>MATCH (p:Person {name:"Siri"})</code><br>
+                            <code>SET p.age = 28</code><br>
+                            <small>MATCH first, then SET the property.</small>
+                        </div>
+                    </div>
+                    <div class="crud-card">
+                        <div class="crud-head d">DELETE</div>
+                        <div class="crud-body">
+                            <code>MATCH (p:Person {name:"Siri"})</code><br>
+                            <code>DETACH DELETE p</code><br>
+                            <small>Must delete relationships first, or use DETACH DELETE.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-wrap" style="margin-top:20px">
+                    <table>
+                        <tr>
+                            <th>Clause</th>
+                            <th>Purpose</th>
+                            <th>SQL Equivalent</th>
+                        </tr>
+                        <tr>
+                            <td><code>MATCH</code></td>
+                            <td>Find a pattern in the graph</td>
+                            <td>FROM + WHERE</td>
+                        </tr>
+                        <tr>
+                            <td><code>RETURN</code></td>
+                            <td>Specify what to output</td>
+                            <td>SELECT</td>
+                        </tr>
+                        <tr>
+                            <td><code>WHERE</code></td>
+                            <td>Filter results with conditions</td>
+                            <td>WHERE</td>
+                        </tr>
+                        <tr>
+                            <td><code>CREATE</code></td>
+                            <td>Add new nodes or relationships</td>
+                            <td>INSERT</td>
+                        </tr>
+                        <tr>
+                            <td><code>MERGE</code></td>
+                            <td>Create if not exists, use if exists</td>
+                            <td>INSERT + duplicate check</td>
+                        </tr>
+                        <tr>
+                            <td><code>SET</code></td>
+                            <td>Add or update a property</td>
+                            <td>UPDATE SET</td>
+                        </tr>
+                        <tr>
+                            <td><code>REMOVE</code></td>
+                            <td>Delete a property from a node</td>
+                            <td>UPDATE SET col = NULL</td>
+                        </tr>
+                        <tr>
+                            <td><code>DELETE</code></td>
+                            <td>Delete a node or relationship</td>
+                            <td>DELETE</td>
+                        </tr>
+                        <tr>
+                            <td><code>DETACH DELETE</code></td>
+                            <td>Delete node + all its relationships</td>
+                            <td>CASCADE DELETE</td>
+                        </tr>
+                        <tr>
+                            <td><code>WITH</code></td>
+                            <td>Pipeline / aggregation</td>
+                            <td>GROUP BY (approximately)</td>
+                        </tr>
+                        <tr>
+                            <td><code>LOAD CSV</code></td>
+                            <td>Import data from a CSV file</td>
+                            <td>LOAD DATA / COPY</td>
+                        </tr>
+                        <tr>
+                            <td><code>RETURN DISTINCT</code></td>
+                            <td>Remove duplicates from results</td>
+                            <td>SELECT DISTINCT</td>
+                        </tr>
+                        <tr>
+                            <td><code>AS</code></td>
+                            <td>Rename an output column</td>
+                            <td>AS (alias)</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ─── SUMMARY ─── -->
+            <div class="section" id="summary">
+                <div class="section-header">
+                    <div class="section-num">★</div>
+                    <h2>Summary</h2>
+                </div>
+                <div class="summary-box">
+                    <h3>Lecture 09 — Key Takeaways</h3>
+                    <ul>
+                        <li>Cypher is Neo4j's query language — designed to read like plain English. It describes
+                            patterns.</li>
+                        <li>Nodes use round brackets ( ) — with label after colon (:Person) and properties in curly
+                            braces {name:"Siri"}.</li>
+                        <li>Relationships use square brackets [ ] — with relationship name after colon ([:WORKS_FOR])
+                            and direction via arrows → or ←.</li>
+                        <li>Variables (p, c, m, r) are optional — they let you reference nodes/relationships later in
+                            the same query.</li>
+                        <li>Direction matters — (:Person)-[:WORKS_FOR]→(:Company) ≠ (:Company)-[:WORKS_FOR]→(:Person).
+                        </li>
+                        <li>CRUD in Cypher: CREATE/MERGE → MATCH+RETURN → SET/REMOVE → DELETE/DETACH DELETE.</li>
+                        <li>MERGE = "create if not exists." It checks ALL specified properties before deciding.</li>
+                        <li>Cannot delete a node with relationships — delete relationships first, or use DETACH DELETE.
+                        </li>
+                        <li>Cypher has NO GROUP BY, NO HAVING, NO subqueries, NO window functions, NO ROLLUP/CUBE.</li>
+                        <li>Use WITH for pipelines and as a workaround for GROUP BY (WITH + aggregation function).</li>
+                        <li>LOAD CSV imports data from CSV files. Must use MATCH before creating relationships in CSV
+                            import.</li>
+                        <li>Use SQL for complex aggregations. Use Cypher for graph traversal and relationship queries.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ─── CHECKLIST ─── -->
+            <div class="section" id="checklist">
+                <div class="section-header">
+                    <div class="section-num">✓</div>
+                    <h2>Revision Checklist</h2>
+                </div>
+                <ul class="checklist">
+                    <li>
+                        <div class="check-box"></div>I know that nodes use round brackets ( ) and relationships use
+                        square brackets [ ]
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can identify a label, property, and variable in a Cypher
+                        expression
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I understand how direction works in relationship arrows (→ and ←)
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can write CREATE queries for nodes and relationships
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know the difference between CREATE and MERGE
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can write a MATCH + RETURN query and explain what it does in
+                        plain English
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can use WHERE with AND, OR, NOT to filter results
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I understand STARTS WITH, ENDS WITH, CONTAINS for string filtering
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can explain what WITH does and how it replaces GROUP BY
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can write SET and REMOVE queries to update data
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know the golden rule of deletion: delete relationships first,
+                        then nodes
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know the difference between DELETE and DETACH DELETE
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can explain what LOAD CSV does and when to use it
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can list 4 things Cypher can't do that SQL can (GROUP BY, HAVING,
+                        subqueries, window functions)
+                    </li>
+                </ul>
+            </div>
+
+            <!-- ─── EXAM QUESTIONS ─── -->
+            <div class="section" id="questions">
+                <div class="section-header">
+                    <div class="section-num">?</div>
+                    <h2>Exam-Style Practice Questions</h2>
+                </div>
+                <div class="quiz">
+                    <div class="quiz-item">
+                        <p><strong>Write a Cypher query to find all movies that Tom Hanks acted in. Return the movie
+                                titles.</strong></p>
+                        <p class="hint">Hint: MATCH (p:Person {name:"Tom Hanks"})-[:ACTED_IN]→(m:Movie) RETURN m.title
+                        </p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>Explain the difference between CREATE and MERGE in Cypher. When would you use MERGE
+                                over CREATE?</strong></p>
+                        <p class="hint">Hint: CREATE always creates (risk of duplicates). MERGE checks first — if
+                            node/relationship exists, uses it; if not, creates it. Use MERGE when loading CSV data or
+                            when duplicates would be a problem.</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>You try to delete a Person node "Siri" using DELETE but get an error. Why? How do you
+                                fix it?</strong></p>
+                        <p class="hint">Hint: Error = "edges still exist." Siri has relationships. Fix: (1) Delete the
+                            relationships first, then DELETE Siri. OR (2) Use DETACH DELETE which removes both the node
+                            and all its relationships in one command.</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>What is wrong with this query? Explain and fix
+                                it:<br><code>MATCH (p:Person {name:"Alice"}) CREATE (p)-[:WORKS_FOR]->(c:Company {name:"UWA"})</code></strong>
+                        </p>
+                        <p class="hint">Hint: This creates a NEW Company node "UWA" every time it runs — even if UWA
+                            already exists. Fix: Use MERGE instead of CREATE for the Company, or MATCH the existing
+                            Company node first: MATCH (c:Company {name:"UWA"}) MATCH (p:Person {name:"Alice"}) MERGE
+                            (p)-[:WORKS_FOR]->(c)</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>Write Cypher to find pairs of actors who both acted in the same movie, but only
+                                return each unique pair once (no duplicates like AB and BA).</strong></p>
+                        <p class="hint">Hint: MATCH (p1:Person)-[:ACTED_IN]→(m:Movie)←[:ACTED_IN]-(p2:Person) WHERE
+                            p1.name < p2.name RETURN DISTINCT p1.name, p2.name. Using p1.name &lt; p2.name ensures each
+                                pair appears once.</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>Cypher does not have GROUP BY. How do you count how many movies each director has
+                                directed?</strong></p>
+                        <p class="hint">Hint: MATCH (d:Person)-[:DIRECTED]→(m:Movie) WITH d.name AS director, COUNT(m)
+                            AS movieCount RETURN director, movieCount. The WITH + COUNT replaces GROUP BY. The variable
+                            before COUNT (d.name) acts as the grouping key.</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>You have a CSV file "students.csv" with columns: StudentID, Name, Major. Write Cypher
+                                to load it and create Student nodes.</strong></p>
+                        <p class="hint">Hint: LOAD CSV WITH HEADERS FROM 'file:///students.csv' AS row MERGE (s:Student
+                            {studentID: row.StudentID}) ON CREATE SET s.name = row.Name, s.major = row.Major</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>What does the pipe symbol | mean in Cypher? Give an example.</strong></p>
+                        <p class="hint">Hint: | means OR for relationship types. MATCH
+                            (:Movie)←[:DIRECTED|ACTED_IN]-(p:Person) matches people who either DIRECTED or ACTED_IN a
+                            movie. Not "and" — either/or.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <a class="scroll-top" href="#">↑</a>
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/notes.js"></script>
+</body>
+
+</html>
