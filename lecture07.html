@@ -1,0 +1,2666 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 07 – Intro to Graph Databases | CITS3401</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        :root {
+            --ink: #1a1208;
+            --paper: #faf7f2;
+            --cream: #f0ead8;
+            --gold: #b8860b;
+            --gold-light: #d4a820;
+            --teal: #1a5f6a;
+            --rust: #8b3a1a;
+            --muted: #6b6050;
+            --border: #d4c9a8;
+            --sidebar-w: 260px;
+            --accent: #1a7a4a
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Source Serif 4', Georgia, serif;
+            background: var(--paper);
+            color: var(--ink);
+            font-size: 17px;
+            line-height: 1.75
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-w);
+            height: 100vh;
+            background: var(--ink);
+            color: #e8dfc8;
+            overflow-y: auto;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            padding: 0 0 40px 0
+        }
+
+        .sidebar-brand {
+            padding: 20px 22px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, .1)
+        }
+
+        .sidebar-brand a {
+            text-decoration: none;
+            color: rgba(255, 255, 255, .4);
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px
+        }
+
+        .sidebar-brand a:hover {
+            color: var(--gold-light)
+        }
+
+        .sidebar-brand strong {
+            display: block;
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            color: #fff
+        }
+
+        .sidebar-brand span {
+            display: block;
+            font-size: 12px;
+            color: var(--accent)
+        }
+
+        .nav-section {
+            padding: 16px 22px 4px;
+            font-size: 10px;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .3)
+        }
+
+        .nav-link {
+            display: block;
+            padding: 7px 22px;
+            color: rgba(232, 223, 200, .7);
+            font-size: 13.5px;
+            text-decoration: none;
+            line-height: 1.4;
+            transition: all .15s
+        }
+
+        .nav-link:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, .06);
+            padding-left: 28px
+        }
+
+        .nav-link.active {
+            color: var(--accent);
+            border-left: 2px solid var(--accent);
+            padding-left: 20px
+        }
+
+        .main {
+            margin-left: var(--sidebar-w);
+            min-height: 100vh
+        }
+
+        .hero {
+            background: var(--ink);
+            color: #fff;
+            padding: 52px 64px 44px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -40px;
+            width: 340px;
+            height: 340px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(26, 122, 74, .25) 0%, transparent 70%)
+        }
+
+        .hero-eyebrow {
+            font-size: 11px;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 12px;
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            line-height: 1.15;
+            margin-bottom: 12px
+        }
+
+        .hero-sub {
+            color: rgba(255, 255, 255, .5);
+            font-size: 15px;
+            max-width: 560px
+        }
+
+        .hero-nav {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap
+        }
+
+        .hero-nav a {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all .15s
+        }
+
+        .hero-nav a.home {
+            background: rgba(255, 255, 255, .07);
+            color: rgba(255, 255, 255, .6);
+            border: 1px solid rgba(255, 255, 255, .12)
+        }
+
+        .hero-nav a.prev {
+            background: rgba(255, 255, 255, .07);
+            color: rgba(255, 255, 255, .6)
+        }
+
+        .hero-nav a:hover {
+            opacity: .85
+        }
+
+        .content {
+            padding: 48px 64px;
+            max-width: 900px
+        }
+
+        .section {
+            margin-bottom: 60px
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border)
+        }
+
+        .section-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 30px;
+            font-weight: 900;
+            color: var(--border);
+            line-height: 1;
+            min-width: 40px
+        }
+
+        .section-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: var(--ink)
+        }
+
+        h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 19px;
+            margin: 28px 0 10px;
+            color: var(--teal)
+        }
+
+        h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 0 8px
+        }
+
+        p {
+            margin-bottom: 13px
+        }
+
+        .callout {
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 20px 0;
+            border-left: 4px solid
+        }
+
+        .callout.definition {
+            background: #e0eaf8;
+            border-color: var(--teal)
+        }
+
+        .callout.exam {
+            background: #fff3cd;
+            border-color: var(--gold)
+        }
+
+        .callout.warning {
+            background: #fde8e0;
+            border-color: var(--rust)
+        }
+
+        .callout.tip {
+            background: #e0f0e8;
+            border-color: #2a7a4a
+        }
+
+        .callout.lecturer {
+            background: #f4e8f8;
+            border-color: #7a3a7a
+        }
+
+        .callout-label {
+            font-size: 10px;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 5px
+        }
+
+        .callout.definition .callout-label {
+            color: var(--teal)
+        }
+
+        .callout.exam .callout-label {
+            color: #8a6a00
+        }
+
+        .callout.warning .callout-label {
+            color: var(--rust)
+        }
+
+        .callout.tip .callout-label {
+            color: #2a7a4a
+        }
+
+        .callout.lecturer .callout-label {
+            color: #7a3a7a
+        }
+
+        .callout p {
+            margin: 0;
+            font-size: 15.5px
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            margin: 20px 0
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14.5px
+        }
+
+        th {
+            background: var(--ink);
+            color: var(--gold-light);
+            padding: 9px 13px;
+            text-align: left;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600
+        }
+
+        td {
+            padding: 9px 13px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top
+        }
+
+        tr:nth-child(even) td {
+            background: var(--cream)
+        }
+
+        ul,
+        ol {
+            padding-left: 22px;
+            margin-bottom: 13px
+        }
+
+        li {
+            margin-bottom: 6px
+        }
+
+        ul.clean {
+            list-style: none;
+            padding-left: 0
+        }
+
+        ul.clean li {
+            padding-left: 20px;
+            position: relative
+        }
+
+        ul.clean li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+            font-size: 13px;
+            top: 2px
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 6px;
+            color: var(--rust)
+        }
+
+        .formula {
+            background: var(--ink);
+            color: var(--gold-light);
+            border-radius: 8px;
+            padding: 14px 20px;
+            margin: 16px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13.5px;
+            text-align: center
+        }
+
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin: 20px 0
+        }
+
+        .compare-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden
+        }
+
+        .compare-card-head {
+            padding: 11px 16px;
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700
+        }
+
+        .compare-card-head.a {
+            background: var(--teal);
+            color: #fff
+        }
+
+        .compare-card-head.b {
+            background: var(--rust);
+            color: #fff
+        }
+
+        .compare-card-head.c {
+            background: #1a4a8a;
+            color: #fff
+        }
+
+        .compare-card-body {
+            padding: 13px 16px;
+            font-size: 14px
+        }
+
+        .compare-card-body ul {
+            margin: 0
+        }
+
+        .summary-box {
+            background: var(--ink);
+            color: #e8dfc8;
+            border-radius: 12px;
+            padding: 26px 30px;
+            margin: 28px 0
+        }
+
+        .summary-box h3 {
+            color: var(--gold-light);
+            margin-top: 0;
+            font-size: 16px
+        }
+
+        .summary-box ul {
+            padding-left: 20px
+        }
+
+        .summary-box li {
+            margin-bottom: 7px;
+            font-size: 14.5px
+        }
+
+        .quiz {
+            counter-reset: quiz
+        }
+
+        .quiz-item {
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            counter-increment: quiz;
+            position: relative
+        }
+
+        .quiz-item::before {
+            content: 'Q' counter(quiz);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gold);
+            position: absolute;
+            top: 12px;
+            right: 14px
+        }
+
+        .quiz-item p {
+            margin: 0;
+            font-size: 15px
+        }
+
+        .quiz-item .hint {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 7px;
+            font-style: italic
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0
+        }
+
+        .checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 15px
+        }
+
+        .checklist li:last-child {
+            border: none
+        }
+
+        .check-box {
+            width: 17px;
+            height: 17px;
+            min-width: 17px;
+            border: 2px solid var(--border);
+            border-radius: 3px;
+            margin-top: 3px
+        }
+
+        /* Visual diagram boxes - CSS only, no SVG */
+        .diagram-box {
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px 24px;
+            margin: 20px 0
+        }
+
+        .diagram-caption {
+            font-size: 13px;
+            color: var(--muted);
+            font-style: italic;
+            text-align: center;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border)
+        }
+
+        /* Node circle */
+        .node-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            flex-wrap: nowrap;
+            margin: 8px 0
+        }
+
+        .node {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid var(--teal);
+            background: #e0eaf8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            text-align: center;
+            flex-shrink: 0;
+            position: relative
+        }
+
+        .node .label-tag {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #dbeafe;
+            border: 1px solid #185FA5;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 10px;
+            color: #0C447C;
+            white-space: nowrap;
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        .node .label-tag2 {
+            position: absolute;
+            top: -36px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fef3c7;
+            border: 1px solid #854F0B;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 10px;
+            color: #633806;
+            white-space: nowrap;
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        .node strong {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--teal)
+        }
+
+        .node span {
+            font-size: 10px;
+            color: var(--muted)
+        }
+
+        .node.amber {
+            border-color: var(--gold);
+            background: #fef3c7
+        }
+
+        .node.amber strong {
+            color: #7a5000
+        }
+
+        .node.purple {
+            border-color: #7a3a8a;
+            background: #f4e8f8
+        }
+
+        .node.purple strong {
+            color: #7a3a8a
+        }
+
+        .node.coral {
+            border-color: var(--rust);
+            background: #fde8e0
+        }
+
+        .node.coral strong {
+            color: var(--rust)
+        }
+
+        .node.gray {
+            border-color: #888;
+            background: #f0f0ec
+        }
+
+        .node.gray strong {
+            color: #444
+        }
+
+        /* Arrow between nodes */
+        .rel-arrow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 70px;
+            flex-shrink: 0
+        }
+
+        .rel-arrow .rel-name {
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--rust);
+            white-space: nowrap;
+            margin-bottom: 3px;
+            font-weight: 600
+        }
+
+        .rel-arrow .arrow-line {
+            width: 60px;
+            height: 2px;
+            background: var(--teal);
+            position: relative
+        }
+
+        .rel-arrow .arrow-line::after {
+            content: '▶';
+            position: absolute;
+            right: -6px;
+            top: -7px;
+            color: var(--teal);
+            font-size: 12px
+        }
+
+        /* Conversion rule boxes */
+        .conv-rule {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 10px 0;
+            flex-wrap: wrap
+        }
+
+        .conv-from {
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 7px 14px;
+            font-size: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--rust);
+            flex-shrink: 0
+        }
+
+        .conv-to {
+            background: #e0f0e8;
+            border: 1px solid #2a8a4a;
+            border-radius: 6px;
+            padding: 7px 14px;
+            font-size: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            color: #27500A;
+            flex-shrink: 0;
+            font-weight: 700
+        }
+
+        .conv-arrow-txt {
+            font-size: 18px;
+            color: var(--accent);
+            flex-shrink: 0
+        }
+
+        /* step boxes */
+        .steps-row {
+            display: flex;
+            gap: 0;
+            align-items: stretch;
+            margin: 16px 0;
+            flex-wrap: wrap
+        }
+
+        .step-box {
+            flex: 1;
+            min-width: 90px;
+            background: var(--cream);
+            border: 1px solid var(--border);
+            padding: 10px 8px;
+            text-align: center;
+            font-size: 12px;
+            position: relative
+        }
+
+        .step-box:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: var(--accent);
+            z-index: 1;
+            background: var(--cream);
+            padding: 0 2px
+        }
+
+        .step-box strong {
+            display: block;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+            margin-bottom: 4px
+        }
+
+        .step-box.last {
+            background: #e0f0e8;
+            border-color: #2a8a4a
+        }
+
+        .step-box.last strong {
+            color: #27500A
+        }
+
+        /* bad/good side by side */
+        .pitfall-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 16px 0
+        }
+
+        .pitfall-card {
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 13.5px
+        }
+
+        .pitfall-card.bad {
+            background: #fde8e0;
+            border: 1px solid var(--rust)
+        }
+
+        .pitfall-card.good {
+            background: #e0f0e8;
+            border: 1px solid #2a8a4a
+        }
+
+        .pitfall-card h4 {
+            margin: 0 0 8px;
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: .05em
+        }
+
+        .pitfall-card.bad h4 {
+            color: var(--rust)
+        }
+
+        .pitfall-card.good h4 {
+            color: #27500A
+        }
+
+        .pitfall-card ul {
+            margin: 0;
+            padding-left: 16px
+        }
+
+        .pitfall-card li {
+            margin-bottom: 4px;
+            font-size: 13px
+        }
+
+        .qa-block {
+            margin-bottom: 28px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden
+        }
+
+        .qa-q {
+            background: var(--ink);
+            color: var(--gold-light);
+            padding: 14px 20px;
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.4
+        }
+
+        .qa-a {
+            padding: 20px 24px;
+            background: #fff;
+            font-size: 15px
+        }
+
+        .qa-a h4 {
+            font-size: 15px;
+            font-weight: 700;
+            margin: 16px 0 6px;
+            color: var(--teal)
+        }
+
+        .qa-a h4:first-child {
+            margin-top: 0
+        }
+
+        .qa-a p {
+            margin-bottom: 10px
+        }
+
+        .qa-a ul,
+        .qa-a ol {
+            padding-left: 22px;
+            margin-bottom: 10px
+        }
+
+        .qa-a li {
+            margin-bottom: 5px;
+            font-size: 14.5px
+        }
+
+        .qa-one-liner {
+            background: #e0f0e8;
+            border-left: 4px solid var(--accent);
+            border-radius: 0 6px 6px 0;
+            padding: 10px 14px;
+            margin-top: 14px;
+            font-size: 14px;
+            color: #27500A;
+            font-weight: 600
+        }
+
+        .scroll-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 42px;
+            height: 42px;
+            background: var(--ink);
+            color: var(--gold-light);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 17px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .3);
+            text-decoration: none
+        }
+
+        @media(max-width:900px) {
+            .sidebar {
+                display: none
+            }
+
+            .main {
+                margin-left: 0
+            }
+
+            .content,
+            .hero {
+                padding: 28px
+            }
+
+            .compare-grid {
+                grid-template-columns: 1fr
+            }
+
+            .pitfall-grid {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <a href="index.html">← All Lectures</a>
+            <strong>Lecture 07</strong><span>Intro to Graph Databases</span>
+        </div>
+        <div class="nav-section">Contents</div>
+        <a class="nav-link" href="#what-is-graph">1. What Is a Graph?</a>
+        <a class="nav-link" href="#rdbms-limits">2. Limits of RDBMS &amp; NoSQL</a>
+        <a class="nav-link" href="#db-vs-engine">3. DB vs. Compute Engine</a>
+        <a class="nav-link" href="#why-graph">4. Why Graph DBs? (3 Reasons)</a>
+        <a class="nav-link" href="#property-model">5. Property Graph Model</a>
+        <a class="nav-link" href="#modelling-scratch">6. Modelling from Scratch</a>
+        <a class="nav-link" href="#modelling-rdbms">7. Converting RDBMS → Graph</a>
+        <a class="nav-link" href="#differences">8. Graph vs. RDBMS</a>
+        <div class="nav-section">Revision</div>
+        <a class="nav-link" href="#summary">Summary</a>
+        <a class="nav-link" href="#checklist">Checklist</a>
+        <a class="nav-link" href="#questions">Exam Questions</a>
+        <div class="nav-section">Exam Q&amp;A</div>
+        <a class="nav-link" href="#short-answers">Short Answer Q&amp;A</a>
+        <a class="nav-link" href="#long-answers">Medium/Long Q&amp;A</a>
+        <a class="nav-link" href="#scenario-answers">Scenario Q&amp;A</a>
+    </nav>
+
+    <div class="main">
+        <div class="hero">
+            <div class="hero-eyebrow">CITS3401 · Week 7 · Lecture 07</div>
+            <h1>Intro to Graph Databases<br>&amp; Graph Data Modelling</h1>
+            <p class="hero-sub">Why relational databases fail on connected data, the property graph model, 3 reasons
+                graph DBs are powerful, whiteboard modelling, and converting RDBMS to graph.</p>
+            <div class="hero-nav">
+                <a class="home" href="index.html">🏠 Home</a>
+                <a class="prev" href="Lecture06.html">← Lecture 06</a>
+            </div>
+        </div>
+
+        <div class="content">
+
+            <div class="callout exam" style="margin-bottom:32px">
+                <div class="callout-label">🎯 Exam Weight — Q4 &amp; Q5 = Graph DB (40 marks)</div>
+                <p>Two of the five final exam questions cover graph databases. Focus on: property graph model (4
+                    components), 3 reasons graph DBs are powerful, the 5-step whiteboard method, and RDBMS→graph
+                    conversion rules (Row=Node, Table=Label, Join=Relationship).</p>
+            </div>
+
+            <!-- SECTION 1 -->
+            <div class="section" id="what-is-graph">
+                <div class="section-header">
+                    <div class="section-num">01</div>
+                    <h2>What Is a Graph?</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 Definition</div>
+                    <p>A <strong>graph</strong> is a collection of <strong>nodes (vertices)</strong> and <strong>edges
+                            (relationships)</strong>. Nodes represent entities; edges represent connections between
+                        them.</p>
+                </div>
+
+                <p>Think of a road map — cities are nodes, roads are edges. Or a social network — people are nodes,
+                    friendships are edges. Any scenario involving interconnected entities can be modelled as a graph.
+                </p>
+
+                <!-- Visual: Simple graph -->
+                <div class="diagram-box">
+                    <div class="node-row">
+                        <div class="node"><strong>P</strong></div>
+                        <div class="rel-arrow">
+                            <div class="rel-name">edge</div>
+                            <div class="arrow-line"></div>
+                        </div>
+                        <div class="node"><strong>Q</strong></div>
+                        <div class="rel-arrow">
+                            <div class="rel-name">edge</div>
+                            <div class="arrow-line"></div>
+                        </div>
+                        <div class="node"><strong>R</strong></div>
+                    </div>
+                    <div style="text-align:center;font-size:13px;color:var(--muted);margin-top:10px;">Circles =
+                        <strong>nodes (vertices)</strong> &nbsp;|&nbsp; Lines between them = <strong>edges
+                            (relationships)</strong></div>
+                    <p class="diagram-caption">A graph is just nodes connected by edges. Roads between cities,
+                        friendships between people, citations between papers — all are graphs.</p>
+                </div>
+
+                <h3>Real-world graph examples</h3>
+                <ul class="clean">
+                    <li><strong>Google Knowledge Graph:</strong> Connects entities (people, places, facts) to surface
+                        contextually relevant search results.</li>
+                    <li><strong>Social networks (X/Twitter, Facebook):</strong> Users = nodes; FOLLOWS, FRIEND_OF =
+                        edges.</li>
+                    <li><strong>Fraud detection:</strong> Traces suspicious patterns through connected transactions.
+                    </li>
+                    <li><strong>Connected Papers:</strong> Academic papers as nodes, citations as edges — shows related
+                        research.</li>
+                </ul>
+            </div>
+
+            <!-- SECTION 2 -->
+            <div class="section" id="rdbms-limits">
+                <div class="section-header">
+                    <div class="section-num">02</div>
+                    <h2>Limitations of RDBMS &amp; NoSQL</h2>
+                </div>
+
+                <h3>Problems with RDBMS for connected data</h3>
+                <ul class="clean">
+                    <li><strong>Slow multi-table joins:</strong> Answering "what did Alice order and what products were
+                        in those orders?" requires joining User → Order → LineItem → Product — 4 tables. Each join scans
+                        entire tables. The deeper the connection, the slower it gets.</li>
+                    <li><strong>Inflexible schema:</strong> Adding a new column forces ALTER TABLE and fills NULL for
+                        every existing row. Schema changes break applications and require planning.</li>
+                    <li><strong>Relationships are second-class:</strong> A foreign key is just a meaningless number. You
+                        know Employee 3 relates to Order 5678, but you don't know <em>what that means</em> without
+                        documentation.</li>
+                    <li><strong>Recursive queries are painful:</strong> Representing a management hierarchy (employee →
+                        manager → director → CEO) requires 15+ lines of complex recursive SQL. In a graph DB it's a few
+                        lines of Cypher.</li>
+                </ul>
+
+                <!-- Visual: RDBMS join chain -->
+                <div class="diagram-box">
+                    <div class="node-row" style="justify-content:flex-start;gap:0;overflow-x:auto">
+                        <div
+                            style="background:#fde8e0;border:1px solid var(--rust);border-radius:6px;padding:10px 16px;font-size:13px;font-weight:700;color:var(--rust);flex-shrink:0">
+                            User</div>
+                        <div class="rel-arrow">
+                            <div class="rel-name">JOIN</div>
+                            <div class="arrow-line"></div>
+                        </div>
+                        <div
+                            style="background:#fde8e0;border:1px solid var(--rust);border-radius:6px;padding:10px 16px;font-size:13px;font-weight:700;color:var(--rust);flex-shrink:0">
+                            Order</div>
+                        <div class="rel-arrow">
+                            <div class="rel-name">JOIN</div>
+                            <div class="arrow-line"></div>
+                        </div>
+                        <div
+                            style="background:#fde8e0;border:1px solid var(--rust);border-radius:6px;padding:10px 16px;font-size:13px;font-weight:700;color:var(--rust);flex-shrink:0">
+                            LineItem</div>
+                        <div class="rel-arrow">
+                            <div class="rel-name">JOIN</div>
+                            <div class="arrow-line"></div>
+                        </div>
+                        <div
+                            style="background:#fde8e0;border:1px solid var(--rust);border-radius:6px;padding:10px 16px;font-size:13px;font-weight:700;color:var(--rust);flex-shrink:0">
+                            Product</div>
+                    </div>
+                    <p class="diagram-caption">Query "What did Alice order?" — RDBMS must JOIN 4 tables. Gets
+                        exponentially slower as connection depth increases.</p>
+                </div>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 Key Quote from Lecturer</div>
+                    <p><strong>"For the relational database, we focus on data storage. For the graph database, we focus
+                            on the relationship."</strong> RDBMS was designed to replace paper filing cabinets — it was
+                        never built to traverse deeply connected networks.</p>
+                </div>
+
+                <h3>Problems with NoSQL</h3>
+                <ul class="clean">
+                    <li><strong>One-directional traversal:</strong> Easy to go Alice → orders, hard to go backwards from
+                        an order to Alice.</li>
+                    <li><strong>No referential integrity:</strong> No enforcement that updating one value updates all
+                        dependent references.</li>
+                    <li><strong>Poor physical locality:</strong> System doesn't know where related documents are in
+                        memory — expensive lookups.</li>
+                </ul>
+
+                <div class="callout tip">
+                    <div class="callout-label">💡 The Bottom Line</div>
+                    <p>RDBMS: great at storing structured data, bad at traversing relationships. NoSQL: great for
+                        unstructured data, bad at maintaining connections. Graph DB: designed specifically so
+                        <em>relationships</em> are the primary concern — first-class citizens.</p>
+                </div>
+            </div>
+
+            <!-- SECTION 3 -->
+            <div class="section" id="db-vs-engine">
+                <div class="section-header">
+                    <div class="section-num">03</div>
+                    <h2>Graph Database vs. Graph Compute Engine</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 The Analogy</div>
+                    <p><strong>Graph Database ≈ OLTP.</strong> Real-time, CRUD operations, daily use. Example:
+                        Neo4j.<br>
+                        <strong>Graph Compute Engine ≈ OLAP.</strong> Batch processing, global algorithms, not
+                        real-time.
+                    </p>
+                </div>
+
+                <div class="compare-grid">
+                    <div class="compare-card">
+                        <div class="compare-card-head a">Graph Database (OLTP-like)</div>
+                        <div class="compare-card-body">
+                            <ul>
+                                <li>Stores data persistently as a graph</li>
+                                <li>Supports Create, Read, Update, Delete (CRUD)</li>
+                                <li>Designed for real-time queries on connected data</li>
+                                <li>Example: <strong>Neo4j</strong> (most popular)</li>
+                                <li>Used in: social networks, fraud detection, recommendations</li>
+                                <li><strong>This unit's focus</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="compare-card">
+                        <div class="compare-card-head b">Graph Compute Engine (OLAP-like)</div>
+                        <div class="compare-card-body">
+                            <ul>
+                                <li>Runs global graph algorithms on large datasets</li>
+                                <li>Optimised for batch processing — not real-time</li>
+                                <li>Data is extracted, transformed, then loaded</li>
+                                <li>In-memory processing for speed</li>
+                                <li>Examples: PageRank, community detection, shortest path across entire graph</li>
+                                <li>Not this unit's focus</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Native vs. Non-Native Graph Storage</h3>
+                <ul class="clean">
+                    <li><strong>Native (e.g. Neo4j):</strong> Data stored physically as a graph in memory. Each node has
+                        a direct pointer to its neighbours. Traversal follows pointers — no index scanning needed. This
+                        is called <strong>index-free adjacency</strong>.</li>
+                    <li><strong>Non-native:</strong> Uses traditional storage (relational/key-value) underneath,
+                        presents results in graph form. Slower traversal.</li>
+                </ul>
+            </div>
+
+            <!-- SECTION 4 -->
+            <div class="section" id="why-graph">
+                <div class="section-header">
+                    <div class="section-num">04</div>
+                    <h2>Why Graph Databases? — 3 Reasons</h2>
+                </div>
+
+                <h3>Reason 1 — Performance</h3>
+                <p>In a graph DB, query time is proportional to <strong>the size of the subgraph traversed</strong>, not
+                    the size of the entire graph. You start at a node and follow its direct edges — the rest of the
+                    graph is untouched.</p>
+
+                <!-- Visual: Performance comparison table -->
+                <div class="diagram-box">
+                    <div class="table-wrap" style="margin:0">
+                        <table>
+                            <tr>
+                                <th>Depth</th>
+                                <th>RDBMS</th>
+                                <th>Neo4j</th>
+                            </tr>
+                            <tr>
+                                <td>2 hops (friends of friends)</td>
+                                <td style="color:var(--rust)">~2 seconds</td>
+                                <td style="color:#27500A">~2 milliseconds</td>
+                            </tr>
+                            <tr>
+                                <td>3 hops</td>
+                                <td style="color:var(--rust)">~30 seconds</td>
+                                <td style="color:#27500A">~4 milliseconds</td>
+                            </tr>
+                            <tr>
+                                <td>4 hops</td>
+                                <td style="color:var(--rust)">&gt; 10 minutes</td>
+                                <td style="color:#27500A">~8 milliseconds</td>
+                            </tr>
+                            <tr>
+                                <td>5 hops</td>
+                                <td style="color:var(--rust)">Infeasible</td>
+                                <td style="color:#27500A">~1 second</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <p class="diagram-caption">Real experiment from the slides: "finding friends of friends" in RDBMS vs
+                        Neo4j. RDBMS degrades exponentially; Neo4j stays nearly constant per hop because it only touches
+                        the relevant subgraph.</p>
+                </div>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 Why Graph Is Faster — Index-Free Adjacency</div>
+                    <p>Each node in Neo4j has a direct memory pointer to its neighbours. There is no need to look up a
+                        global index. In RDBMS, every join requires an index scan across the full table. The deeper you
+                        traverse, the worse RDBMS gets. Graph DB performance stays roughly constant per hop.</p>
+                </div>
+
+                <h3>Reason 2 — Flexibility (Naturally Additive)</h3>
+                <p>Graphs are <strong>naturally additive</strong>: you can add new labels, new relationship types, and
+                    new properties to specific nodes <em>without breaking any existing queries</em> and without a schema
+                    migration.</p>
+                <ul class="clean">
+                    <li>RDBMS: new relationship type → ALTER TABLE → NULL for all existing rows → potential query
+                        rewrites</li>
+                    <li>Graph DB: add a WORKS_IN relationship to some nodes → nothing else changes → existing queries
+                        return identical results</li>
+                </ul>
+                <div class="callout lecturer">
+                    <div class="callout-label">💬 Lecturer</div>
+                    <p>"If I want to add Helen works in Company A, just add the node for company and a WORKS_IN
+                        relationship. You don't need to change the schema because for graph database, <strong>we don't
+                            have a schema</strong>."</p>
+                </div>
+
+                <h3>Reason 3 — Agility (Schema-Free)</h3>
+                <ul class="clean">
+                    <li>No schema to define upfront — model as you go</li>
+                    <li>No NULL values — if a property doesn't apply to a node, it simply isn't stored</li>
+                    <li>No ACID constraints or normalisation rules (1NF, 2NF, 3NF) required</li>
+                    <li>Natural language maps directly to the graph model</li>
+                    <li>Schema-free means you don't need to plan everything in advance — you can extend ad hoc</li>
+                </ul>
+            </div>
+
+            <!-- SECTION 5 -->
+            <div class="section" id="property-model">
+                <div class="section-header">
+                    <div class="section-num">05</div>
+                    <h2>The Property Graph Model</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 Four Components — All Examinable</div>
+                    <p><strong>Nodes</strong> (entities) · <strong>Labels</strong> (type tags on nodes, can have
+                        multiple) · <strong>Properties</strong> (key-value pairs on nodes OR relationships) ·
+                        <strong>Relationships</strong> (named, directed, must have start and end node)</p>
+                </div>
+
+                <!-- Visual: Property graph example (X/Twitter from slides) -->
+                <div class="diagram-box">
+                    <div
+                        style="text-align:center;margin-bottom:18px;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--muted)">
+                        X (Twitter) Social Network — Graph DB Example</div>
+                    <div class="node-row" style="gap:12px;justify-content:center;flex-wrap:wrap">
+                        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+                            <span
+                                style="font-size:10px;background:#dbeafe;border:1px solid #185FA5;border-radius:12px;padding:2px 8px;color:#0C447C;font-family:'JetBrains Mono',monospace">User</span>
+                            <div class="node"><strong>Billy</strong><span>name: Billy</span></div>
+                        </div>
+                        <div class="rel-arrow" style="margin-top:28px">
+                            <div class="rel-name">FOLLOWS</div>
+                            <div class="arrow-line"></div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+                            <span
+                                style="font-size:10px;background:#dbeafe;border:1px solid #185FA5;border-radius:12px;padding:2px 8px;color:#0C447C;font-family:'JetBrains Mono',monospace">User</span>
+                            <div class="node"><strong>Ruth</strong><span>name: Ruth</span></div>
+                        </div>
+                        <div class="rel-arrow" style="margin-top:28px">
+                            <div class="rel-name">FOLLOWS</div>
+                            <div class="arrow-line"></div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+                            <span
+                                style="font-size:10px;background:#fef3c7;border:1px solid #854F0B;border-radius:12px;padding:2px 8px;color:#633806;font-family:'JetBrains Mono',monospace">Admin</span>
+                            <span
+                                style="font-size:10px;background:#dbeafe;border:1px solid #185FA5;border-radius:12px;padding:2px 8px;color:#0C447C;font-family:'JetBrains Mono',monospace">User</span>
+                            <div class="node"><strong>Harry</strong><span>name: Harry</span></div>
+                        </div>
+                    </div>
+                    <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--muted)">
+                        Harry has <strong>TWO labels</strong>: User AND Admin (nodes can have multiple labels)
+                    </div>
+                    <p class="diagram-caption">Circles = nodes · Rectangles above = labels · Text inside = properties
+                        (key-value pairs) · FOLLOWS = named directed relationship</p>
+                </div>
+
+                <h3>Rules for Nodes</h3>
+                <ul class="clean">
+                    <li>Can have <strong>zero or more labels</strong> — Harry is both a User AND Admin simultaneously
+                    </li>
+                    <li>Can have <strong>zero or more properties</strong> — key-value pairs (name: "Alice", age: 28,
+                        email: "...")</li>
+                    <li>If a property doesn't apply, it's simply absent — <strong>no NULLs ever stored</strong></li>
+                </ul>
+
+                <h3>Rules for Relationships</h3>
+                <ul class="clean">
+                    <li>Must be <strong>named</strong>: FOLLOWS, FRIEND_OF, SOLD, CONTAINS, REPORTS_TO</li>
+                    <li>Must be <strong>directed</strong>: always have a start node → end node (shown with arrows)</li>
+                    <li>Must have <strong>both a start AND end node</strong> — cannot connect to nothing.
+                        Self-connections (node → itself) are allowed.</li>
+                    <li>Can also have <strong>properties</strong>: e.g. CONTAINS relationship can have unitPrice,
+                        quantity, discount</li>
+                    <li>Relationships are <strong>first-class citizens</strong> — they are the whole point of a graph DB
+                    </li>
+                </ul>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 Exam Point — Relationships Are First-Class</div>
+                    <p>Lecturer: <strong>"In the graph database, we focus on the relationship. The edge is the
+                            first-order citizen."</strong> In RDBMS, a foreign key is just a number. In graph DB, the
+                        relationship is explicitly named (SOLD, FRIEND_OF) — you immediately understand what it means.
+                    </p>
+                </div>
+
+                <h3>Property Graph Model — Full Diagram (from Slides)</h3>
+                <div class="diagram-box">
+                    <div class="table-wrap" style="margin:0">
+                        <table>
+                            <tr>
+                                <th>Component</th>
+                                <th>What it is</th>
+                                <th>Rules</th>
+                                <th>Example</th>
+                            </tr>
+                            <tr>
+                                <td><strong>Node</strong></td>
+                                <td>An entity in the graph</td>
+                                <td>Can have 0+ labels, 0+ properties</td>
+                                <td>A User named "Billy"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Label</strong></td>
+                                <td>A type tag on a node</td>
+                                <td>One node can have multiple labels</td>
+                                <td>"User" AND "Admin" on Harry</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Property</strong></td>
+                                <td>Key-value attribute on node OR relationship</td>
+                                <td>Optional — absent if not applicable (no NULL)</td>
+                                <td>name:"Alice", id:101, quantity:3</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Relationship</strong></td>
+                                <td>A named, directed connection between two nodes</td>
+                                <td>Must be named, directed, have start and end node</td>
+                                <td>FOLLOWS, SOLD, CONTAINS</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <p class="diagram-caption">All four components are required knowledge for the exam.</p>
+                </div>
+            </div>
+
+            <!-- SECTION 6 -->
+            <div class="section" id="modelling-scratch">
+                <div class="section-header">
+                    <div class="section-num">06</div>
+                    <h2>Graph Data Modelling from Scratch</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 Core Idea</div>
+                    <p>Graph modelling translates <strong>natural language</strong> directly into a graph. "Tom enrolled
+                        in CITS3401" → Tom node (label: Student) + CITS3401 node (label: Unit) + ENROLLED_IN
+                        relationship. No schema to define first — graph DB is schema-free.</p>
+                </div>
+
+                <h3>The 5-Step Whiteboard Method (from Slides)</h3>
+
+                <div class="steps-row">
+                    <div class="step-box"><strong>Step 1</strong>Plan nodes</div>
+                    <div class="step-box"><strong>Step 2</strong>Plan relationships</div>
+                    <div class="step-box"><strong>Step 3</strong>Node labels</div>
+                    <div class="step-box"><strong>Step 4</strong>Rel. labels</div>
+                    <div class="step-box last"><strong>Step 5</strong>Add properties</div>
+                </div>
+
+                <h3>Worked Example — UWA University (from Slides)</h3>
+                <p>Scenario: <em>"Students can enrol in at least one unit at UWA. Each unit is managed by a department,
+                        such as CSSE. A department belongs to a school; for example, CSSE belongs to PMC."</em></p>
+
+                <!-- Visual: UWA graph model -->
+                <div class="diagram-box">
+                    <div class="node-row" style="gap:0;justify-content:flex-start;overflow-x:auto">
+                        <div class="node"><strong>Student</strong><span>name, id</span></div>
+                        <div class="rel-arrow">
+                            <div class="rel-name">ENROLLED_IN</div>
+                            <div class="arrow-line"></div>
+                        </div>
+                        <div class="node"><strong>Unit</strong><span>code, name</span></div>
+                        <div class="rel-arrow">
+                            <div class="rel-name">MANAGED_BY</div>
+                            <div class="arrow-line"></div>
+                        </div>
+                        <div class="node purple"><strong>Department</strong><span>name</span></div>
+                        <div class="rel-arrow">
+                            <div class="rel-name">BELONGS_TO</div>
+                            <div class="arrow-line"></div>
+                        </div>
+                        <div class="node amber"><strong>School</strong><span>name</span></div>
+                    </div>
+                    <p class="diagram-caption">Graph model for the UWA scenario. Each circle = node with a label. Arrows
+                        = named directed relationships. Properties (name, id, code) stored inside each node.</p>
+                </div>
+
+                <h3>Two Pitfalls to Avoid (from Slides)</h3>
+
+                <h4>Pitfall 1 — Model to facilitate your queries (don't only capture WHO)</h4>
+                <div class="pitfall-grid">
+                    <div class="pitfall-card bad">
+                        <h4>❌ Bad Model</h4>
+                        <p>Users directly connected by EMAILED:</p>
+                        <p style="font-family:'JetBrains Mono',monospace;font-size:12px;margin:8px 0">(Bob) -[EMAILED]→
+                            (Charlie)<br>(Bob) -[BCC]→ (Davina)</p>
+                        <ul>
+                            <li>Cannot answer: "What was in the email?"</li>
+                            <li>Cannot answer: "Who else received it?"</li>
+                            <li>Only captures WHO, not WHAT</li>
+                        </ul>
+                    </div>
+                    <div class="pitfall-card good">
+                        <h4>✅ Good Model</h4>
+                        <p>Separate Email node added:</p>
+                        <p style="font-family:'JetBrains Mono',monospace;font-size:12px;margin:8px 0">(Bob) -[SENT]→
+                            (Email)<br>(Email) -[TO]→ (Charlie)<br>(Email) -[BCC]→ (Davina)</p>
+                        <ul>
+                            <li>Can query email content</li>
+                            <li>Can find all recipients (TO, CC, BCC)</li>
+                            <li>Captures WHO and WHAT</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h4>Pitfall 2 — Think ahead so the graph can evolve</h4>
+                <div class="pitfall-grid">
+                    <div class="pitfall-card bad">
+                        <h4>❌ Bad Model</h4>
+                        <p>Only one type of relationship between emails:</p>
+                        <ul>
+                            <li>Alice -[REPLIED_TO]→ Email 1234 -[TO]→ Charlie</li>
+                            <li>Cannot distinguish: did Alice send, reply, or forward?</li>
+                            <li>Cannot track reply chains</li>
+                        </ul>
+                    </div>
+                    <div class="pitfall-card good">
+                        <h4>✅ Good Model</h4>
+                        <p>Separate email nodes per message:</p>
+                        <ul>
+                            <li>Alice -[SENT]→ Email11 -[FORWARD_OF]→ Email12</li>
+                            <li>Can distinguish sent, replied, forwarded</li>
+                            <li>Can trace full thread history</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 Modelling Rule</div>
+                    <p>From the slides: <strong>"Make sure your graph model facilitates the types of queries you are
+                            interested in."</strong> Before finalising, check every business query: can this model
+                        answer it? If not, add the missing nodes or relationships.</p>
+                </div>
+            </div>
+
+            <!-- SECTION 7 -->
+            <div class="section" id="modelling-rdbms">
+                <div class="section-header">
+                    <div class="section-num">07</div>
+                    <h2>Converting RDBMS → Graph DB</h2>
+                </div>
+
+                <p>When migrating an existing relational database to graph, apply three transformation rules:</p>
+
+                <div class="formula">Row → Node &nbsp;&nbsp;|&nbsp;&nbsp; Table Name → Label &nbsp;&nbsp;|&nbsp;&nbsp;
+                    Join / FK → Relationship</div>
+
+                <!-- Visual: 3 conversion rules -->
+                <div class="diagram-box">
+                    <div class="conv-rule">
+                        <div class="conv-from">Each ROW in a table</div>
+                        <div class="conv-arrow-txt">→</div>
+                        <div class="conv-to">Becomes a NODE</div>
+                        <span style="font-size:13px;color:var(--muted)">Row in Orders table → one Order node</span>
+                    </div>
+                    <div class="conv-rule">
+                        <div class="conv-from">TABLE NAME</div>
+                        <div class="conv-arrow-txt">→</div>
+                        <div class="conv-to">Becomes a LABEL</div>
+                        <span style="font-size:13px;color:var(--muted)">Table "Products" → label Product on each
+                            node</span>
+                    </div>
+                    <div class="conv-rule">
+                        <div class="conv-from">FOREIGN KEY / JOIN TABLE</div>
+                        <div class="conv-arrow-txt">→</div>
+                        <div class="conv-to">Becomes a RELATIONSHIP</div>
+                        <span style="font-size:13px;color:var(--muted)">OrderDetails join table → CONTAINS relationship
+                            with properties</span>
+                    </div>
+                    <p class="diagram-caption">The three golden rules. Join tables disappear entirely — they become
+                        named relationships, with their non-key columns becoming relationship properties.</p>
+                </div>
+
+                <h3>Northwind Dataset Example (from Slides)</h3>
+                <div class="table-wrap">
+                    <table>
+                        <tr>
+                            <th>RDBMS Element</th>
+                            <th>Graph DB Result</th>
+                        </tr>
+                        <tr>
+                            <td>Row in Orders table</td>
+                            <td>Becomes an <code>Order</code> node</td>
+                        </tr>
+                        <tr>
+                            <td>Row in Products table</td>
+                            <td>Becomes a <code>Product</code> node</td>
+                        </tr>
+                        <tr>
+                            <td>Suppliers ↔ Products (FK)</td>
+                            <td><code>SUPPLIES</code> relationship (Supplier → Product)</td>
+                        </tr>
+                        <tr>
+                            <td>Products ↔ Categories (FK)</td>
+                            <td><code>PART_OF</code> relationship (Product → Category)</td>
+                        </tr>
+                        <tr>
+                            <td>Employees ↔ Orders (FK)</td>
+                            <td><code>SOLD</code> relationship (Employee → Order)</td>
+                        </tr>
+                        <tr>
+                            <td>Employees self-join (manager)</td>
+                            <td><code>REPORTS_TO</code> relationship (Employee → Employee)</td>
+                        </tr>
+                        <tr>
+                            <td>OrderDetails join table (OrderID, ProductID, qty, unitPrice, discount)</td>
+                            <td><code>CONTAINS</code> relationship with properties: quantity, unitPrice, discount</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Visual: Northwind schema-level graph -->
+                <div class="diagram-box">
+                    <div class="node-row" style="gap:0;justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap">
+                        <div class="node"><strong>Employee</strong><span>id, name</span></div>
+                        <div class="rel-arrow">
+                            <div class="rel-name">SOLD</div>
+                            <div class="arrow-line"></div>
+                        </div>
+                        <div class="node"><strong>Order</strong><span>orderID</span></div>
+                        <div class="rel-arrow">
+                            <div class="rel-name">CONTAINS</div>
+                            <div class="arrow-line"></div>
+                        </div>
+                        <div class="node amber"><strong>Product</strong><span>name, price</span></div>
+                        <div class="rel-arrow">
+                            <div class="rel-name">PART_OF</div>
+                            <div class="arrow-line"></div>
+                        </div>
+                        <div class="node purple"><strong>Category</strong><span>name</span></div>
+                    </div>
+                    <div
+                        style="margin-top:10px;font-size:12px;background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-family:'JetBrains Mono',monospace">
+                        CONTAINS has properties: unitPrice, quantity, discount<br>
+                        Employee also has REPORTS_TO (self-loop: Employee → Employee)<br>
+                        Supplier has SUPPLIES relationship → Product
+                    </div>
+                    <p class="diagram-caption">Northwind schema-level graph. OrderDetails join table became CONTAINS
+                        relationship. Employee self-join became REPORTS_TO.</p>
+                </div>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 Exam Point — Identifying Join Tables</div>
+                    <p>A join (relationship) table in RDBMS has <strong>exactly 2 foreign keys as its composite primary
+                            key</strong> and represents a many-to-many relationship. In graph DB: <strong>the join table
+                            disappears</strong> — it becomes a named relationship. Its non-key columns become
+                        relationship properties.</p>
+                </div>
+
+                <h3>Special relationship types</h3>
+                <ul class="clean">
+                    <li><strong>One-to-many:</strong> Direct relationship from one node to many (one Supplier SUPPLIES
+                        many Products)</li>
+                    <li><strong>Many-to-many:</strong> Named relationship with properties — no join table needed in
+                        graph DB</li>
+                    <li><strong>Self-referential:</strong> Relationship from a node to another node of the same label
+                        (Employee REPORTS_TO Employee)</li>
+                </ul>
+            </div>
+
+            <!-- SECTION 8 -->
+            <div class="section" id="differences">
+                <div class="section-header">
+                    <div class="section-num">08</div>
+                    <h2>How Graph Model Differs from RDBMS</h2>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Relational DB</th>
+                            <th>Graph DB</th>
+                        </tr>
+                        <tr>
+                            <td><strong>NULL values</strong></td>
+                            <td>Common — absent values stored as NULL</td>
+                            <td>None — absent properties simply don't exist</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Relationships</strong></td>
+                            <td>Foreign key = a meaningless number</td>
+                            <td>Named, directed, self-documenting (SOLD, FRIEND_OF)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Schema</strong></td>
+                            <td>Rigid — defined upfront, hard to change</td>
+                            <td>Schema-free — evolve on the fly</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Normalisation</strong></td>
+                            <td>1NF, 2NF, 3NF — required</td>
+                            <td>Not required</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Adding new data types</strong></td>
+                            <td>ALTER TABLE, NULL-filling old rows</td>
+                            <td>Add new label/relationship — nothing breaks</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Recursive queries</strong></td>
+                            <td>Complex 15+ lines of recursive SQL</td>
+                            <td>Simple Cypher traversal</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Performance (connected)</strong></td>
+                            <td>Degrades exponentially with join depth</td>
+                            <td>Proportional to subgraph — stays fast</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Query language</strong></td>
+                            <td>SQL — universal</td>
+                            <td>Cypher (Neo4j) — less standardised</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Industry adoption</strong></td>
+                            <td>Dominant — most industries use RDBMS</td>
+                            <td>Growing — specialised use cases</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="callout lecturer">
+                    <div class="callout-label">💬 Lecturer on Graph DB Disadvantages</div>
+                    <p>A student asked "seems like graph DB is just better — any downsides?" Lecturer: <strong>"The
+                            graph database contributes very small to industry. Most still use relational database
+                            because retrieval is easy — it's a table. Another issue is the lack of standard — everyone
+                            has their own standards."</strong></p>
+                </div>
+
+                <h3>No NULLs — A Key Structural Difference</h3>
+                <p>In RDBMS, adding a "favourite_product" column to Users forces NULL for every user without a favourite
+                    product. In graph DB, you simply don't add that property to those nodes. Non-existing values are
+                    just absent — the property doesn't exist on that node at all. This makes the graph naturally sparse
+                    and avoids NULL pollution.</p>
+            </div>
+
+            <!-- SUMMARY -->
+            <div class="section" id="summary">
+                <div class="section-header">
+                    <div class="section-num">★</div>
+                    <h2>Summary</h2>
+                </div>
+                <div class="summary-box">
+                    <h3>Lecture 07 — Key Takeaways</h3>
+                    <ul>
+                        <li>Graph = nodes (vertices) + relationships (edges). Used to model any connected domain.</li>
+                        <li>RDBMS: slow joins, inflexible schema, relationships are just FK numbers, recursive queries
+                            painful.</li>
+                        <li>Graph DB ≈ OLTP (real-time, CRUD, Neo4j). Graph Compute Engine ≈ OLAP (batch). This unit =
+                            Graph DB.</li>
+                        <li>3 reasons: Performance (only traverses the relevant subgraph), Flexibility (naturally
+                            additive), Agility (schema-free).</li>
+                        <li>Property Graph Model has 4 components: Nodes, Labels, Properties, Relationships.</li>
+                        <li>Nodes can have multiple labels. Relationships must have start AND end node. Both can have
+                            properties.</li>
+                        <li>Relationships are first-class citizens — named explicitly, not just a number.</li>
+                        <li>No NULLs — absent properties are simply not stored on a node.</li>
+                        <li>5-step whiteboard: plan nodes → relationships → node labels → relationship labels →
+                            properties.</li>
+                        <li>RDBMS→Graph: Row=Node, Table Name=Label, Foreign Key/Join Table=Relationship.</li>
+                        <li>Join tables disappear — they become named relationships with their non-key columns as
+                            relationship properties.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- CHECKLIST -->
+            <div class="section" id="checklist">
+                <div class="section-header">
+                    <div class="section-num">✓</div>
+                    <h2>Revision Checklist</h2>
+                </div>
+                <ul class="checklist">
+                    <li>
+                        <div class="check-box"></div>I can define a graph and give three real-world examples
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can explain three limitations of RDBMS for connected data
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know the difference between a Graph Database (OLTP-like) and a
+                        Graph Compute Engine (OLAP-like)
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can explain all 3 reasons graph DBs are powerful: Performance,
+                        Flexibility, Agility
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can name and describe all 4 components of the Property Graph
+                        Model with examples
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know nodes can have multiple labels, and relationships must
+                        always have start AND end node
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I understand why there are no NULLs in a graph DB
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can apply the 5-step whiteboard method to design a graph model
+                        from a scenario
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know the 3 RDBMS→Graph conversion rules and can apply them
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can identify a join table in RDBMS and explain how it converts to
+                        a named relationship with properties
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can convert the Northwind dataset tables to their graph
+                        equivalents (SUPPLIES, PART_OF, SOLD, REPORTS_TO, CONTAINS)
+                    </li>
+                </ul>
+            </div>
+
+            <!-- EXAM QUESTIONS -->
+            <div class="section" id="questions">
+                <div class="section-header">
+                    <div class="section-num">?</div>
+                    <h2>Exam-Style Practice Questions</h2>
+                </div>
+                <div class="quiz">
+                    <div class="quiz-item">
+                        <p><strong>Explain three limitations of relational databases when dealing with highly connected
+                                data. Give a specific example for each.</strong></p>
+                        <p class="hint">Hint: (1) JOIN slowdown — friends-of-friends query joins Users table against
+                            itself repeatedly; (2) Inflexible schema — new "works_at" column means ALTER TABLE + NULL
+                            for all users; (3) Recursive queries — management hierarchy needs 15+ lines of recursive
+                            SQL.</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>What are the four components of the Property Graph Model? Define each with an example
+                                from a social network.</strong></p>
+                        <p class="hint">Hint: Node (User "Alice"), Label ("User" or "Admin" — a node can have multiple),
+                            Property (name:"Alice" on node, or since:2020 on a relationship), Relationship (FOLLOWS —
+                            named, directed, must have start and end node).</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>What is the difference between a Graph Database and a Graph Compute Engine? Which
+                                analogy from the course describes each?</strong></p>
+                        <p class="hint">Hint: Graph DB = OLTP (real-time, CRUD, Neo4j). Graph Compute Engine = OLAP
+                            (batch global algorithms like PageRank, not real-time). This unit focuses on the graph DB.
+                        </p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>You have tables: Students(ID, Name), Courses(Code, Name, DeptID), Departments(DeptID,
+                                Name), Enrolments(StudentID, CourseCode, Grade, Year). Convert to a graph DB
+                                model.</strong></p>
+                        <p class="hint">Hint: Nodes: Student, Course, Department. Enrolments is a join table → becomes
+                            ENROLLED_IN relationship with Grade and Year as relationship properties. Courses FK to
+                            Departments → BELONGS_TO relationship. No NULLs — absent grades just aren't stored.</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>Explain why graph databases have no NULL values. How does this differ from
+                                RDBMS?</strong></p>
+                        <p class="hint">Hint: In graph DB, if a property doesn't apply to a node, it simply isn't stored
+                            — the property is absent. In RDBMS, adding a new column forces NULL for all rows that don't
+                            have that value. On conversion: nullable columns become optional properties that some nodes
+                            may or may not have.</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>Apply the 5-step whiteboard method to design a graph DB for: "An airline operates
+                                flights between airports. Each flight is piloted by one pilot and carries passengers.
+                                Airports are located in countries."</strong></p>
+                        <p class="hint">Hint: Nodes: Flight, Airport, Pilot, Passenger, Country. Relationships:
+                            DEPARTS_FROM, ARRIVES_AT (Flight→Airport), PILOTED_BY (Flight→Pilot), CARRIED
+                            (Flight→Passenger), LOCATED_IN (Airport→Country). Properties: Flight{flightNumber, date},
+                            Airport{IATA_code, name}.</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ═══════════════ EXAM Q&A SECTION ═══════════════ -->
+
+            <div class="section" id="short-answers">
+                <div class="section-header">
+                    <div class="section-num">★</div>
+                    <h2>Possible Exam Questions &amp; Model Answers</h2>
+                </div>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 How to Use This Section</div>
+                    <p>These are the exact questions listed for your exam. Read each question, cover the answer, try to
+                        recall it, then check. For scenario questions, sketch the graph on paper first before reading
+                        the solution.</p>
+                </div>
+
+                <h3>Short Answer Questions</h3>
+
+                <div class="qa-block" id="q-sa-1">
+                    <div class="qa-q">1. What is a graph database?</div>
+                    <div class="qa-a">
+                        <p>A <strong>graph database</strong> is a database management system that uses a graph structure
+                            to store, map, and query relationships between data. Instead of tables and rows, it stores
+                            data as <strong>nodes</strong> (entities) and <strong>relationships</strong> (connections
+                            between entities), each of which can have properties (key-value attributes).</p>
+                        <p>Key characteristics:</p>
+                        <ul>
+                            <li>Built for OLTP — supports Create, Read, Update, Delete (CRUD) in real time</li>
+                            <li>Optimised for traversing relationships — query time proportional to subgraph, not full
+                                dataset</li>
+                            <li>Schema-free — no fixed table structure; can evolve without migration</li>
+                            <li>No NULL values — absent properties are simply not stored</li>
+                            <li>Best example: <strong>Neo4j</strong> (the most widely used graph database)</li>
+                        </ul>
+                        <div class="qa-one-liner">One-liner: A graph database stores data as nodes and relationships
+                            rather than tables and rows, making it ideal for highly connected data.</div>
+                    </div>
+                </div>
+
+                <div class="qa-block" id="q-sa-2">
+                    <div class="qa-q">2. Define node, relationship, label, and property.</div>
+                    <div class="qa-a">
+                        <div class="table-wrap">
+                            <table>
+                                <tr>
+                                    <th>Term</th>
+                                    <th>Definition</th>
+                                    <th>Example</th>
+                                </tr>
+                                <tr>
+                                    <td><strong>Node</strong></td>
+                                    <td>The fundamental unit of a graph — represents a real-world entity or object.
+                                        Equivalent to a row in a relational table.</td>
+                                    <td>A User named "Alice", an Order with ID 1234, a Product called "Laptop"</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Relationship</strong></td>
+                                    <td>A named, directed connection between two nodes. Always has a start node and an
+                                        end node. Can have properties. Equivalent to a foreign key — but explicitly
+                                        named and meaningful.</td>
+                                    <td>FOLLOWS (User → User), SOLD (Employee → Order), CONTAINS (Order → Product)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Label</strong></td>
+                                    <td>A type tag applied to a node to classify it. One node can have multiple labels
+                                        simultaneously.</td>
+                                    <td>A node can be labelled "User" AND "Admin" at the same time</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Property</strong></td>
+                                    <td>A key-value attribute stored on a node OR a relationship. Optional — if a
+                                        property doesn't apply, it is simply not stored (no NULL).</td>
+                                    <td>name:"Alice", age:28 on a node; quantity:3, unitPrice:9.99 on a CONTAINS
+                                        relationship</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="qa-one-liner">Memory hook: Nodes = things. Labels = what type of thing. Properties =
+                            details about the thing. Relationships = how things connect.</div>
+                    </div>
+                </div>
+
+                <div class="qa-block" id="q-sa-3">
+                    <div class="qa-q">3. Why are recursive queries easier in graph databases?</div>
+                    <div class="qa-a">
+                        <p>In a <strong>relational database</strong>, recursive queries (e.g. "find all employees who
+                            report to this manager, and who reports to them, and so on") require complex SQL using
+                            Common Table Expressions (CTEs) or recursive WITH clauses — often 15+ lines of code, and
+                            still slow because each level requires joining the entire table against itself.</p>
+                        <p>In a <strong>graph database</strong> (Neo4j/Cypher), the same query is a simple traversal:
+                            follow the REPORTS_TO relationship as many hops as needed. The query is just a few lines,
+                            and execution only touches the relevant nodes — not the full dataset.</p>
+                        <div class="compare-grid" style="margin-top:14px">
+                            <div class="compare-card">
+                                <div class="compare-card-head b">RDBMS — Recursive Query</div>
+                                <div class="compare-card-body">
+                                    <p style="font-family:'JetBrains Mono',monospace;font-size:12px;margin:0">WITH
+                                        RECURSIVE chain AS (<br>
+                                        &nbsp; SELECT emp_id, manager_id<br>
+                                        &nbsp; FROM employees WHERE emp_id = 5<br>
+                                        &nbsp; UNION ALL<br>
+                                        &nbsp; SELECT e.emp_id, e.manager_id<br>
+                                        &nbsp; FROM employees e<br>
+                                        &nbsp; JOIN chain c ON e.emp_id = c.manager_id<br>
+                                        )<br>
+                                        SELECT * FROM chain;</p>
+                                    <p style="margin-top:8px;font-size:13px;color:var(--rust)">Slow for deep
+                                        hierarchies. Joins entire table at each level.</p>
+                                </div>
+                            </div>
+                            <div class="compare-card">
+                                <div class="compare-card-head a">Neo4j Cypher — Same Query</div>
+                                <div class="compare-card-body">
+                                    <p style="font-family:'JetBrains Mono',monospace;font-size:12px;margin:0">MATCH
+                                        (e:Employee<br>
+                                        &nbsp; {emp_id: 5})<br>
+                                        &lt;-[:REPORTS_TO*]-<br>
+                                        (subordinate)<br>
+                                        RETURN subordinate</p>
+                                    <p style="margin-top:8px;font-size:13px;color:#27500A">Fast. Only traverses the
+                                        relevant subgraph. Depth specified with * (any depth).</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="qa-one-liner">Reason: Graph DB stores relationships as direct memory pointers —
+                            traversal follows pointers without scanning any table. RDBMS must join the entire table at
+                            every level of recursion.</div>
+                    </div>
+                </div>
+
+                <div class="qa-block" id="q-sa-4">
+                    <div class="qa-q">4. Why are graph databases schema-free?</div>
+                    <div class="qa-a">
+                        <p>Graph databases are schema-free because they do not require a predefined structure (schema)
+                            to store data. In a relational database, you must define all tables, columns, and data types
+                            before inserting any data, and changing the schema is expensive (ALTER TABLE, data
+                            migration, NULL-filling).</p>
+                        <p>In a graph database:</p>
+                        <ul>
+                            <li>New node types (labels) can be added at any time without affecting existing nodes</li>
+                            <li>New relationship types can be added between specific nodes without changing anything
+                                else</li>
+                            <li>New properties can be added to individual nodes without affecting others — no NULLs for
+                                nodes that don't have that property</li>
+                            <li>Existing queries continue working unchanged when new data is added</li>
+                        </ul>
+                        <p>This makes graphs <strong>naturally additive</strong> — you build the model incrementally as
+                            your understanding of the domain grows, rather than planning everything upfront.</p>
+                        <div class="qa-one-liner">Schema-free = add new node types, relationship types, and properties
+                            at any time without breaking anything or migrating data.</div>
+                    </div>
+                </div>
+
+                <div class="qa-block" id="q-sa-5">
+                    <div class="qa-q">5. How are NULL values handled in graph databases?</div>
+                    <div class="qa-a">
+                        <p><strong>Graph databases have no NULL values.</strong> If a property does not apply to a node
+                            or relationship, it is simply not stored — the property is absent. There is no concept of
+                            storing a placeholder like NULL.</p>
+                        <p>Comparison:</p>
+                        <ul>
+                            <li><strong>RDBMS:</strong> Adding a new column (e.g. "twitter_handle") means every existing
+                                row gets NULL for that column, even if 95% of users don't have Twitter. Storage is
+                                wasted and queries must handle NULLs.</li>
+                            <li><strong>Graph DB:</strong> Only add the "twitter_handle" property to the specific nodes
+                                where it exists. Other nodes simply don't have that property at all — no NULL stored, no
+                                storage waste, no NULL checks needed.</li>
+                        </ul>
+                        <div class="qa-one-liner">Rule: In graph DB, missing = absent. A property that doesn't exist on
+                            a node is simply not there — never NULL.</div>
+                    </div>
+                </div>
+
+                <div class="qa-block" id="q-sa-6">
+                    <div class="qa-q">6. What is a property graph model?</div>
+                    <div class="qa-a">
+                        <p>The <strong>property graph model</strong> is the most common data model used in graph
+                            databases (including Neo4j). It defines exactly what a graph database can store:</p>
+                        <div class="table-wrap">
+                            <table>
+                                <tr>
+                                    <th>Component</th>
+                                    <th>Definition</th>
+                                    <th>Key Rules</th>
+                                </tr>
+                                <tr>
+                                    <td><strong>Nodes</strong></td>
+                                    <td>Represent entities (people, products, places, events)</td>
+                                    <td>Can have 0+ labels, 0+ properties</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Labels</strong></td>
+                                    <td>Type tags that classify nodes (like a table name)</td>
+                                    <td>One node can have multiple labels</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Properties</strong></td>
+                                    <td>Key-value pairs storing attributes on nodes or relationships</td>
+                                    <td>Optional. If absent, simply not stored (no NULL)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Relationships</strong></td>
+                                    <td>Named, directed connections between nodes</td>
+                                    <td>Must be named, directed, have start AND end node. Can have properties.</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <p>Together, these four components allow the graph to represent any real-world domain in a way
+                            that closely mirrors natural language: "Alice FOLLOWS Bob" maps directly to: node(Alice)
+                            -[:FOLLOWS]→ node(Bob).</p>
+                        <div class="qa-one-liner">Property graph model = nodes + relationships + labels + properties.
+                            Everything in Neo4j is built from these four pieces.</div>
+                    </div>
+                </div>
+
+                <div class="qa-block" id="q-sa-7">
+                    <div class="qa-q">7. Difference between OLTP and OLAP in graph systems.</div>
+                    <div class="qa-a">
+                        <div class="table-wrap">
+                            <table>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Graph Database (OLTP-like)</th>
+                                    <th>Graph Compute Engine (OLAP-like)</th>
+                                </tr>
+                                <tr>
+                                    <td>Purpose</td>
+                                    <td>Store and query graph data in real time</td>
+                                    <td>Run global algorithms on large graph datasets in batch</td>
+                                </tr>
+                                <tr>
+                                    <td>Operations</td>
+                                    <td>CRUD — Create, Read, Update, Delete</td>
+                                    <td>Read-only analytical computation</td>
+                                </tr>
+                                <tr>
+                                    <td>Processing</td>
+                                    <td>Real-time, individual queries</td>
+                                    <td>Batch, whole-graph processing</td>
+                                </tr>
+                                <tr>
+                                    <td>Storage</td>
+                                    <td>Persistent on disk (native graph storage)</td>
+                                    <td>In-memory for processing speed</td>
+                                </tr>
+                                <tr>
+                                    <td>Example use</td>
+                                    <td>Find friends of Alice, update Bob's profile, add a new Order</td>
+                                    <td>Run PageRank on all nodes, detect communities, find all shortest paths</td>
+                                </tr>
+                                <tr>
+                                    <td>Example tool</td>
+                                    <td>Neo4j</td>
+                                    <td>Apache Spark GraphX, Neo4j Graph Data Science library</td>
+                                </tr>
+                                <tr>
+                                    <td>This unit</td>
+                                    <td>✅ Yes — this is the focus</td>
+                                    <td>Not the focus of this unit</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="qa-one-liner">Graph DB = OLTP equivalent (real-time daily use). Graph Compute Engine
+                            = OLAP equivalent (batch analysis). Same analogy as relational DB vs data warehouse.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MEDIUM/LONG -->
+            <div class="section" id="long-answers">
+                <h3>Medium / Long Answer Questions</h3>
+
+                <div class="qa-block" id="q-ml-1">
+                    <div class="qa-q">1. Compare relational databases and graph databases.</div>
+                    <div class="qa-a">
+                        <div class="table-wrap">
+                            <table>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Relational Database</th>
+                                    <th>Graph Database</th>
+                                </tr>
+                                <tr>
+                                    <td>Data model</td>
+                                    <td>Tables with rows and columns</td>
+                                    <td>Nodes and relationships</td>
+                                </tr>
+                                <tr>
+                                    <td>Schema</td>
+                                    <td>Rigid — must be defined upfront. Changes are expensive.</td>
+                                    <td>Schema-free — add nodes/labels/properties on the fly without breaking existing
+                                        queries</td>
+                                </tr>
+                                <tr>
+                                    <td>Relationships</td>
+                                    <td>Foreign keys — meaningless numbers linking tables. Meaning requires
+                                        documentation.</td>
+                                    <td>Named, directed relationships — self-documenting. SOLD, FRIEND_OF tell you
+                                        exactly what the connection means.</td>
+                                </tr>
+                                <tr>
+                                    <td>NULL values</td>
+                                    <td>Common — absent values stored as NULL, wasting space and complicating queries
+                                    </td>
+                                    <td>None — absent properties are simply not stored on the node</td>
+                                </tr>
+                                <tr>
+                                    <td>Normalisation</td>
+                                    <td>Required (1NF, 2NF, 3NF) to reduce redundancy</td>
+                                    <td>Not required — flexibility over rigidity</td>
+                                </tr>
+                                <tr>
+                                    <td>Query language</td>
+                                    <td>SQL — globally standardised</td>
+                                    <td>Cypher (Neo4j), Gremlin, SPARQL — less standardised across vendors</td>
+                                </tr>
+                                <tr>
+                                    <td>Performance for connected data</td>
+                                    <td>Degrades exponentially as join depth increases. Multi-table joins are slow.</td>
+                                    <td>Stays fast — only traverses the relevant subgraph. Index-free adjacency.</td>
+                                </tr>
+                                <tr>
+                                    <td>Recursive queries</td>
+                                    <td>Complex recursive SQL with CTEs — verbose, slow for deep hierarchies</td>
+                                    <td>Simple traversal in Cypher — a few lines, handles unlimited depth</td>
+                                </tr>
+                                <tr>
+                                    <td>Best for</td>
+                                    <td>Structured tabular data, simple relationships, standard reporting</td>
+                                    <td>Highly connected data where relationships are the primary concern</td>
+                                </tr>
+                                <tr>
+                                    <td>Industry adoption</td>
+                                    <td>Dominant — most enterprise systems still use RDBMS</td>
+                                    <td>Growing — specialised use cases (social networks, fraud detection,
+                                        recommendations)</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="qa-one-liner">Rule: If data storage is the priority → RDBMS. If relationships are
+                            the priority → Graph DB.</div>
+                    </div>
+                </div>
+
+                <div class="qa-block" id="q-ml-2">
+                    <div class="qa-q">2. Explain why graph databases perform better for highly connected data.</div>
+                    <div class="qa-a">
+                        <p>Graph databases outperform relational databases on connected data because of a property
+                            called <strong>index-free adjacency</strong>. Here is the detailed explanation:</p>
+                        <h4>How RDBMS handles connected queries</h4>
+                        <p>When you ask "find all friends of Alice's friends," the RDBMS must:</p>
+                        <ol>
+                            <li>Scan the Users table to find Alice's row</li>
+                            <li>Join the Friendships table to find Alice's friends (scanning the full table)</li>
+                            <li>Join the Friendships table again to find those friends' friends (scanning the full table
+                                again)</li>
+                            <li>Each additional hop doubles the work — scanning grows exponentially with depth</li>
+                        </ol>
+                        <h4>How Graph DB handles connected queries</h4>
+                        <p>In Neo4j, each node has a <strong>direct pointer in memory</strong> to every node it is
+                            connected to. When you ask the same question:</p>
+                        <ol>
+                            <li>Locate Alice's node (one lookup)</li>
+                            <li>Follow her FRIEND_OF pointers directly to her friends' nodes (no table scan)</li>
+                            <li>Follow those nodes' FRIEND_OF pointers directly to friends of friends (no table scan)
+                            </li>
+                            <li>Each hop is just pointer-following — cost stays constant per hop regardless of total
+                                graph size</li>
+                        </ol>
+                        <h4>The performance difference</h4>
+                        <div class="table-wrap">
+                            <table>
+                                <tr>
+                                    <th>Depth</th>
+                                    <th>RDBMS</th>
+                                    <th>Neo4j</th>
+                                </tr>
+                                <tr>
+                                    <td>2 hops (friends of friends)</td>
+                                    <td style="color:var(--rust)">~2 seconds</td>
+                                    <td style="color:#27500A">~2 milliseconds</td>
+                                </tr>
+                                <tr>
+                                    <td>3 hops</td>
+                                    <td style="color:var(--rust)">~30 seconds</td>
+                                    <td style="color:#27500A">~4 milliseconds</td>
+                                </tr>
+                                <tr>
+                                    <td>4 hops</td>
+                                    <td style="color:var(--rust)">&gt; 10 minutes</td>
+                                    <td style="color:#27500A">~8 milliseconds</td>
+                                </tr>
+                                <tr>
+                                    <td>5 hops</td>
+                                    <td style="color:var(--rust)">Infeasible</td>
+                                    <td style="color:#27500A">~1 second</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <p>The key insight: <strong>graph DB query time is proportional to the size of the subgraph
+                                traversed, NOT the total size of the graph.</strong> RDBMS query time grows with the
+                            number of rows in the full table at every hop.</p>
+                        <div class="qa-one-liner">Index-free adjacency = each node has direct memory pointers to
+                            neighbours. No table scanning needed. Cost per hop stays constant regardless of graph size.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="qa-block" id="q-ml-3">
+                    <div class="qa-q">3. Explain the conversion from relational database to graph database.</div>
+                    <div class="qa-a">
+                        <p>Converting an RDBMS to a graph database follows three simple transformation rules:</p>
+                        <div class="formula">Row → Node &nbsp;|&nbsp; Table Name → Label &nbsp;|&nbsp; Join/FK →
+                            Relationship</div>
+                        <h4>Rule 1: Each Row becomes a Node</h4>
+                        <p>Every individual record (row) in a relational table becomes one node in the graph. The data
+                            from that row's columns becomes properties on the node.</p>
+                        <ul>
+                            <li>Row: Alice | age:28 | email:alice@example.com → Node with properties: name:"Alice",
+                                age:28, email:"alice@example.com"</li>
+                        </ul>
+                        <h4>Rule 2: Table Name becomes a Label</h4>
+                        <p>The name of the relational table becomes the label applied to all nodes created from that
+                            table's rows. Labels classify nodes by type.</p>
+                        <ul>
+                            <li>Table "Products" → every node created from Products rows gets the label Product</li>
+                            <li>Table "Employees" → every node gets the label Employee</li>
+                        </ul>
+                        <h4>Rule 3: Foreign Keys and Join Tables become Relationships</h4>
+                        <p>This is the most important rule. There are three sub-cases:</p>
+                        <ul>
+                            <li><strong>Simple FK (one-to-many):</strong> Becomes a direct relationship.
+                                Employee.OrderID FK → SOLD relationship (Employee → Order)</li>
+                            <li><strong>Join table (many-to-many):</strong> The join table disappears entirely. It
+                                becomes a named relationship between the two entities. The join table's non-key columns
+                                become properties on that relationship. OrderDetails(OrderID, ProductID, quantity,
+                                unitPrice) → CONTAINS relationship with properties: quantity, unitPrice</li>
+                            <li><strong>Self-referential FK:</strong> Becomes a relationship from a node to another node
+                                of the same label. Employee.ManagerID → REPORTS_TO relationship (Employee → Employee)
+                            </li>
+                        </ul>
+                        <div class="qa-one-liner">The hardest part is identifying join tables (those with exactly 2 FKs
+                            as their composite PK) — these disappear and become named relationships.</div>
+                    </div>
+                </div>
+
+                <div class="qa-block" id="q-ml-4">
+                    <div class="qa-q">4. Explain Neo4j ETL rules with examples.</div>
+                    <div class="qa-a">
+                        <p>The Neo4j ETL (Extract, Transform, Load) process converts relational data into a graph. The
+                            ETL tool applies the standard conversion rules automatically, but you need to understand
+                            what it does:</p>
+                        <div class="table-wrap">
+                            <table>
+                                <tr>
+                                    <th>ETL Rule</th>
+                                    <th>What Happens</th>
+                                    <th>Northwind Example</th>
+                                </tr>
+                                <tr>
+                                    <td>Row → Node</td>
+                                    <td>Each table row becomes one graph node</td>
+                                    <td>Row in Orders table → one Order node with properties: orderID, orderDate,
+                                        shipCity</td>
+                                </tr>
+                                <tr>
+                                    <td>Table name → Label</td>
+                                    <td>The table name becomes the node's label (type)</td>
+                                    <td>"Suppliers" table → every node gets label Supplier</td>
+                                </tr>
+                                <tr>
+                                    <td>Column → Property</td>
+                                    <td>Each column value in the row becomes a property on the node</td>
+                                    <td>productName, unitPrice, unitsInStock → properties on Product node</td>
+                                </tr>
+                                <tr>
+                                    <td>FK → Relationship</td>
+                                    <td>A foreign key creates a named relationship between nodes</td>
+                                    <td>Orders.EmployeeID FK → SOLD relationship (Employee -[SOLD]→ Order)</td>
+                                </tr>
+                                <tr>
+                                    <td>Join table → Relationship with properties</td>
+                                    <td>Many-to-many join table becomes a relationship. Non-key columns → relationship
+                                        properties.</td>
+                                    <td>OrderDetails(OrderID FK, ProductID FK, quantity, unitPrice, discount) → CONTAINS
+                                        relationship with properties: quantity, unitPrice, discount</td>
+                                </tr>
+                                <tr>
+                                    <td>Self-join → Self-relationship</td>
+                                    <td>A foreign key pointing to the same table creates a self-referential relationship
+                                    </td>
+                                    <td>Employees.ReportsTo FK → REPORTS_TO (Employee -[REPORTS_TO]→ Employee)</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <h4>Full Northwind Conversion Result</h4>
+                        <ul class="clean">
+                            <li><strong>Supplier</strong> -[SUPPLIES]→ <strong>Product</strong> (Supplier.ProductID FK)
+                            </li>
+                            <li><strong>Product</strong> -[PART_OF]→ <strong>Category</strong> (Product.CategoryID FK)
+                            </li>
+                            <li><strong>Employee</strong> -[SOLD]→ <strong>Order</strong> (Orders.EmployeeID FK)</li>
+                            <li><strong>Employee</strong> -[REPORTS_TO]→ <strong>Employee</strong> (Employee.ReportsTo
+                                self-FK)</li>
+                            <li><strong>Order</strong> -[CONTAINS {qty, price, discount}]→ <strong>Product</strong>
+                                (OrderDetails join table)</li>
+                        </ul>
+                        <div class="qa-one-liner">Key ETL insight: Join tables (with 2 FK composite PKs) are the ones
+                            that become relationships — they disappear as nodes entirely.</div>
+                    </div>
+                </div>
+
+                <div class="qa-block" id="q-ml-5">
+                    <div class="qa-q">5. Describe the property graph model in detail.</div>
+                    <div class="qa-a">
+                        <p>The property graph model is the data model used by Neo4j and most modern graph databases. It
+                            has exactly four components:</p>
+                        <h4>1. Nodes</h4>
+                        <p>The fundamental building blocks — represent real-world entities. Each node is a
+                            self-contained data record. In Neo4j, nodes are drawn as circles.</p>
+                        <ul>
+                            <li>Can have zero or more labels</li>
+                            <li>Can have zero or more properties (key-value pairs)</li>
+                            <li>Can be connected to any number of other nodes via relationships</li>
+                        </ul>
+                        <h4>2. Labels</h4>
+                        <p>Type tags applied to nodes. Labels classify nodes by what they represent, similar to a table
+                            name in RDBMS.</p>
+                        <ul>
+                            <li>A single node can have multiple labels simultaneously — e.g. Harry is both a "User" AND
+                                an "Admin"</li>
+                            <li>Labels allow you to filter nodes by type in queries</li>
+                            <li>Labels are not unique identifiers — they are category markers</li>
+                        </ul>
+                        <h4>3. Properties</h4>
+                        <p>Key-value pairs that store attribute data. Properties can exist on both nodes AND
+                            relationships.</p>
+                        <ul>
+                            <li>Completely optional — a node with no properties is valid</li>
+                            <li>No NULLs — if a property doesn't apply to a node, it is simply absent (not stored)</li>
+                            <li>Values can be: strings, integers, floats, booleans, dates, or arrays</li>
+                            <li>Example on node: <code>name:"Alice"</code>, <code>age:28</code>,
+                                <code>email:"alice@uwa.edu.au"</code></li>
+                            <li>Example on relationship: <code>quantity:3</code>, <code>unitPrice:9.99</code> on a
+                                CONTAINS relationship</li>
+                        </ul>
+                        <h4>4. Relationships</h4>
+                        <p>Named, directed connections between exactly two nodes (start node and end node).
+                            Relationships are the most important concept in a graph database — they are first-class
+                            citizens.</p>
+                        <ul>
+                            <li>Must have a name (relationship type): FOLLOWS, SOLD, CONTAINS, REPORTS_TO</li>
+                            <li>Must be directed: always has a clear start node → end node (shown with an arrow)</li>
+                            <li>Must have both a start AND end node — a relationship cannot "float" unattached</li>
+                            <li>Self-relationships are allowed: a node can have a relationship to itself (e.g. Employee
+                                REPORTS_TO Employee)</li>
+                            <li>Can have properties: e.g. CONTAINS relationship has quantity, unitPrice, discount as
+                                properties</li>
+                        </ul>
+                        <div class="qa-one-liner">Summary: Nodes = entities. Labels = types of entities. Properties =
+                            attributes of entities/relationships. Relationships = how entities connect. All four
+                            together = the property graph model.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCENARIO QUESTIONS -->
+            <div class="section" id="scenario-answers">
+                <h3>Scenario-Based Questions</h3>
+
+                <div class="qa-block" id="q-sc-1">
+                    <div class="qa-q">Scenario 1 — Design a graph model for a university: Students, Units, Departments,
+                        Schools.</div>
+                    <div class="qa-a">
+                        <h4>Step 1: Identify the nodes</h4>
+                        <ul>
+                            <li><strong>Student</strong> — represents each student enrolled at the university</li>
+                            <li><strong>Unit</strong> — represents each course/unit offered (e.g. CITS3401)</li>
+                            <li><strong>Department</strong> — represents each academic department (e.g. CSSE)</li>
+                            <li><strong>School</strong> — represents each school grouping departments (e.g. PMC —
+                                Physics, Maths, Computing)</li>
+                        </ul>
+                        <h4>Step 2: Identify the relationships</h4>
+                        <ul>
+                            <li>Student -[<strong>ENROLLED_IN</strong>]→ Unit &nbsp;(a student enrols in one or more
+                                units)</li>
+                            <li>Unit -[<strong>MANAGED_BY</strong>]→ Department &nbsp;(each unit is managed by a
+                                department)</li>
+                            <li>Unit -[<strong>MANAGED_BY</strong>]→ School &nbsp;(some units are managed directly by a
+                                school, e.g. Business School)</li>
+                            <li>Department -[<strong>BELONGS_TO</strong>]→ School &nbsp;(CSSE belongs to PMC School)
+                            </li>
+                        </ul>
+                        <h4>Step 3: Add properties</h4>
+                        <div class="table-wrap">
+                            <table>
+                                <tr>
+                                    <th>Node</th>
+                                    <th>Properties</th>
+                                </tr>
+                                <tr>
+                                    <td>Student</td>
+                                    <td>studentID, name, email, year</td>
+                                </tr>
+                                <tr>
+                                    <td>Unit</td>
+                                    <td>unitCode, unitName, credits, semester</td>
+                                </tr>
+                                <tr>
+                                    <td>Department</td>
+                                    <td>deptName, deptCode</td>
+                                </tr>
+                                <tr>
+                                    <td>School</td>
+                                    <td>schoolName</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <h4>Relationship properties</h4>
+                        <ul>
+                            <li>ENROLLED_IN: grade, semester, year (these vary per enrolment)</li>
+                        </ul>
+                        <h4>Why graph DB is the right choice here</h4>
+                        <ul class="clean">
+                            <li>Easy to query "which students are in CSSE?" by traversing Student → Unit → Department
+                            </li>
+                            <li>Easy to add new relationships (e.g. Student TUTORS Student) without changing existing
+                                structure</li>
+                            <li>Recursive queries like "all units in PMC school" are simple traversals</li>
+                        </ul>
+                        <!-- Visual: University graph -->
+                        <div class="diagram-box" style="margin-top:14px">
+                            <div class="node-row"
+                                style="gap:0;justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap">
+                                <div class="node"><strong>Student</strong><span>id, name</span></div>
+                                <div class="rel-arrow">
+                                    <div class="rel-name">ENROLLED_IN</div>
+                                    <div class="arrow-line"></div>
+                                </div>
+                                <div class="node"><strong>Unit</strong><span>code, name</span></div>
+                                <div class="rel-arrow">
+                                    <div class="rel-name">MANAGED_BY</div>
+                                    <div class="arrow-line"></div>
+                                </div>
+                                <div class="node purple"><strong>Department</strong><span>name</span></div>
+                                <div class="rel-arrow">
+                                    <div class="rel-name">BELONGS_TO</div>
+                                    <div class="arrow-line"></div>
+                                </div>
+                                <div class="node amber"><strong>School</strong><span>name</span></div>
+                            </div>
+                            <p class="diagram-caption">University graph model. ENROLLED_IN can have grade, semester as
+                                relationship properties.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="qa-block" id="q-sc-2">
+                    <div class="qa-q">Scenario 2 — Employee reporting hierarchies: Why is a graph database better than
+                        RDBMS?</div>
+                    <div class="qa-a">
+                        <h4>The Problem</h4>
+                        <p>An organisation wants to store a reporting hierarchy: Alice reports to Bob, Bob reports to
+                            Carol, Carol reports to the CEO. The hierarchy can be many levels deep and needs to be
+                            queried in multiple ways: "who does Alice report to?", "list everyone who reports to Bob
+                            directly or indirectly", "how many levels is Alice from the CEO?"</p>
+                        <h4>RDBMS Approach — The Problems</h4>
+                        <ul class="clean">
+                            <li><strong>Self-join complexity:</strong> To find Bob's direct AND indirect reports, you
+                                need recursive SQL (WITH RECURSIVE CTE) — complex, verbose, and slow for deep
+                                hierarchies</li>
+                            <li><strong>Depth limitation:</strong> SQL queries must know the maximum depth in advance,
+                                or use complex loops</li>
+                            <li><strong>Performance:</strong> Each level of the hierarchy requires joining the entire
+                                Employees table against itself — gets exponentially slower for large organisations</li>
+                            <li><strong>Schema rigidity:</strong> If a new type of reporting relationship is added (e.g.
+                                "dotted-line" manager vs "solid-line" manager), the schema must change</li>
+                        </ul>
+                        <h4>Graph DB Approach — The Solution</h4>
+                        <ul class="clean">
+                            <li><strong>Natural modelling:</strong> "Alice REPORTS_TO Bob" maps directly to a
+                                relationship — no join table needed</li>
+                            <li><strong>Simple traversal:</strong> Find all of Bob's reports at any depth with one
+                                Cypher line: <code>MATCH (e)-[:REPORTS_TO*]->(bob) RETURN e</code></li>
+                            <li><strong>Multiple relationship types:</strong> Add DOTTED_LINE_REPORTS_TO relationship
+                                without changing anything else</li>
+                            <li><strong>Fast:</strong> Index-free adjacency means traversal follows pointers — doesn't
+                                scan the whole employee table at each hop</li>
+                        </ul>
+                        <h4>Graph Model</h4>
+                        <div class="diagram-box" style="margin-top:14px">
+                            <div
+                                style="font-family:'JetBrains Mono',monospace;font-size:13px;background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:12px 16px;line-height:2">
+                                (Alice:Employee) -[:REPORTS_TO]→ (Bob:Employee)<br>
+                                (Bob:Employee) -[:REPORTS_TO]→ (Carol:Employee)<br>
+                                (Carol:Employee) -[:REPORTS_TO]→ (CEO:Employee)<br>
+                                <br>
+                                Query — all of Bob's reports at any depth:<br>
+                                MATCH (emp)-[:REPORTS_TO*]->(bob {name:"Bob"}) RETURN emp
+                            </div>
+                            <p class="diagram-caption">Employee -[REPORTS_TO]→ Employee (self-referential relationship).
+                                The * means "any number of hops" — Neo4j handles unlimited depth automatically.</p>
+                        </div>
+                        <div class="qa-one-liner">Summary: Graph DB wins because: (1) natural modelling of hierarchies,
+                            (2) recursive traversal in one line of Cypher, (3) fast regardless of hierarchy depth, (4)
+                            schema-free — add new relationship types without migration.</div>
+                    </div>
+                </div>
+
+                <div class="qa-block" id="q-sc-3">
+                    <div class="qa-q">Scenario 3 — Convert an e-commerce system (Orders, Products, Customers) from
+                        relational to graph DB.</div>
+                    <div class="qa-a">
+                        <h4>Assumed Relational Schema</h4>
+                        <div class="table-wrap">
+                            <table>
+                                <tr>
+                                    <th>Table</th>
+                                    <th>Columns</th>
+                                    <th>Notes</th>
+                                </tr>
+                                <tr>
+                                    <td>Customers</td>
+                                    <td>CustomerID (PK), Name, Email, Address</td>
+                                    <td>Stores customer info</td>
+                                </tr>
+                                <tr>
+                                    <td>Products</td>
+                                    <td>ProductID (PK), Name, Price, Category, Stock</td>
+                                    <td>Stores product catalogue</td>
+                                </tr>
+                                <tr>
+                                    <td>Orders</td>
+                                    <td>OrderID (PK), CustomerID (FK), OrderDate, Status</td>
+                                    <td>CustomerID links to Customers</td>
+                                </tr>
+                                <tr>
+                                    <td>OrderItems</td>
+                                    <td>OrderID (FK), ProductID (FK), Quantity, UnitPrice</td>
+                                    <td>Many-to-many join table (Orders × Products)</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <h4>Step 1: Apply the conversion rules</h4>
+
+                        <p><strong>Rule 1 — Rows become Nodes:</strong></p>
+                        <ul>
+                            <li>Each row in Customers → one <code>Customer</code> node</li>
+                            <li>Each row in Products → one <code>Product</code> node</li>
+                            <li>Each row in Orders → one <code>Order</code> node</li>
+                            <li>OrderItems has only 2 FK columns as PK → it's a join table → becomes a relationship (not
+                                a node)</li>
+                        </ul>
+
+                        <p><strong>Rule 2 — Table names become Labels:</strong></p>
+                        <ul>
+                            <li>Customers table → label: <code>Customer</code></li>
+                            <li>Products table → label: <code>Product</code></li>
+                            <li>Orders table → label: <code>Order</code></li>
+                        </ul>
+
+                        <p><strong>Rule 3 — FKs and Join Tables become Relationships:</strong></p>
+                        <ul>
+                            <li>Orders.CustomerID FK → <code>PLACED</code> relationship: (Customer) -[:PLACED]→ (Order)
+                            </li>
+                            <li>OrderItems join table (OrderID + ProductID composite PK) → <code>CONTAINS</code>
+                                relationship: (Order) -[:CONTAINS]→ (Product) with properties: quantity, unitPrice</li>
+                        </ul>
+
+                        <h4>Step 2: Final graph model</h4>
+                        <div class="table-wrap">
+                            <table>
+                                <tr>
+                                    <th>Graph Element</th>
+                                    <th>Source</th>
+                                    <th>Properties</th>
+                                </tr>
+                                <tr>
+                                    <td>Customer node</td>
+                                    <td>Customers table rows</td>
+                                    <td>customerID, name, email, address</td>
+                                </tr>
+                                <tr>
+                                    <td>Product node</td>
+                                    <td>Products table rows</td>
+                                    <td>productID, name, price, category, stock</td>
+                                </tr>
+                                <tr>
+                                    <td>Order node</td>
+                                    <td>Orders table rows</td>
+                                    <td>orderID, orderDate, status</td>
+                                </tr>
+                                <tr>
+                                    <td>PLACED relationship</td>
+                                    <td>Orders.CustomerID FK</td>
+                                    <td>(none needed)</td>
+                                </tr>
+                                <tr>
+                                    <td>CONTAINS relationship</td>
+                                    <td>OrderItems join table</td>
+                                    <td>quantity, unitPrice</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Visual: e-commerce graph -->
+                        <div class="diagram-box" style="margin-top:14px">
+                            <div class="node-row"
+                                style="gap:0;justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap">
+                                <div class="node"><strong>Customer</strong><span>name, email</span></div>
+                                <div class="rel-arrow">
+                                    <div class="rel-name">PLACED</div>
+                                    <div class="arrow-line"></div>
+                                </div>
+                                <div class="node"><strong>Order</strong><span>id, date, status</span></div>
+                                <div class="rel-arrow">
+                                    <div class="rel-name">CONTAINS</div>
+                                    <div class="arrow-line"></div>
+                                </div>
+                                <div class="node amber"><strong>Product</strong><span>name, price</span></div>
+                            </div>
+                            <div
+                                style="margin-top:10px;font-size:12px;background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-family:'JetBrains Mono',monospace">
+                                CONTAINS has properties: quantity, unitPrice<br>
+                                (from the OrderItems join table — which no longer exists as a node)
+                            </div>
+                            <p class="diagram-caption">E-commerce graph model. The OrderItems join table vanished — it
+                                became the CONTAINS relationship between Order and Product.</p>
+                        </div>
+
+                        <h4>Benefits of the graph model over RDBMS here</h4>
+                        <ul class="clean">
+                            <li><strong>Recommendation queries are trivial:</strong> "What products do customers who
+                                bought the same thing as Alice also buy?" — simple graph traversal vs complex
+                                multi-table SQL</li>
+                            <li><strong>No join overhead:</strong> Order to Products is a direct relationship — no join
+                                table to traverse</li>
+                            <li><strong>Extensible:</strong> Add REVIEWED, WISHLIST, RETURNED relationships without
+                                schema changes</li>
+                            <li><strong>No NULLs:</strong> If a product has no category, simply don't store a category
+                                property — no NULL needed</li>
+                        </ul>
+                        <div class="qa-one-liner">Key conversion: OrderItems (join table) → CONTAINS relationship with
+                            quantity and unitPrice as properties. The join table disappears as a node.</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <a class="scroll-top" href="#">↑</a>
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/notes.js"></script>
+</body>
+
+</html>
