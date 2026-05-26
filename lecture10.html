@@ -566,6 +566,51 @@
             font-style: italic
         }
 
+        .quiz-answer {
+            background: #fffefa;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            border-radius: 6px;
+            margin-top: 12px;
+            padding: 12px 14px;
+        }
+
+        .quiz-answer-title {
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: .14em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .quiz-answer p,
+        .quiz-answer li {
+            font-size: 14px;
+        }
+
+        .quiz-answer p {
+            margin: 8px 0 0;
+        }
+
+        .quiz-answer ul {
+            margin: 8px 0 0;
+        }
+
+        .quiz-answer pre {
+            background: #1a1208;
+            border-radius: 6px;
+            color: #f7f1df;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            line-height: 1.5;
+            margin: 8px 0;
+            overflow-x: auto;
+            padding: 10px 12px;
+            white-space: pre;
+        }
+
         .checklist {
             list-style: none;
             padding: 0
@@ -1889,12 +1934,26 @@
                                 actor name and count, sorted from most movies to least.</strong></p>
                         <p class="hint">Hint: MATCH (p:Person)-[:ACTED_IN]->(m:Movie) WITH p.name AS actor, COUNT(m) AS
                             movieCount RETURN actor, movieCount ORDER BY movieCount DESC</p>
+                        <div class="quiz-answer">
+                            <div class="quiz-answer-title">Answer</div>
+                            <pre><code>MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+WITH p.name AS actor, COUNT(m) AS movieCount
+RETURN actor, movieCount
+ORDER BY movieCount DESC</code></pre>
+                            <p>This counts movies for each actor and sorts from highest to lowest.</p>
+                        </div>
                     </div>
                     <div class="quiz-item">
                         <p><strong>Write a Cypher query to return each person's name along with a list of all their
                                 friends' names collected into one list.</strong></p>
                         <p class="hint">Hint: MATCH (p1:Person)-[:KNOWS]->(p2:Person) RETURN p1.name, COLLECT(p2.name)
                             AS friends</p>
+                        <div class="quiz-answer">
+                            <div class="quiz-answer-title">Answer</div>
+                            <pre><code>MATCH (p1:Person)-[:KNOWS]->(p2:Person)
+RETURN p1.name AS person, COLLECT(p2.name) AS friends</code></pre>
+                            <p><code>COLLECT()</code> puts all friend names into one list.</p>
+                        </div>
                     </div>
                     <div class="quiz-item">
                         <p><strong>What is the difference between COUNT(p.age) and COUNT(*)? Give an example where they
@@ -1902,12 +1961,35 @@
                         <p class="hint">Hint: If 5 Person nodes exist but only 3 have an age property: COUNT(p.age) = 3
                             (ignores nulls). COUNT(*) = 5 (counts all rows). Different when some nodes are missing the
                             property.</p>
+                        <div class="quiz-answer">
+                            <div class="quiz-answer-title">Answer</div>
+                            <p><code>COUNT(*)</code> counts all rows.</p>
+                            <p><code>COUNT(p.age)</code> counts only rows where <code>p.age</code> exists and is not null.</p>
+                            <p>Example: if there are 5 <code>Person</code> nodes, but only 3 have age:</p>
+                            <pre><code>MATCH (p:Person)
+RETURN COUNT(*) AS totalPeople, COUNT(p.age) AS peopleWithAge</code></pre>
+                            <p>Result:</p>
+                            <pre><code>totalPeople = 5
+peopleWithAge = 3</code></pre>
+                        </div>
                     </div>
                     <div class="quiz-item">
                         <p><strong>Explain what APOC is. Why can't you just use regular Cypher instead?</strong></p>
                         <p class="hint">Hint: APOC = Awesome Procedures on Cypher. 450+ library functions that extend
                             built-in Cypher. Regular Cypher has limited aggregation, no dynamic relationship creation,
                             no JSON import, no virtual graphs. APOC adds these. Like a Python library for Neo4j.</p>
+                        <div class="quiz-answer">
+                            <div class="quiz-answer-title">Answer</div>
+                            <p>APOC means <strong>Awesome Procedures on Cypher</strong>.</p>
+                            <p>It is an extra Neo4j library that adds many useful functions. Regular Cypher is limited for some advanced tasks, such as:</p>
+                            <ul>
+                                <li>dynamic relationship creation</li>
+                                <li>JSON import</li>
+                                <li>virtual graphs</li>
+                                <li>advanced text/data processing</li>
+                            </ul>
+                            <p>So APOC is like an extra toolkit/library for Neo4j.</p>
+                        </div>
                     </div>
                     <div class="quiz-item">
                         <p><strong>You have a CSV with columns: person1, person2, relationship_type. The
@@ -1916,12 +1998,37 @@
                         <p class="hint">Hint: LOAD CSV WITH HEADERS FROM 'file:///people.csv' AS row MERGE (p1:Person
                             {name: row.person1}) MERGE (p2:Person {name: row.person2}) WITH p1, p2, row CALL
                             apoc.create.relationship(p1, row.relationship_type, {}, p2) YIELD rel RETURN rel</p>
+                        <div class="quiz-answer">
+                            <div class="quiz-answer-title">Answer</div>
+                            <pre><code>LOAD CSV WITH HEADERS FROM 'file:///people.csv' AS row
+MERGE (p1:Person {name: row.person1})
+MERGE (p2:Person {name: row.person2})
+WITH p1, p2, row
+CALL apoc.create.relationship(p1, row.relationship_type, {}, p2)
+YIELD rel
+RETURN rel</code></pre>
+                            <p>This is useful because normal Cypher cannot easily create relationship types dynamically from a CSV column.</p>
+                        </div>
                     </div>
                     <div class="quiz-item">
                         <p><strong>Write the Cypher path expressions for: (a) exactly 4 hops, (b) 2 to 6 hops, (c) any
                                 hops up to 5, (d) shortest path from Alice to Bob.</strong></p>
                         <p class="hint">Hint: (a) [*4] (b) [*2..6] (c) [*..5] (d) path =
                             shortestPath((alice)-[*]->(bob)) — need to MATCH both nodes first</p>
+                        <div class="quiz-answer">
+                            <div class="quiz-answer-title">Answer</div>
+                            <p><strong>(a) Exactly 4 hops</strong></p>
+                            <pre><code>[*4]</code></pre>
+                            <p><strong>(b) 2 to 6 hops</strong></p>
+                            <pre><code>[*2..6]</code></pre>
+                            <p><strong>(c) Any hops up to 5</strong></p>
+                            <pre><code>[*..5]</code></pre>
+                            <p><strong>(d) Shortest path from Alice to Bob</strong></p>
+                            <pre><code>MATCH (alice:Person {name: 'Alice'})
+MATCH (bob:Person {name: 'Bob'})
+MATCH path = shortestPath((alice)-[*]->(bob))
+RETURN path</code></pre>
+                        </div>
                     </div>
                     <div class="quiz-item">
                         <p><strong>What is a virtual relationship in APOC? Why would you use one instead of creating a
@@ -1930,6 +2037,21 @@
                             with apoc.create.vRelationship(). Use when you want to visualise a computed/derived
                             connection (e.g. "two students at same level") without permanently storing it. Keeps the
                             database clean.</p>
+                        <div class="quiz-answer">
+                            <div class="quiz-answer-title">Answer</div>
+                            <p>A virtual relationship is a relationship that exists only temporarily in memory.</p>
+                            <p>It is not saved permanently in the database.</p>
+                            <p>Example use: you may want to show that two students are at the same level, but you do not want to permanently store that relationship.</p>
+                            <p>You can create it using:</p>
+                            <pre><code>apoc.create.vRelationship()</code></pre>
+                            <p>Why use it?</p>
+                            <ul>
+                                <li>keeps database clean</li>
+                                <li>useful for visualisation</li>
+                                <li>useful for temporary analysis</li>
+                                <li>avoids storing derived relationships permanently</li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="quiz-item">
                         <p><strong>Explain implicit grouping in Cypher. How does it replace GROUP BY? Give an
@@ -1938,6 +2060,15 @@
                             expression in RETURN automatically becomes the grouping key. Example: RETURN p1.name,
                             COUNT(p2) — p1.name is implicitly the GROUP BY key, COUNT(p2) is the aggregation. No GROUP
                             BY keyword needed.</p>
+                        <div class="quiz-answer">
+                            <div class="quiz-answer-title">Answer</div>
+                            <p>In SQL, you write <code>GROUP BY</code>.</p>
+                            <p>But in Cypher, there is no <code>GROUP BY</code>. Cypher groups automatically using the non-aggregated value in <code>RETURN</code>.</p>
+                            <pre><code>MATCH (p1:Person)-[:KNOWS]->(p2:Person)
+RETURN p1.name AS person, COUNT(p2) AS friendCount</code></pre>
+                            <p>Here, <code>p1.name</code> is the grouping key.</p>
+                            <p>Meaning: Cypher counts friends for each person automatically.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1951,3 +2082,4 @@
 </body>
 
 </html>
+
