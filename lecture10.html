@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 10 – Advanced Cypher & APOC | CITS3401</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        :root {
+            --ink: #1a1208;
+            --paper: #faf7f2;
+            --cream: #f0ead8;
+            --gold: #b8860b;
+            --gold-light: #d4a820;
+            --teal: #1a5f6a;
+            --rust: #8b3a1a;
+            --muted: #6b6050;
+            --border: #d4c9a8;
+            --sidebar-w: 260px;
+            --accent: #6a2a8a
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Source Serif 4', Georgia, serif;
+            background: var(--paper);
+            color: var(--ink);
+            font-size: 17px;
+            line-height: 1.75
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-w);
+            height: 100vh;
+            background: var(--ink);
+            color: #e8dfc8;
+            overflow-y: auto;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            padding: 0 0 40px 0
+        }
+
+        .sidebar-brand {
+            padding: 20px 22px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, .1)
+        }
+
+        .sidebar-brand a {
+            text-decoration: none;
+            color: rgba(255, 255, 255, .4);
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px
+        }
+
+        .sidebar-brand a:hover {
+            color: var(--gold-light)
+        }
+
+        .sidebar-brand strong {
+            display: block;
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            color: #fff
+        }
+
+        .sidebar-brand span {
+            display: block;
+            font-size: 12px;
+            color: var(--accent)
+        }
+
+        .nav-section {
+            padding: 16px 22px 4px;
+            font-size: 10px;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .3)
+        }
+
+        .nav-link {
+            display: block;
+            padding: 7px 22px;
+            color: rgba(232, 223, 200, .7);
+            font-size: 13.5px;
+            text-decoration: none;
+            line-height: 1.4;
+            transition: all .15s
+        }
+
+        .nav-link:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, .06);
+            padding-left: 28px
+        }
+
+        .nav-link.active {
+            color: var(--accent);
+            border-left: 2px solid var(--accent);
+            padding-left: 20px
+        }
+
+        .main {
+            margin-left: var(--sidebar-w);
+            min-height: 100vh
+        }
+
+        .hero {
+            background: var(--ink);
+            color: #fff;
+            padding: 52px 64px 44px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -40px;
+            width: 340px;
+            height: 340px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(106, 42, 138, .25) 0%, transparent 70%)
+        }
+
+        .hero-eyebrow {
+            font-size: 11px;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 12px;
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            line-height: 1.15;
+            margin-bottom: 12px
+        }
+
+        .hero-sub {
+            color: rgba(255, 255, 255, .5);
+            font-size: 15px;
+            max-width: 560px
+        }
+
+        .hero-nav {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap
+        }
+
+        .hero-nav a {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all .15s
+        }
+
+        .hero-nav a.home {
+            background: rgba(255, 255, 255, .07);
+            color: rgba(255, 255, 255, .6);
+            border: 1px solid rgba(255, 255, 255, .12)
+        }
+
+        .hero-nav a.prev {
+            background: rgba(255, 255, 255, .07);
+            color: rgba(255, 255, 255, .6)
+        }
+
+        .hero-nav a:hover {
+            opacity: .85
+        }
+
+        .content {
+            padding: 48px 64px;
+            max-width: 900px
+        }
+
+        .section {
+            margin-bottom: 60px
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border)
+        }
+
+        .section-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 30px;
+            font-weight: 900;
+            color: var(--border);
+            line-height: 1;
+            min-width: 40px
+        }
+
+        .section-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: var(--ink)
+        }
+
+        h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 19px;
+            margin: 28px 0 10px;
+            color: var(--teal)
+        }
+
+        h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 18px 0 7px
+        }
+
+        p {
+            margin-bottom: 13px
+        }
+
+        .callout {
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 20px 0;
+            border-left: 4px solid
+        }
+
+        .callout.definition {
+            background: #e0eaf8;
+            border-color: var(--teal)
+        }
+
+        .callout.exam {
+            background: #fff3cd;
+            border-color: var(--gold)
+        }
+
+        .callout.warning {
+            background: #fde8e0;
+            border-color: var(--rust)
+        }
+
+        .callout.tip {
+            background: #e0f0e8;
+            border-color: #2a7a4a
+        }
+
+        .callout.lecturer {
+            background: #f4e8f8;
+            border-color: #7a3a7a
+        }
+
+        .callout-label {
+            font-size: 10px;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 5px
+        }
+
+        .callout.definition .callout-label {
+            color: var(--teal)
+        }
+
+        .callout.exam .callout-label {
+            color: #8a6a00
+        }
+
+        .callout.warning .callout-label {
+            color: var(--rust)
+        }
+
+        .callout.tip .callout-label {
+            color: #2a7a4a
+        }
+
+        .callout.lecturer .callout-label {
+            color: #7a3a7a
+        }
+
+        .callout p {
+            margin: 0;
+            font-size: 15.5px
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            margin: 20px 0
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14.5px
+        }
+
+        th {
+            background: var(--ink);
+            color: var(--gold-light);
+            padding: 9px 13px;
+            text-align: left;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600
+        }
+
+        td {
+            padding: 9px 13px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top
+        }
+
+        tr:nth-child(even) td {
+            background: var(--cream)
+        }
+
+        ul,
+        ol {
+            padding-left: 22px;
+            margin-bottom: 13px
+        }
+
+        li {
+            margin-bottom: 6px
+        }
+
+        ul.clean {
+            list-style: none;
+            padding-left: 0
+        }
+
+        ul.clean li {
+            padding-left: 20px;
+            position: relative
+        }
+
+        ul.clean li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+            font-size: 13px;
+            top: 2px
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 6px;
+            color: var(--rust)
+        }
+
+        .code-block {
+            background: #0d1117;
+            color: #e6edf3;
+            border-radius: 10px;
+            padding: 0;
+            margin: 16px 0;
+            overflow: hidden;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13.5px;
+            line-height: 1.7
+        }
+
+        .code-label {
+            background: #161b22;
+            color: #7d8590;
+            font-size: 10px;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            padding: 7px 18px;
+            border-bottom: 1px solid #30363d
+        }
+
+        .code-body {
+            padding: 16px 20px;
+            overflow-x: auto
+        }
+
+        .cy-kw {
+            color: #ff7b72
+        }
+
+        .cy-label {
+            color: #79c0ff
+        }
+
+        .cy-prop {
+            color: #ffa657
+        }
+
+        .cy-val {
+            color: #a5d6ff
+        }
+
+        .cy-var {
+            color: #d2a8ff
+        }
+
+        .cy-rel {
+            color: #56d364
+        }
+
+        .cy-comment {
+            color: #8b949e;
+            font-style: italic
+        }
+
+        .cy-dir {
+            color: #f8e3ad
+        }
+
+        .cy-fn {
+            color: #ffa657;
+            font-weight: 600
+        }
+
+        .cy-apoc {
+            color: #e8b4ff
+        }
+
+        .code-english {
+            background: #e0f0e8;
+            border-left: 4px solid #2a7a4a;
+            border-radius: 0 6px 6px 0;
+            padding: 10px 16px;
+            font-size: 14px;
+            color: #27500A;
+            margin-top: 8px
+        }
+
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin: 20px 0
+        }
+
+        .compare-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden
+        }
+
+        .compare-card-head {
+            padding: 11px 16px;
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700
+        }
+
+        .compare-card-head.a {
+            background: var(--teal);
+            color: #fff
+        }
+
+        .compare-card-head.b {
+            background: var(--rust);
+            color: #fff
+        }
+
+        .compare-card-head.c {
+            background: #6a2a8a;
+            color: #fff
+        }
+
+        .compare-card-head.d {
+            background: #2a5fa8;
+            color: #fff
+        }
+
+        .compare-card-body {
+            padding: 13px 16px;
+            font-size: 14px
+        }
+
+        .compare-card-body ul {
+            margin: 0
+        }
+
+        .summary-box {
+            background: var(--ink);
+            color: #e8dfc8;
+            border-radius: 12px;
+            padding: 26px 30px;
+            margin: 28px 0
+        }
+
+        .summary-box h3 {
+            color: var(--gold-light);
+            margin-top: 0;
+            font-size: 16px
+        }
+
+        .summary-box ul {
+            padding-left: 20px
+        }
+
+        .summary-box li {
+            margin-bottom: 7px;
+            font-size: 14.5px
+        }
+
+        .quiz {
+            counter-reset: quiz
+        }
+
+        .quiz-item {
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            counter-increment: quiz;
+            position: relative
+        }
+
+        .quiz-item::before {
+            content: 'Q' counter(quiz);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gold);
+            position: absolute;
+            top: 12px;
+            right: 14px
+        }
+
+        .quiz-item p {
+            margin: 0;
+            font-size: 15px
+        }
+
+        .quiz-item .hint {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 7px;
+            font-style: italic
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0
+        }
+
+        .checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 15px
+        }
+
+        .checklist li:last-child {
+            border: none
+        }
+
+        .check-box {
+            width: 17px;
+            height: 17px;
+            min-width: 17px;
+            border: 2px solid var(--border);
+            border-radius: 3px;
+            margin-top: 3px
+        }
+
+        .path-table {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0;
+            margin: 16px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden
+        }
+
+        .path-table .pt-code {
+            background: #0d1117;
+            color: #56d364;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            padding: 10px 14px;
+            border-bottom: 1px solid #30363d
+        }
+
+        .path-table .pt-desc {
+            background: var(--cream);
+            font-size: 14px;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .path-table .pt-code:last-of-type,
+        .path-table .pt-desc:last-child {
+            border-bottom: none
+        }
+
+        .apoc-badge {
+            display: inline-block;
+            background: #6a2a8a;
+            color: #fff;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 6px;
+            vertical-align: middle
+        }
+
+        .scroll-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 42px;
+            height: 42px;
+            background: var(--ink);
+            color: var(--gold-light);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 17px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .3);
+            text-decoration: none
+        }
+
+        @media(max-width:900px) {
+            .sidebar {
+                display: none
+            }
+
+            .main {
+                margin-left: 0
+            }
+
+            .content,
+            .hero {
+                padding: 28px
+            }
+
+            .compare-grid {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <a href="index.html">← All Lectures</a>
+            <strong>Lecture 10</strong><span>Advanced Cypher &amp; APOC</span>
+        </div>
+        <div class="nav-section">Aggregation</div>
+        <a class="nav-link" href="#why-aggregate">1. Why Aggregation?</a>
+        <a class="nav-link" href="#count">2. COUNT</a>
+        <a class="nav-link" href="#collect">3. COLLECT</a>
+        <a class="nav-link" href="#other-agg">4. Other Agg Functions</a>
+        <a class="nav-link" href="#order-limit">5. ORDER BY / LIMIT / SKIP</a>
+        <a class="nav-link" href="#unwind">6. UNWIND</a>
+        <a class="nav-link" href="#comprehension">7. List &amp; Pattern Comprehension</a>
+        <div class="nav-section">APOC</div>
+        <a class="nav-link" href="#what-apoc">8. What is APOC?</a>
+        <a class="nav-link" href="#apoc-import">9. APOC Import CSV</a>
+        <a class="nav-link" href="#apoc-dynamic">10. Dynamic Relationships</a>
+        <a class="nav-link" href="#apoc-text">11. APOC Text Functions</a>
+        <div class="nav-section">Paths</div>
+        <a class="nav-link" href="#variable-paths">12. Variable Length Paths</a>
+        <a class="nav-link" href="#path-expand">13. APOC Path Expander</a>
+        <a class="nav-link" href="#virtual">14. Virtual Nodes &amp; Rels</a>
+        <div class="nav-section">Revision</div>
+        <a class="nav-link" href="#summary">Summary</a>
+        <a class="nav-link" href="#checklist">Checklist</a>
+        <a class="nav-link" href="#questions">Exam Questions</a>
+    </nav>
+
+    <div class="main">
+        <div class="hero">
+            <div class="hero-eyebrow">CITS3401 · Week 10 · Lecture 10</div>
+            <h1>Advanced Cypher<br>&amp; APOC</h1>
+            <p class="hero-sub">Aggregation (COUNT, COLLECT, implicit GROUP BY), ORDER BY, UNWIND, list comprehension,
+                APOC library (import, dynamic relationships, text functions), variable-length paths, and virtual graphs.
+            </p>
+            <div class="hero-nav">
+                <a class="home" href="index.html">🏠 Home</a>
+                <a class="prev" href="lecture09.html">← Lecture 09</a>
+            </div>
+        </div>
+
+        <div class="content">
+
+            <div class="callout exam" style="margin-bottom:32px">
+                <div class="callout-label">🎯 What You Need to Know for the Exam</div>
+                <p>Lecturer said: <strong>"For APOC — you don't need to memorise the query for the final exam. You just
+                        need to understand what APOC is and what functions it provides."</strong><br>
+                    You DO need to know: COUNT, COLLECT, ORDER BY, LIMIT, SKIP, UNWIND, and variable-length path syntax.
+                    These appear in normal exam Cypher questions.</p>
+            </div>
+
+            <!-- ─── SECTION 1 ─── -->
+            <div class="section" id="why-aggregate">
+                <div class="section-header">
+                    <div class="section-num">01</div>
+                    <h2>Why Do We Need Aggregation?</h2>
+                </div>
+
+                <p>Sometimes you don't want to see individual records — you want to summarise them. For example:</p>
+                <ul class="clean">
+                    <li><strong>"For each person, how many friends do they have?"</strong> — you want a count per
+                        person, not a list of every friend</li>
+                    <li><strong>"For each movie, list all actors who appeared in it"</strong> — you want a group per
+                        movie</li>
+                    <li><strong>"For each person named Jack, list their pets"</strong> — you want a list per Jack</li>
+                </ul>
+
+                <div class="callout lecturer">
+                    <div class="callout-label">💬 Lecturer's Explanation</div>
+                    <p>"The keyword is 'for each something'. In SQL, whenever you say 'for each', you use GROUP BY. In
+                        Cypher, there is no GROUP BY keyword — but it works the same way. The non-aggregated column
+                        becomes the grouping key automatically."</p>
+                </div>
+
+                <h3>How Cypher's Implicit Grouping Works</h3>
+                <p>In SQL you write: <code>SELECT person, COUNT(*) FROM friends GROUP BY person</code></p>
+                <p>In Cypher, you write: <code>MATCH (p1)-->(p2) RETURN p1.name, COUNT(p2)</code></p>
+                <p>There is no GROUP BY keyword. Cypher is smart enough to know that <code>p1.name</code> (the
+                    non-aggregated column) is the grouping key, and <code>COUNT(p2)</code> is the aggregation. This is
+                    called <strong>implicit grouping</strong>.</p>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 Implicit Grouping — The Core Rule</div>
+                    <p>In Cypher's RETURN clause: any <strong>non-aggregated expression</strong> automatically becomes
+                        the <strong>GROUP BY key</strong>. Any <strong>aggregation function</strong> (COUNT, COLLECT,
+                        AVG, etc.) is applied per group. You never type GROUP BY.</p>
+                </div>
+            </div>
+
+            <!-- ─── SECTION 2 ─── -->
+            <div class="section" id="count">
+                <div class="section-header">
+                    <div class="section-num">02</div>
+                    <h2>COUNT — Counting Things</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 What COUNT does</div>
+                    <p><code>COUNT</code> returns the number of results for each grouping key, instead of listing the
+                        items themselves. It's the most basic aggregation function.</p>
+                </div>
+
+                <h3>COUNT(variable) — count non-null values</h3>
+                <div class="code-block">
+                    <div class="code-label">Count how many people each person follows</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p1</span><span
+                            class="cy-label">:Person</span>)<span class="cy-dir">-[</span><span
+                            class="cy-rel">:FOLLOWS</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-var">p2</span><span class="cy-label">:Person</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p1</span>.<span
+                            class="cy-prop">name</span>, <span class="cy-fn">COUNT</span>(<span
+                            class="cy-var">p2</span>)
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"For each person (p1), count how many people they
+                        follow (p2)."</strong><br>
+                    <code>p1.name</code> is the grouping key (like GROUP BY). <code>COUNT(p2)</code> counts how many
+                    times p2 appears for each p1.<br>
+                    Result: Jack | 5, Freddy | 12, Jane | 7, Wanda | 16
+                </div>
+
+                <h3>COUNT(*) vs COUNT(column) — what's the difference?</h3>
+                <div class="compare-grid">
+                    <div class="compare-card">
+                        <div class="compare-card-head a">COUNT(p.age)</div>
+                        <div class="compare-card-body">
+                            <p>Counts only rows where <code>p.age</code> is NOT null.</p>
+                            <p>If 3 people have no age property → they are excluded from the count.</p>
+                            <p>Use when you want to count items that actually have a specific value.</p>
+                        </div>
+                    </div>
+                    <div class="compare-card">
+                        <div class="compare-card-head b">COUNT(*)</div>
+                        <div class="compare-card-body">
+                            <p>Counts ALL rows including those with NULL values.</p>
+                            <p>If 3 people have no age → they are still counted.</p>
+                            <p>Use when you just want the total number of rows/matches.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 Exam Trap — COUNT never returns NULL</div>
+                    <p>Most aggregation functions return NULL if all inputs are NULL. But <strong>COUNT always returns
+                            0</strong> (never NULL) even if there are no matching records. COLLECT always returns an
+                        empty list []. These are the two exceptions.</p>
+                </div>
+
+                <h3>Without COUNT vs With COUNT — the difference</h3>
+                <div class="code-block">
+                    <div class="code-label">Without COUNT — returns individual results (each row)</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p1</span><span
+                            class="cy-label">:Person</span>)<span class="cy-dir">-[</span><span
+                            class="cy-rel">:FOLLOWS</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-var">p2</span><span class="cy-label">:Person</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p1</span>.<span
+                            class="cy-prop">name</span>, <span class="cy-var">p2</span>.<span
+                            class="cy-prop">name</span>
+                        <span class="cy-comment">// Result: Jack | Alice, Jack | Bob, Jack | Carol, ...</span>
+                    </div>
+                </div>
+                <div class="code-block">
+                    <div class="code-label">With COUNT — returns aggregated result (one row per group)</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p1</span><span
+                            class="cy-label">:Person</span>)<span class="cy-dir">-[</span><span
+                            class="cy-rel">:FOLLOWS</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-var">p2</span><span class="cy-label">:Person</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p1</span>.<span
+                            class="cy-prop">name</span>, <span class="cy-fn">COUNT</span>(<span
+                            class="cy-var">p2</span>)
+                        <span class="cy-comment">// Result: Jack | 3 (one row per person, not one per follow)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── SECTION 3 ─── -->
+            <div class="section" id="collect">
+                <div class="section-header">
+                    <div class="section-num">03</div>
+                    <h2>COLLECT — Building a List</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 What COLLECT does</div>
+                    <p><code>COLLECT</code> groups all values for each grouping key into a single list. Instead of
+                        returning many rows (one per value), you get one row per group with all values bundled into a
+                        list.</p>
+                </div>
+
+                <h3>Basic COLLECT example</h3>
+                <div class="code-block">
+                    <div class="code-label">For each person, collect a list of all their friends' names</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p1</span><span
+                            class="cy-label">:Person</span>)<span class="cy-dir">-[</span><span
+                            class="cy-rel">:KNOWS</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-var">p2</span><span class="cy-label">:Person</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p1</span>.<span
+                            class="cy-prop">name</span>, <span class="cy-fn">COLLECT</span>(<span
+                            class="cy-var">p2</span>.<span class="cy-prop">name</span>)
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"For each person p1, collect all names of people
+                        they KNOW into a list."</strong><br>
+                    Result: Jack | ["Alice", "Bob", "Carol"] — one row per person, with all friend names bundled in a
+                    list.<br>
+                    Without COLLECT: Jack | Alice, Jack | Bob, Jack | Carol — three separate rows.</div>
+
+                <h3>COLLECT aggregates ages too</h3>
+                <div class="code-block">
+                    <div class="code-label">Collect ages into a list</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p1</span><span
+                            class="cy-label">:Person</span>)<span class="cy-dir">-[</span><span
+                            class="cy-rel">:KNOWS</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-var">p2</span><span class="cy-label">:Person</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p1</span>.<span
+                            class="cy-prop">name</span>, <span class="cy-fn">COLLECT</span>(<span
+                            class="cy-var">p2</span>.<span class="cy-prop">age</span>)
+                        <span class="cy-comment">// Result: Jack | [28, 35, 22] — list of ages of Jack's friends</span>
+                    </div>
+                </div>
+                <div class="callout tip">
+                    <div class="callout-label">💡 COUNT vs COLLECT</div>
+                    <p><strong>COUNT</strong> = how many? Returns a number.<br>
+                        <strong>COLLECT</strong> = list them all. Returns a list.<br>
+                        Both are group-by operations. COUNT(p2) → 3. COLLECT(p2.name) → ["Alice","Bob","Carol"].
+                    </p>
+                </div>
+            </div>
+
+            <!-- ─── SECTION 4 ─── -->
+            <div class="section" id="other-agg">
+                <div class="section-header">
+                    <div class="section-num">04</div>
+                    <h2>Other Aggregation Functions</h2>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <tr>
+                            <th>Function</th>
+                            <th>What it does</th>
+                            <th>Example</th>
+                            <th>NULL behaviour</th>
+                        </tr>
+                        <tr>
+                            <td><code>COUNT(n)</code></td>
+                            <td>Count non-null values</td>
+                            <td><code>RETURN COUNT(p.age)</code></td>
+                            <td>Returns 0 (not NULL) if no matches</td>
+                        </tr>
+                        <tr>
+                            <td><code>COUNT(*)</code></td>
+                            <td>Count all rows including NULLs</td>
+                            <td><code>RETURN COUNT(*)</code></td>
+                            <td>Always 0 minimum</td>
+                        </tr>
+                        <tr>
+                            <td><code>COLLECT(x)</code></td>
+                            <td>Bundle all values into a list</td>
+                            <td><code>RETURN COLLECT(p.name)</code></td>
+                            <td>Returns [] (empty list) if no matches</td>
+                        </tr>
+                        <tr>
+                            <td><code>AVG(n)</code></td>
+                            <td>Average of numeric values</td>
+                            <td><code>RETURN AVG(p.age)</code></td>
+                            <td>Returns NULL if all inputs are NULL</td>
+                        </tr>
+                        <tr>
+                            <td><code>SUM(n)</code></td>
+                            <td>Total of numeric values</td>
+                            <td><code>RETURN SUM(p.salary)</code></td>
+                            <td>Returns 0 if no matches</td>
+                        </tr>
+                        <tr>
+                            <td><code>MIN(n)</code></td>
+                            <td>Smallest value</td>
+                            <td><code>RETURN MIN(p.age)</code></td>
+                            <td>Returns NULL if all inputs are NULL</td>
+                        </tr>
+                        <tr>
+                            <td><code>MAX(n)</code></td>
+                            <td>Largest value</td>
+                            <td><code>RETURN MAX(p.age)</code></td>
+                            <td>Returns NULL if all inputs are NULL</td>
+                        </tr>
+                        <tr>
+                            <td><code>STDEV(n)</code></td>
+                            <td>Standard deviation</td>
+                            <td><code>RETURN STDEV(p.score)</code></td>
+                            <td>Returns NULL if all inputs are NULL</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 What Cypher Does NOT Have</div>
+                    <p>Cypher only has these limited aggregation functions. It does NOT have: MEDIAN, MODE, VARIANCE,
+                        PERCENTILE (by default), STRING_AGG, or any window functions (RANK, SUM OVER, etc.). For these —
+                        use SQL. APOC adds some extras, but the exam won't test APOC aggregations.</p>
+                </div>
+
+                <h3>Aggregation on all nodes (database statistics)</h3>
+                <div class="code-block">
+                    <div class="code-label">Count total nodes in the database</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// Count ALL nodes</span>
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">n</span>) <span
+                            class="cy-kw">RETURN</span> <span class="cy-fn">COUNT</span>(<span class="cy-var">n</span>)
+
+                        <span class="cy-comment">// Count all relationships</span>
+                        <span class="cy-kw">MATCH</span> ()<span class="cy-dir">-[</span><span
+                            class="cy-rel">r</span><span class="cy-dir">]-&gt;</span>() <span
+                            class="cy-kw">RETURN</span> <span class="cy-fn">COUNT</span>(<span class="cy-var">r</span>)
+
+                        <span class="cy-comment">// Average age of all people</span>
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span>) <span class="cy-kw">RETURN</span> <span
+                            class="cy-fn">avg</span>(<span class="cy-var">p</span>.<span class="cy-prop">age</span>)
+                    </div>
+                </div>
+                <div class="code-english">💡 <code>MATCH (n)</code> with no label or property filter matches ALL nodes.
+                    Used for checking database stats — "how many nodes do I have?"</div>
+            </div>
+
+            <!-- ─── SECTION 5 ─── -->
+            <div class="section" id="order-limit">
+                <div class="section-header">
+                    <div class="section-num">05</div>
+                    <h2>ORDER BY, LIMIT, and SKIP</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 Sorting and Pagination</div>
+                    <p>These clauses let you sort and paginate results — just like SQL. ORDER BY sorts. LIMIT restricts
+                        how many rows are returned. SKIP skips the first N rows.</p>
+                </div>
+
+                <h3>ORDER BY — sorting results</h3>
+                <div class="code-block">
+                    <div class="code-label">ORDER BY — sort results</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// Sort by name ascending (default)</span>
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p</span>.<span
+                            class="cy-prop">name</span>
+                        <span class="cy-kw">ORDER BY</span> <span class="cy-var">p</span>.<span
+                            class="cy-prop">name</span>
+
+                        <span class="cy-comment">// Sort by age descending (youngest last → oldest first)</span>
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p</span>.<span
+                            class="cy-prop">name</span>, <span class="cy-var">p</span>.<span class="cy-prop">age</span>
+                        <span class="cy-kw">ORDER BY</span> <span class="cy-var">p</span>.<span
+                            class="cy-prop">age</span> <span class="cy-kw">DESC</span>
+                    </div>
+                </div>
+                <div class="callout warning">
+                    <div class="callout-label">⚠️ NULLs and ORDER BY</div>
+                    <p>If a property is NULL for some nodes (e.g. some people have no age), those NULL values appear
+                        <strong>first</strong> in ASC order and <strong>last</strong> in DESC order. Lecturer: "null
+                        will be the first one" when ordering ascending.</p>
+                </div>
+
+                <h3>LIMIT — restrict results</h3>
+                <div class="code-block">
+                    <div class="code-label">LIMIT — return only the first N results</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// Return only the 3 youngest people</span>
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p</span>.<span
+                            class="cy-prop">name</span>, <span class="cy-var">p</span>.<span class="cy-prop">age</span>
+                        <span class="cy-kw">ORDER BY</span> <span class="cy-var">p</span>.<span
+                            class="cy-prop">age</span>
+                        <span class="cy-kw">LIMIT</span> 3
+                    </div>
+                </div>
+
+                <h3>SKIP — skip the first N results</h3>
+                <div class="code-block">
+                    <div class="code-label">SKIP — skip first N results (pagination)</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// Skip the 3 youngest, return the rest</span>
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p</span>.<span
+                            class="cy-prop">name</span>, <span class="cy-var">p</span>.<span class="cy-prop">age</span>
+                        <span class="cy-kw">ORDER BY</span> <span class="cy-var">p</span>.<span
+                            class="cy-prop">age</span>
+                        <span class="cy-kw">SKIP</span> 3
+
+                        <span class="cy-comment">// Page 2 of results (items 4-6)</span>
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p</span>.<span
+                            class="cy-prop">name</span>
+                        <span class="cy-kw">ORDER BY</span> <span class="cy-var">p</span>.<span
+                            class="cy-prop">name</span>
+                        <span class="cy-kw">SKIP</span> 3 <span class="cy-kw">LIMIT</span> 3
+                    </div>
+                </div>
+                <div class="code-english">💡 SKIP + LIMIT together = pagination. Skip the first page (3 items), return
+                    the next page (3 items).</div>
+
+                <h3>Combining ORDER BY with aggregation (via WITH)</h3>
+                <div class="code-block">
+                    <div class="code-label">Count followers and sort by count descending</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p1</span><span
+                            class="cy-label">:Person</span>)<span class="cy-dir">-[</span><span
+                            class="cy-rel">:FOLLOWS</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-var">p2</span><span class="cy-label">:Person</span>)
+                        <span class="cy-kw">WITH</span> <span class="cy-var">p1</span>.<span class="cy-prop">name</span>
+                        <span class="cy-kw">AS</span> person, <span class="cy-fn">COUNT</span>(<span
+                            class="cy-var">p2</span>) <span class="cy-kw">AS</span> followCount
+                        <span class="cy-kw">RETURN</span> person, followCount
+                        <span class="cy-kw">ORDER BY</span> followCount <span class="cy-kw">DESC</span>
+                        <span class="cy-kw">LIMIT</span> 5
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"Count how many people each person follows. Return
+                        the top 5 with the most follows, sorted highest first."</strong></div>
+            </div>
+
+            <!-- ─── SECTION 6 ─── -->
+            <div class="section" id="unwind">
+                <div class="section-header">
+                    <div class="section-num">06</div>
+                    <h2>UNWIND — Turning a List Back into Rows</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 UNWIND = the opposite of COLLECT</div>
+                    <p><code>COLLECT</code> turns many rows into one list. <code>UNWIND</code> takes a list and turns it
+                        back into individual rows — one row per item in the list. Think of it as "exploding" a list into
+                        rows.</p>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">UNWIND — expand a list back into rows</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// Collect names first, then unwind back to rows</span>
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span>)
+                        <span class="cy-kw">WITH</span> <span class="cy-fn">COLLECT</span>(<span
+                            class="cy-var">p</span>.<span class="cy-prop">name</span>) <span class="cy-kw">AS</span>
+                        names
+                        <span class="cy-kw">UNWIND</span> names <span class="cy-kw">AS</span> name
+                        <span class="cy-kw">RETURN</span> name
+                    </div>
+                </div>
+                <div class="code-english">✅ Step 1: COLLECT all names into one list: ["Alice","Bob","Carol"]. Step 2:
+                    UNWIND the list back into individual rows. Step 3: Return each name as a separate row. Result is the
+                    same as just MATCH (p:Person) RETURN p.name — this is mainly useful when you need to manipulate the
+                    list first.</div>
+
+                <div class="code-block">
+                    <div class="code-label">UNWIND with a hardcoded list — useful for batch operations</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// UNWIND can also expand a literal list</span>
+                        <span class="cy-kw">UNWIND</span> [<span class="cy-val">1</span>, <span class="cy-val">2</span>,
+                        <span class="cy-val">3</span>, <span class="cy-val">4</span>, <span class="cy-val">5</span>]
+                        <span class="cy-kw">AS</span> number
+                        <span class="cy-kw">RETURN</span> number
+                        <span class="cy-comment">// Returns 5 rows: 1, 2, 3, 4, 5</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── SECTION 7 ─── -->
+            <div class="section" id="comprehension">
+                <div class="section-header">
+                    <div class="section-num">07</div>
+                    <h2>List Comprehension &amp; Pattern Comprehension</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 What is List Comprehension?</div>
+                    <p><strong>List comprehension</strong> is a compact way to create a new list from an existing list
+                        or pattern, with an optional filter. If you've used Python, it's the same idea:
+                        <code>[x for x in list if condition]</code>.</p>
+                </div>
+
+                <h3>Python analogy (from the slides)</h3>
+                <div class="code-block">
+                    <div class="code-label">Python — list comprehension (recall)</div>
+                    <div class="code-body">
+                        <span class="cy-comment"># Long way:</span>
+                        fruits = ["apple", "banana", "cherry", "kiwi", "mango"]
+                        newlist = [x for x in fruits if "a" in x]
+                        <span class="cy-comment"># Result: ["apple", "banana", "mango"]</span>
+                    </div>
+                </div>
+
+                <h3>List Comprehension in Cypher</h3>
+                <div class="code-block">
+                    <div class="code-label">Cypher list comprehension syntax</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// Syntax: [variable IN list WHERE condition | expression]</span>
+
+                        <span class="cy-comment">// Example: from a list of numbers, keep only those > 2 and return
+                            squared</span>
+                        <span class="cy-kw">RETURN</span> [x <span class="cy-kw">IN</span> [1,2,3,4,5] <span
+                            class="cy-kw">WHERE</span> x > 2 | x * x]
+                        <span class="cy-comment">// Result: [9, 16, 25]</span>
+
+                        <span class="cy-comment">// Filter a list: only names containing "an"</span>
+                        <span class="cy-kw">RETURN</span> [name <span class="cy-kw">IN</span> [<span
+                            class="cy-val">"Alice"</span>, <span class="cy-val">"Andrea"</span>, <span
+                            class="cy-val">"Bob"</span>] <span class="cy-kw">WHERE</span> name <span
+                            class="cy-kw">CONTAINS</span> <span class="cy-val">"an"</span>]
+                    </div>
+                </div>
+
+                <h3>Pattern Comprehension — list from a graph pattern</h3>
+                <div class="code-block">
+                    <div class="code-label">Pattern comprehension — collect specific values from matched patterns</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// For each person, collect the names of all movies they acted
+                            in</span>
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">p</span>.<span
+                            class="cy-prop">name</span>,
+                        [(<span class="cy-var">p</span>)<span class="cy-dir">-[</span><span
+                            class="cy-rel">:ACTED_IN</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-var">m</span><span class="cy-label">:Movie</span>) | <span
+                            class="cy-var">m</span>.<span class="cy-prop">title</span>] <span class="cy-kw">AS</span>
+                        moviesActedIn
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"For each person, return their name and a list of
+                        all movie titles they acted in."</strong><br>
+                    The pattern <code>(p)-[:ACTED_IN]->(m:Movie)</code> is matched for each person, and
+                    <code>m.title</code> is collected into a list. This is more concise than using WITH + COLLECT.</div>
+            </div>
+
+            <!-- ─── SECTION 8 ─── -->
+            <div class="section" id="what-apoc">
+                <div class="section-header">
+                    <div class="section-num">08</div>
+                    <h2>What is APOC?</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 Definition</div>
+                    <p><strong>APOC</strong> stands for <strong>Awesome Procedures on Cypher</strong>. It is a library
+                        of over 450 functions and procedures that extend Neo4j's built-in Cypher capabilities. Think of
+                        it like a Python library — it's not built into the language but you can install and import it.
+                    </p>
+                </div>
+
+                <div class="callout lecturer">
+                    <div class="callout-label">💬 Lecturer's Analogy</div>
+                    <p>"APOC is just like a Python library. You install it, import it, and then you have access to lots
+                        of extra functions. For the final exam, you don't need to memorise APOC queries. But you need to
+                        understand what APOC is and what it can do."</p>
+                </div>
+
+                <h3>What APOC Provides</h3>
+                <ul class="clean">
+                    <li><strong>Data import/export:</strong> Faster and more flexible CSV/JSON import than plain LOAD
+                        CSV</li>
+                    <li><strong>Dynamic relationships:</strong> Create relationship types based on values in a CSV
+                        column</li>
+                    <li><strong>Text functions:</strong> String manipulation (capitalize, trim, split, join, etc.)</li>
+                    <li><strong>Path expansion:</strong> More control over traversal (filter by relationship type,
+                        label, direction, depth)</li>
+                    <li><strong>Virtual graphs:</strong> Create temporary nodes/relationships that exist only in memory
+                        (not stored in DB)</li>
+                    <li><strong>Graph algorithms:</strong> Connectivity, centrality, community detection</li>
+                </ul>
+
+                <h3>APOC Syntax — CALL and YIELD</h3>
+                <p>APOC procedures are called using <code>CALL</code> and their results are accessed using
+                    <code>YIELD</code>:</p>
+                <div class="code-block">
+                    <div class="code-label">APOC general syntax</div>
+                    <div class="code-body">
+                        <span class="cy-kw">CALL</span> <span class="cy-apoc">apoc.procedure.name</span>(arg1, arg2,
+                        ...)
+                        <span class="cy-kw">YIELD</span> resultColumn
+                        <span class="cy-kw">RETURN</span> resultColumn
+                    </div>
+                </div>
+                <div class="code-english">💡 CALL invokes the APOC procedure. YIELD "catches" the output columns from
+                    the procedure so you can use them in your RETURN clause.</div>
+            </div>
+
+            <!-- ─── SECTION 9 ─── -->
+            <div class="section" id="apoc-import">
+                <div class="section-header">
+                    <div class="section-num">09</div>
+                    <h2>APOC — Importing CSV Data</h2>
+                </div>
+
+                <p>APOC offers <code>apoc.import.csv</code> which can import both nodes and relationships from CSV files
+                    in a single command — much simpler than writing separate LOAD CSV statements for each node type and
+                    each relationship type.</p>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 Project 2 Rule — When You Can Use APOC</div>
+                    <p>Lecturer: <strong>"For Project 2 — you are NOT allowed to use APOC to load CSV or create
+                            nodes/relationships. You must use plain Cypher (LOAD CSV + MERGE/CREATE) because the Cypher
+                            code contributes marks. You can only use APOC in your two self-designed queries (Task
+                            4)."</strong></p>
+                </div>
+
+                <h3>apoc.import.csv syntax</h3>
+                <div class="code-block">
+                    <div class="code-label">APOC import CSV — nodes and relationships together</div>
+                    <div class="code-body">
+                        <span class="cy-kw">CALL</span> <span class="cy-apoc">apoc.import.csv</span>(
+                        [ <span class="cy-comment">// Node CSV files</span>
+                        {filename: <span class="cy-val">"file:/people.csv"</span>, labels: [<span
+                            class="cy-val">"Person"</span>]},
+                        {filename: <span class="cy-val">"file:/movies.csv"</span>, labels: [<span
+                            class="cy-val">"Movie"</span>]}
+                        ],
+                        [ <span class="cy-comment">// Relationship CSV files</span>
+                        {filename: <span class="cy-val">"file:/acted_in.csv"</span>, type: <span
+                            class="cy-val">"ACTED_IN"</span>}
+                        ],
+                        {} <span class="cy-comment">// config options</span>
+                        )
+                    </div>
+                </div>
+                <div class="code-english">✅ This replaces multiple individual LOAD CSV statements. People.csv → Person
+                    nodes. Movies.csv → Movie nodes. Acted_in.csv → ACTED_IN relationships. All in one CALL.</div>
+
+                <h3>APOC also supports JSON import</h3>
+                <div class="code-block">
+                    <div class="code-label">APOC — load JSON data stream</div>
+                    <div class="code-body">
+                        <span class="cy-kw">CALL</span> <span class="cy-apoc">apoc.load.json</span>(<span
+                            class="cy-val">"file:///data.json"</span>)
+                        <span class="cy-kw">YIELD</span> value
+                        <span class="cy-kw">RETURN</span> value
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── SECTION 10 ─── -->
+            <div class="section" id="apoc-dynamic">
+                <div class="section-header">
+                    <div class="section-num">10</div>
+                    <h2>Dynamic Relationships with APOC</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 The Problem — Multiple Relationship Types from One CSV</div>
+                    <p>Imagine your CSV has people connected by different relationship types in the same file: some are
+                        FRIENDS, some are COLLEAGUES, some are SIBLINGS. Without APOC, you'd need a separate CSV for
+                        each type. With APOC, you can read the relationship type from a column value and create it
+                        dynamically.</p>
+                </div>
+
+                <h3>Without APOC — the painful way</h3>
+                <div class="code-block">
+                    <div class="code-label">Without APOC — need separate CSV files for each relationship type</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// Need: people.csv, knows.csv, friends_with.csv, enemies_of.csv,
+                            ...</span>
+                        <span class="cy-comment">// One LOAD CSV query per file = lots of repeated code</span>
+                    </div>
+                </div>
+
+                <h3>With APOC — read relationship type from a column</h3>
+                <div class="code-block">
+                    <div class="code-label">apoc.create.relationship — create relationships dynamically from CSV</div>
+                    <div class="code-body">
+                        <span class="cy-kw">LOAD CSV WITH HEADERS</span> from <span
+                            class="cy-val">"file:///people.csv"</span> <span class="cy-kw">AS</span> row
+                        <span class="cy-kw">MERGE</span> (<span class="cy-var">p1</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>: row.node1})
+                        <span class="cy-kw">MERGE</span> (<span class="cy-var">p2</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>: row.node2})
+                        <span class="cy-kw">WITH</span> <span class="cy-var">p1</span>, <span class="cy-var">p2</span>,
+                        row
+                        <span class="cy-kw">CALL</span> <span class="cy-apoc">apoc.create.relationship</span>(<span
+                            class="cy-var">p1</span>, row.relationship, {}, <span class="cy-var">p2</span>)
+                        <span class="cy-kw">YIELD</span> rel
+                        <span class="cy-kw">RETURN</span> rel
+                    </div>
+                </div>
+                <div class="code-english">✅ The CSV has columns: node1, node2, relationship. For each row:<br>
+                    1. Find or create Person p1 (from node1 column)<br>
+                    2. Find or create Person p2 (from node2 column)<br>
+                    3. Create a relationship of whatever type is in the "relationship" column (e.g. KNOWS, FRIENDS_WITH,
+                    ENEMIES_OF)<br>
+                    One CSV file, many relationship types — no repeated code needed!</div>
+
+                <div class="table-wrap">
+                    <table>
+                        <tr>
+                            <th>node1</th>
+                            <th>node2</th>
+                            <th>relationship</th>
+                        </tr>
+                        <tr>
+                            <td>Alice</td>
+                            <td>Bob</td>
+                            <td>KNOWS</td>
+                        </tr>
+                        <tr>
+                            <td>Alice</td>
+                            <td>Carol</td>
+                            <td>FRIENDS_WITH</td>
+                        </tr>
+                        <tr>
+                            <td>Bob</td>
+                            <td>Dave</td>
+                            <td>ENEMIES_OF</td>
+                        </tr>
+                    </table>
+                </div>
+                <p style="margin-top:-8px;font-size:13px;color:var(--muted)">Example people.csv — APOC reads the
+                    "relationship" column and creates the correct relationship type for each row.</p>
+            </div>
+
+            <!-- ─── SECTION 11 ─── -->
+            <div class="section" id="apoc-text">
+                <div class="section-header">
+                    <div class="section-num">11</div>
+                    <h2>APOC Text Functions</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 Why APOC Text Functions?</div>
+                    <p>Regular Cypher has basic string functions like <code>STARTS WITH</code>, <code>CONTAINS</code>,
+                        <code>toUpper()</code>, <code>toLower()</code>. APOC adds many more text manipulation functions
+                        for cleaning and transforming string data during ETL.</p>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <tr>
+                            <th>APOC Function</th>
+                            <th>What it does</th>
+                            <th>Example</th>
+                            <th>Result</th>
+                        </tr>
+                        <tr>
+                            <td><code>apoc.text.capitalize(s)</code></td>
+                            <td>Capitalise the first letter of a string</td>
+                            <td><code>apoc.text.capitalize("hello")</code></td>
+                            <td>"Hello"</td>
+                        </tr>
+                        <tr>
+                            <td><code>apoc.text.capitalizeAll(s)</code></td>
+                            <td>Capitalise the first letter of every word</td>
+                            <td><code>apoc.text.capitalizeAll("hello world")</code></td>
+                            <td>"Hello World"</td>
+                        </tr>
+                        <tr>
+                            <td><code>apoc.text.trim(s)</code></td>
+                            <td>Remove leading and trailing whitespace</td>
+                            <td><code>apoc.text.trim("  alice  ")</code></td>
+                            <td>"alice"</td>
+                        </tr>
+                        <tr>
+                            <td><code>apoc.text.decapitalize(s)</code></td>
+                            <td>Lowercase the first letter</td>
+                            <td><code>apoc.text.decapitalize("Alice")</code></td>
+                            <td>"alice"</td>
+                        </tr>
+                        <tr>
+                            <td><code>apoc.text.replace(s, regex, to)</code></td>
+                            <td>Replace text using a regex pattern</td>
+                            <td><code>apoc.text.replace("hello world", "o", "0")</code></td>
+                            <td>"hell0 w0rld"</td>
+                        </tr>
+                        <tr>
+                            <td><code>apoc.text.split(s, delim)</code></td>
+                            <td>Split a string into a list by delimiter</td>
+                            <td><code>apoc.text.split("a,b,c", ",")</code></td>
+                            <td>["a","b","c"]</td>
+                        </tr>
+                        <tr>
+                            <td><code>apoc.text.join(list, delim)</code></td>
+                            <td>Join a list of strings into one string</td>
+                            <td><code>apoc.text.join(["a","b"], ",")</code></td>
+                            <td>"a,b"</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3>Using APOC text functions in a query</h3>
+                <div class="code-block">
+                    <div class="code-label">Clean up data — capitalise all person names</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-apoc">apoc.text.capitalizeAll</span>(<span
+                            class="cy-var">p</span>.<span class="cy-prop">name</span>) <span class="cy-kw">AS</span>
+                        cleanName
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── SECTION 12 ─── -->
+            <div class="section" id="variable-paths">
+                <div class="section-header">
+                    <div class="section-num">12</div>
+                    <h2>Variable-Length Paths in Cypher</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 The Problem</div>
+                    <p>Writing a path of length 10 in Cypher looks terrible:
+                        <code>(a)--&gt;()--&gt;()--&gt;()--&gt;()--&gt;()--&gt;()--&gt;()--&gt;()--&gt;(b)</code>.
+                        Variable-length path syntax solves this by using the asterisk <code>*</code> to specify path
+                        length.</p>
+                </div>
+
+                <h3>Variable-Length Path Syntax</h3>
+                <div class="path-table">
+                    <div class="pt-code">(a)-[*5]->(b)</div>
+                    <div class="pt-desc">Exactly 5 hops from a to b</div>
+                    <div class="pt-code">(a)-[*..5]->(b)</div>
+                    <div class="pt-desc">Any path from 0 to 5 hops (0 to 5 inclusive)</div>
+                    <div class="pt-code">(a)-[*5..]->(b)</div>
+                    <div class="pt-desc">5 or more hops (no upper limit)</div>
+                    <div class="pt-code">(a)-[*3..5]->(b)</div>
+                    <div class="pt-desc">Between 3 and 5 hops inclusive</div>
+                    <div class="pt-code">(a)-[*]->(b)</div>
+                    <div class="pt-desc">Any number of hops (no limit — use with caution!)</div>
+                </div>
+
+                <h3>Real example — find all people within 2 hops</h3>
+                <div class="code-block">
+                    <div class="code-label">Variable length path — find people 1 or 2 hops away</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// Without variable length (2 hops, longwinded)</span>
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">alice</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>:<span
+                            class="cy-val">"Alice"</span>})<span class="cy-dir">--&gt;</span>()<span
+                            class="cy-dir">--&gt;</span>(<span class="cy-var">other</span>) <span
+                            class="cy-kw">RETURN</span> <span class="cy-var">other</span>
+
+                        <span class="cy-comment">// With variable length (1 to 2 hops, clean)</span>
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">alice</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>:<span
+                            class="cy-val">"Alice"</span>})<span class="cy-dir">-[*1..2]-&gt;</span>(<span
+                            class="cy-var">other</span>)
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">other</span>
+                    </div>
+                </div>
+
+                <h3>Finding the shortest path</h3>
+                <div class="code-block">
+                    <div class="code-label">shortestPath — find the shortest connection between two nodes</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">alice</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>:<span
+                            class="cy-val">"Alice"</span>}),
+                        (<span class="cy-var">bob</span><span class="cy-label">:Person</span> {<span
+                            class="cy-prop">name</span>:<span class="cy-val">"Bob"</span>})
+                        <span class="cy-kw">MATCH</span> path = <span class="cy-fn">shortestPath</span>((<span
+                            class="cy-var">alice</span>)<span class="cy-dir">-[*]-&gt;</span>(<span
+                            class="cy-var">bob</span>))
+                        <span class="cy-kw">RETURN</span> path, <span class="cy-fn">length</span>(path)
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"Find the shortest path from Alice to Bob
+                        following any relationship type."</strong><br>
+                    Returns the path and how many hops it takes. Real-world use: find the shortest connection in a
+                    social network (like LinkedIn's "2nd degree connections").</div>
+
+                <div class="callout warning">
+                    <div class="callout-label">⚠️ Warning — Unbounded Paths are Dangerous</div>
+                    <p>Using <code>[*]</code> (no limit) on a large graph can take forever — it traverses the entire
+                        reachable graph. Always set an upper bound like <code>[*..10]</code> unless you're using
+                        shortestPath (which stops at the first match).</p>
+                </div>
+            </div>
+
+            <!-- ─── SECTION 13 ─── -->
+            <div class="section" id="path-expand">
+                <div class="section-header">
+                    <div class="section-num">13</div>
+                    <h2>APOC Path Expander</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 Why APOC Path Expander?</div>
+                    <p>Cypher's variable-length paths <code>[*]</code> are simple but limited. APOC's
+                        <code>apoc.path.expand</code> gives much more control: you can filter by relationship type WITH
+                        direction, whitelist/blacklist specific node labels, and specify start and end conditions.</p>
+                </div>
+
+                <h3>apoc.path.expand — the basic syntax</h3>
+                <div class="code-block">
+                    <div class="code-label">apoc.path.expand — syntax</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">start</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>: <span
+                            class="cy-val">"Praveena"</span>})
+                        <span class="cy-kw">CALL</span> <span class="cy-apoc">apoc.path.expand</span>(
+                        <span class="cy-var">start</span>, <span class="cy-comment">// starting node</span>
+                        <span class="cy-val">"KNOWS"</span>, <span class="cy-comment">// relationship filter (type +
+                            direction)</span>
+                        <span class="cy-val">null</span>, <span class="cy-comment">// label filter (null = no
+                            filter)</span>
+                        <span class="cy-val">1</span>, <span class="cy-comment">// minimum hops</span>
+                        <span class="cy-val">2</span> <span class="cy-comment">// maximum hops</span>
+                        )
+                        <span class="cy-kw">YIELD</span> path
+                        <span class="cy-kw">RETURN</span> path, <span class="cy-fn">length</span>(path) <span
+                            class="cy-kw">AS</span> hops
+                        <span class="cy-kw">ORDER BY</span> hops
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"From Praveena, follow KNOWS relationships between
+                        1 and 2 hops. Return each path and its length, sorted by length."</strong></div>
+
+                <h3>Label Filter Prefixes — controlling which nodes to include</h3>
+                <div class="table-wrap">
+                    <table>
+                        <tr>
+                            <th>Prefix</th>
+                            <th>Meaning</th>
+                            <th>Example</th>
+                        </tr>
+                        <tr>
+                            <td><code>+</code></td>
+                            <td>Whitelist — only traverse nodes WITH this label</td>
+                            <td><code>"+Engineering"</code> — only follow paths through Engineering nodes</td>
+                        </tr>
+                        <tr>
+                            <td><code>-</code></td>
+                            <td>Blacklist — skip nodes WITH this label</td>
+                            <td><code>"-Field"</code> — don't traverse through Field nodes</td>
+                        </tr>
+                        <tr>
+                            <td><code>/</code></td>
+                            <td>End node — stop the path when a node with this label is reached</td>
+                            <td><code>"/Engineering"</code> — terminate path at Engineering nodes</td>
+                        </tr>
+                        <tr>
+                            <td><code>&gt;</code></td>
+                            <td>End node (end here, include in result)</td>
+                            <td><code>"&gt;Engineering"</code> — paths that end AT Engineering nodes</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3>Examples with label filters</h3>
+                <div class="code-block">
+                    <div class="code-label">Example 1 — whitelist: only Engineering nodes (+ prefix)</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>: <span
+                            class="cy-val">"Praveena"</span>})
+                        <span class="cy-kw">CALL</span> <span class="cy-apoc">apoc.path.expand</span>(<span
+                            class="cy-var">p</span>, <span class="cy-val">"KNOWS"</span>, <span
+                            class="cy-val">"+Engineering"</span>, <span class="cy-val">1</span>, <span
+                            class="cy-val">2</span>)
+                        <span class="cy-kw">YIELD</span> path
+                        <span class="cy-kw">RETURN</span> path, <span class="cy-fn">length</span>(path) <span
+                            class="cy-kw">AS</span> hops
+                        <span class="cy-kw">ORDER BY</span> hops
+                        <span class="cy-comment">// Returns ONLY paths through Engineering-labelled nodes</span>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">Example 2 — blacklist: exclude Field nodes (- prefix)</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>: <span
+                            class="cy-val">"Praveena"</span>})
+                        <span class="cy-kw">CALL</span> <span class="cy-apoc">apoc.path.expand</span>(<span
+                            class="cy-var">p</span>, <span class="cy-val">"KNOWS"</span>, <span
+                            class="cy-val">"-Field"</span>, <span class="cy-val">1</span>, <span
+                            class="cy-val">2</span>)
+                        <span class="cy-kw">YIELD</span> path
+                        <span class="cy-kw">RETURN</span> path, <span class="cy-fn">length</span>(path) <span
+                            class="cy-kw">AS</span> hops
+                        <span class="cy-kw">ORDER BY</span> hops
+                        <span class="cy-comment">// Returns paths EXCLUDING Field nodes</span>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">Example 3 — multiple relationship types with direction + end label</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">p</span><span
+                            class="cy-label">:Person</span> {<span class="cy-prop">name</span>: <span
+                            class="cy-val">"Alicia"</span>})
+                        <span class="cy-kw">CALL</span> <span class="cy-apoc">apoc.path.expand</span>(<span
+                            class="cy-var">p</span>, <span class="cy-val">"FOLLOWS&gt;|KNOWS"</span>, <span
+                            class="cy-val">"/Engineering"</span>, <span class="cy-val">1</span>, <span
+                            class="cy-val">3</span>)
+                        <span class="cy-kw">YIELD</span> path
+                        <span class="cy-kw">RETURN</span> path, <span class="cy-fn">length</span>(path) <span
+                            class="cy-kw">AS</span> hops
+                        <span class="cy-kw">ORDER BY</span> hops
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"From Alicia, follow outgoing FOLLOWS or any KNOWS
+                        relationships, up to 3 hops, stopping the path as soon as an Engineering-labelled node is
+                        reached."</strong><br>
+                    The <code>&gt;</code> in <code>FOLLOWS&gt;</code> means outgoing direction only. The <code>|</code>
+                    means OR. The <code>/Engineering</code> terminates paths at Engineering nodes.</div>
+
+                <h3>Cypher path vs APOC path — when to use which</h3>
+                <div class="compare-grid">
+                    <div class="compare-card">
+                        <div class="compare-card-head a">Cypher variable path [*]</div>
+                        <div class="compare-card-body">
+                            <ul>
+                                <li>Simple, built-in</li>
+                                <li>Can filter by relationship type</li>
+                                <li>All relationships treated equally (no per-type direction)</li>
+                                <li>No label filtering during traversal</li>
+                                <li>Use for: simple multi-hop queries</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="compare-card">
+                        <div class="compare-card-head c">APOC apoc.path.expand</div>
+                        <div class="compare-card-body">
+                            <ul>
+                                <li>More control — direction per relationship type</li>
+                                <li>Whitelist/blacklist node labels</li>
+                                <li>Specify end nodes for traversal</li>
+                                <li>More complex syntax (CALL + YIELD)</li>
+                                <li>Use for: complex traversal with label/direction constraints</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── SECTION 14 ─── -->
+            <div class="section" id="virtual">
+                <div class="section-header">
+                    <div class="section-num">14</div>
+                    <h2>Virtual Nodes &amp; Relationships</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 What are Virtual Nodes and Relationships?</div>
+                    <p>Virtual nodes and relationships are created in memory only — they are NOT stored in the Neo4j
+                        database. They are generated on-the-fly for a query result and exist only for that query's
+                        duration. Use them to represent computed or summarised connections for visualisation.</p>
+                </div>
+
+                <h3>Why use virtual nodes and relationships?</h3>
+                <p>Imagine you want to show "which students have the same understanding level." To check this, you'd
+                    have to traverse: Student → TestScore → Level ← TestScore ← Student — a long complex path. Instead,
+                    you can create a virtual SIMILAR_LEVEL relationship between the two students directly, which makes
+                    the visualisation much cleaner without permanently storing that relationship in the database.</p>
+
+                <div class="code-block">
+                    <div class="code-label">apoc.create.vRelationship — virtual relationship</div>
+                    <div class="code-body">
+                        <span class="cy-kw">MATCH</span> (<span class="cy-var">s1</span><span
+                            class="cy-label">:Student</span>)<span class="cy-dir">-[</span><span
+                            class="cy-rel">:HAS</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-label">:TestScore</span>)<span class="cy-dir">-[</span><span
+                            class="cy-rel">:ASSIGNED_TO</span><span class="cy-dir">]-&gt;</span>(<span
+                            class="cy-var">l</span><span class="cy-label">:Level</span>)<span
+                            class="cy-dir">&lt;-[</span><span class="cy-rel">:ASSIGNED_TO</span><span
+                            class="cy-dir">]-</span>(<span class="cy-label">:TestScore</span>)<span
+                            class="cy-dir">&lt;-[</span><span class="cy-rel">:HAS</span><span
+                            class="cy-dir">]-</span>(<span class="cy-var">s2</span><span
+                            class="cy-label">:Student</span>)
+                        <span class="cy-kw">CALL</span> <span class="cy-apoc">apoc.create.vRelationship</span>(<span
+                            class="cy-var">s1</span>, <span class="cy-val">'SIMILAR_LEVEL'</span>, {<span
+                            class="cy-prop">level</span>: <span class="cy-var">l</span>.<span
+                            class="cy-prop">level</span>}, <span class="cy-var">s2</span>)
+                        <span class="cy-kw">YIELD</span> rel
+                        <span class="cy-kw">RETURN</span> <span class="cy-var">s1</span>, rel, <span
+                            class="cy-var">s2</span>
+                    </div>
+                </div>
+                <div class="code-english">✅ In plain English: <strong>"Find pairs of students who have the same test
+                        score level. Create a virtual SIMILAR_LEVEL relationship between them (with the level as a
+                        property). Show it in the visualisation — but don't store it in the database."</strong><br>
+                    The SIMILAR_LEVEL relationship disappears after the query ends — it was never written to disk.</div>
+
+                <h3>Virtual Nodes — apoc.create.vNode</h3>
+                <div class="code-block">
+                    <div class="code-label">apoc.create.vNode — virtual node</div>
+                    <div class="code-body">
+                        <span class="cy-kw">CALL</span> <span class="cy-apoc">apoc.create.vNode</span>([<span
+                            class="cy-val">'Person'</span>], {<span class="cy-prop">name</span>: <span
+                            class="cy-val">'Virtual Alice'</span>})
+                        <span class="cy-kw">YIELD</span> node
+                        <span class="cy-kw">RETURN</span> node
+                        <span class="cy-comment">// Creates a node that appears in the result but is NOT stored in the
+                            database</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── SUMMARY ─── -->
+            <div class="section" id="summary">
+                <div class="section-header">
+                    <div class="section-num">★</div>
+                    <h2>Summary</h2>
+                </div>
+                <div class="summary-box">
+                    <h3>Lecture 10 — Key Takeaways</h3>
+                    <ul>
+                        <li>Cypher uses <strong>implicit grouping</strong> — no GROUP BY keyword. Non-aggregated
+                            expressions in RETURN are the grouping keys automatically.</li>
+                        <li>COUNT(x) counts non-null values. COUNT(*) counts all rows including nulls. COUNT always
+                            returns 0 (never NULL) if no matches.</li>
+                        <li>COLLECT bundles all values into a list. Returns [] if no matches.</li>
+                        <li>ORDER BY sorts (ASC default, DESC for descending). NULLs appear first in ASC order.</li>
+                        <li>LIMIT restricts how many rows are returned. SKIP skips the first N rows. Together they do
+                            pagination.</li>
+                        <li>UNWIND turns a list back into individual rows (opposite of COLLECT).</li>
+                        <li>List comprehension: <code>[x IN list WHERE condition | expression]</code> — create a new
+                            list from an existing one with optional filtering.</li>
+                        <li>Pattern comprehension: create a list from a graph pattern inline in the RETURN clause.</li>
+                        <li>APOC = Awesome Procedures on Cypher. 450+ library functions. Exam: understand what it does,
+                            not the syntax.</li>
+                        <li>APOC import CSV: apoc.import.csv() imports nodes and relationships together in one call.
+                        </li>
+                        <li>APOC dynamic relationships: apoc.create.relationship() reads relationship type from a CSV
+                            column value.</li>
+                        <li>Variable length paths: <code>[*5]</code>=exact, <code>[*..5]</code>=0-5,
+                            <code>[*5..]</code>=5+, <code>[*3..5]</code>=3-5.</li>
+                        <li>APOC path expander: apoc.path.expand() with +label (whitelist), -label (blacklist), /label
+                            (end when reached), direction per relationship.</li>
+                        <li>Virtual nodes/relationships exist only in memory — not stored in DB. Used for visualisation
+                            of computed connections.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ─── CHECKLIST ─── -->
+            <div class="section" id="checklist">
+                <div class="section-header">
+                    <div class="section-num">✓</div>
+                    <h2>Revision Checklist</h2>
+                </div>
+                <ul class="checklist">
+                    <li>
+                        <div class="check-box"></div>I understand implicit grouping — in Cypher, non-aggregated RETURN
+                        expressions are automatic GROUP BY keys
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know the difference between COUNT(x) (excludes NULLs) and
+                        COUNT(*) (includes NULLs)
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know COLLECT bundles values into a list, and always returns []
+                        (not NULL) if empty
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can use ORDER BY (ASC/DESC), LIMIT, and SKIP correctly
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know UNWIND converts a list back into individual rows
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can write and read list comprehension syntax: [x IN list WHERE
+                        condition | expression]
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can explain what APOC is (a library, 450+ functions, extends
+                        Cypher)
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I understand the 4 things APOC provides (import, dynamic
+                        relationships, text functions, path expansion, virtual graphs)
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can explain dynamic relationships: one CSV with a "relationship"
+                        column → apoc.create.relationship
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know the variable-length path syntax: [*5], [*..5], [*5..],
+                        [*3..5]
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know the label filter prefixes for apoc.path.expand: +whitelist,
+                        -blacklist, /end, >end
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can explain virtual nodes/relationships (memory only, not stored
+                        in DB, used for visualisation)
+                    </li>
+                </ul>
+            </div>
+
+            <!-- ─── EXAM QUESTIONS ─── -->
+            <div class="section" id="questions">
+                <div class="section-header">
+                    <div class="section-num">?</div>
+                    <h2>Exam-Style Practice Questions</h2>
+                </div>
+                <div class="quiz">
+                    <div class="quiz-item">
+                        <p><strong>Write a Cypher query to count how many movies each actor has acted in. Return the
+                                actor name and count, sorted from most movies to least.</strong></p>
+                        <p class="hint">Hint: MATCH (p:Person)-[:ACTED_IN]->(m:Movie) WITH p.name AS actor, COUNT(m) AS
+                            movieCount RETURN actor, movieCount ORDER BY movieCount DESC</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>Write a Cypher query to return each person's name along with a list of all their
+                                friends' names collected into one list.</strong></p>
+                        <p class="hint">Hint: MATCH (p1:Person)-[:KNOWS]->(p2:Person) RETURN p1.name, COLLECT(p2.name)
+                            AS friends</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>What is the difference between COUNT(p.age) and COUNT(*)? Give an example where they
+                                return different values.</strong></p>
+                        <p class="hint">Hint: If 5 Person nodes exist but only 3 have an age property: COUNT(p.age) = 3
+                            (ignores nulls). COUNT(*) = 5 (counts all rows). Different when some nodes are missing the
+                            property.</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>Explain what APOC is. Why can't you just use regular Cypher instead?</strong></p>
+                        <p class="hint">Hint: APOC = Awesome Procedures on Cypher. 450+ library functions that extend
+                            built-in Cypher. Regular Cypher has limited aggregation, no dynamic relationship creation,
+                            no JSON import, no virtual graphs. APOC adds these. Like a Python library for Neo4j.</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>You have a CSV with columns: person1, person2, relationship_type. The
+                                relationship_type column contains values like KNOWS, FRIENDS_WITH, WORKS_WITH. How do
+                                you import this with APOC?</strong></p>
+                        <p class="hint">Hint: LOAD CSV WITH HEADERS FROM 'file:///people.csv' AS row MERGE (p1:Person
+                            {name: row.person1}) MERGE (p2:Person {name: row.person2}) WITH p1, p2, row CALL
+                            apoc.create.relationship(p1, row.relationship_type, {}, p2) YIELD rel RETURN rel</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>Write the Cypher path expressions for: (a) exactly 4 hops, (b) 2 to 6 hops, (c) any
+                                hops up to 5, (d) shortest path from Alice to Bob.</strong></p>
+                        <p class="hint">Hint: (a) [*4] (b) [*2..6] (c) [*..5] (d) path =
+                            shortestPath((alice)-[*]->(bob)) — need to MATCH both nodes first</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>What is a virtual relationship in APOC? Why would you use one instead of creating a
+                                real relationship?</strong></p>
+                        <p class="hint">Hint: Virtual relationship = exists only in memory, not stored in DB. Created
+                            with apoc.create.vRelationship(). Use when you want to visualise a computed/derived
+                            connection (e.g. "two students at same level") without permanently storing it. Keeps the
+                            database clean.</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>Explain implicit grouping in Cypher. How does it replace GROUP BY? Give an
+                                example.</strong></p>
+                        <p class="hint">Hint: In SQL you write GROUP BY explicitly. In Cypher, any non-aggregated
+                            expression in RETURN automatically becomes the grouping key. Example: RETURN p1.name,
+                            COUNT(p2) — p1.name is implicitly the GROUP BY key, COUNT(p2) is the aggregation. No GROUP
+                            BY keyword needed.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <a class="scroll-top" href="#">↑</a>
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/notes.js"></script>
+</body>
+
+</html>
