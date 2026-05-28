@@ -1,0 +1,2102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 11 – Graph Data Science & Pathfinding | CITS3401</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        :root {
+            --ink: #1a1208;
+            --paper: #faf7f2;
+            --cream: #f0ead8;
+            --gold: #b8860b;
+            --gold-light: #d4a820;
+            --teal: #1a5f6a;
+            --rust: #8b3a1a;
+            --muted: #6b6050;
+            --border: #d4c9a8;
+            --sidebar-w: 260px;
+            --accent: #1a6a3a
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Source Serif 4', Georgia, serif;
+            background: var(--paper);
+            color: var(--ink);
+            font-size: 17px;
+            line-height: 1.75
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-w);
+            height: 100vh;
+            background: var(--ink);
+            color: #e8dfc8;
+            overflow-y: auto;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            padding: 0 0 40px 0
+        }
+
+        .sidebar-brand {
+            padding: 20px 22px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, .1)
+        }
+
+        .sidebar-brand a {
+            text-decoration: none;
+            color: rgba(255, 255, 255, .4);
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px
+        }
+
+        .sidebar-brand a:hover {
+            color: var(--gold-light)
+        }
+
+        .sidebar-brand strong {
+            display: block;
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            color: #fff
+        }
+
+        .sidebar-brand span {
+            display: block;
+            font-size: 12px;
+            color: var(--accent)
+        }
+
+        .nav-section {
+            padding: 16px 22px 4px;
+            font-size: 10px;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .3)
+        }
+
+        .nav-link {
+            display: block;
+            padding: 7px 22px;
+            color: rgba(232, 223, 200, .7);
+            font-size: 13.5px;
+            text-decoration: none;
+            line-height: 1.4;
+            transition: all .15s
+        }
+
+        .nav-link:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, .06);
+            padding-left: 28px
+        }
+
+        .nav-link.active {
+            color: var(--accent);
+            border-left: 2px solid var(--accent);
+            padding-left: 20px
+        }
+
+        .main {
+            margin-left: var(--sidebar-w);
+            min-height: 100vh
+        }
+
+        .hero {
+            background: var(--ink);
+            color: #fff;
+            padding: 52px 64px 44px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -40px;
+            width: 340px;
+            height: 340px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(26, 106, 58, .25) 0%, transparent 70%)
+        }
+
+        .hero-eyebrow {
+            font-size: 11px;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 12px;
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            line-height: 1.15;
+            margin-bottom: 12px
+        }
+
+        .hero-sub {
+            color: rgba(255, 255, 255, .5);
+            font-size: 15px;
+            max-width: 560px
+        }
+
+        .hero-nav {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap
+        }
+
+        .hero-nav a {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all .15s
+        }
+
+        .hero-nav a.home {
+            background: rgba(255, 255, 255, .07);
+            color: rgba(255, 255, 255, .6);
+            border: 1px solid rgba(255, 255, 255, .12)
+        }
+
+        .hero-nav a.prev {
+            background: rgba(255, 255, 255, .07);
+            color: rgba(255, 255, 255, .6)
+        }
+
+        .hero-nav a:hover {
+            opacity: .85
+        }
+
+        .content {
+            padding: 48px 64px;
+            max-width: 900px
+        }
+
+        .section {
+            margin-bottom: 60px
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border)
+        }
+
+        .section-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 30px;
+            font-weight: 900;
+            color: var(--border);
+            line-height: 1;
+            min-width: 40px
+        }
+
+        .section-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: var(--ink)
+        }
+
+        h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 19px;
+            margin: 28px 0 10px;
+            color: var(--teal)
+        }
+
+        h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 18px 0 7px
+        }
+
+        p {
+            margin-bottom: 13px
+        }
+
+        .callout {
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 20px 0;
+            border-left: 4px solid
+        }
+
+        .callout.definition {
+            background: #e0eaf8;
+            border-color: var(--teal)
+        }
+
+        .callout.exam {
+            background: #fff3cd;
+            border-color: var(--gold)
+        }
+
+        .callout.warning {
+            background: #fde8e0;
+            border-color: var(--rust)
+        }
+
+        .callout.tip {
+            background: #e0f0e8;
+            border-color: #2a7a4a
+        }
+
+        .callout.lecturer {
+            background: #f4e8f8;
+            border-color: #7a3a7a
+        }
+
+        .callout-label {
+            font-size: 10px;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 5px
+        }
+
+        .callout.definition .callout-label {
+            color: var(--teal)
+        }
+
+        .callout.exam .callout-label {
+            color: #8a6a00
+        }
+
+        .callout.warning .callout-label {
+            color: var(--rust)
+        }
+
+        .callout.tip .callout-label {
+            color: #2a7a4a
+        }
+
+        .callout.lecturer .callout-label {
+            color: #7a3a7a
+        }
+
+        .callout p {
+            margin: 0;
+            font-size: 15.5px
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            margin: 20px 0
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14.5px
+        }
+
+        th {
+            background: var(--ink);
+            color: var(--gold-light);
+            padding: 9px 13px;
+            text-align: left;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600
+        }
+
+        td {
+            padding: 9px 13px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top
+        }
+
+        tr:nth-child(even) td {
+            background: var(--cream)
+        }
+
+        ul,
+        ol {
+            padding-left: 22px;
+            margin-bottom: 13px
+        }
+
+        li {
+            margin-bottom: 6px
+        }
+
+        ul.clean {
+            list-style: none;
+            padding-left: 0
+        }
+
+        ul.clean li {
+            padding-left: 20px;
+            position: relative
+        }
+
+        ul.clean li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+            font-size: 13px;
+            top: 2px
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 6px;
+            color: var(--rust)
+        }
+
+        .code-block {
+            background: #0d1117;
+            color: #e6edf3;
+            border-radius: 10px;
+            padding: 0;
+            margin: 16px 0;
+            overflow: hidden;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.7
+        }
+
+        .code-label {
+            background: #161b22;
+            color: #7d8590;
+            font-size: 10px;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            padding: 7px 18px;
+            border-bottom: 1px solid #30363d
+        }
+
+        .code-body {
+            padding: 16px 20px;
+            overflow-x: auto
+        }
+
+        .cy-kw {
+            color: #ff7b72
+        }
+
+        .cy-fn {
+            color: #ffa657
+        }
+
+        .cy-val {
+            color: #a5d6ff
+        }
+
+        .cy-var {
+            color: #d2a8ff
+        }
+
+        .cy-comment {
+            color: #8b949e;
+            font-style: italic
+        }
+
+        .cy-label {
+            color: #79c0ff
+        }
+
+        /* Algo diagram boxes */
+        .algo-box {
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0
+        }
+
+        .algo-caption {
+            font-size: 13px;
+            color: var(--muted);
+            font-style: italic;
+            text-align: center;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border)
+        }
+
+        /* Tree diagram using flexbox */
+        .tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px
+        }
+
+        .tree-level {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            align-items: center
+        }
+
+        .tnode {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid var(--teal);
+            background: #e0eaf8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--teal);
+            flex-shrink: 0
+        }
+
+        .tnode.visited {
+            background: #b8d4c8;
+            border-color: #1a5f4a
+        }
+
+        .tnode.goal {
+            background: #fff3cd;
+            border-color: var(--gold);
+            color: #7a5000
+        }
+
+        .tnode.start {
+            background: #fde8e0;
+            border-color: var(--rust);
+            color: var(--rust)
+        }
+
+        .tnode.heuristic {
+            background: #f4e8f8;
+            border-color: #7a3a7a;
+            color: #7a3a7a;
+            font-size: 11px;
+            width: 52px;
+            height: 52px;
+            flex-direction: column;
+            gap: 0
+        }
+
+        .tnode .hn {
+            font-size: 10px;
+            font-weight: 400
+        }
+
+        .tree-connector {
+            width: 2px;
+            height: 18px;
+            background: var(--border);
+            margin: 0 auto
+        }
+
+        .edge-label {
+            font-size: 12px;
+            color: var(--rust);
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--paper);
+            padding: 0 4px;
+            border-radius: 3px
+        }
+
+        /* BFS queue visual */
+        .queue-box {
+            display: flex;
+            align-items: stretch;
+            gap: 2px;
+            margin: 12px 0;
+            flex-wrap: wrap
+        }
+
+        .q-item {
+            background: var(--teal);
+            color: #fff;
+            padding: 6px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 4px
+        }
+
+        .q-item.dequeued {
+            background: var(--muted);
+            text-decoration: line-through
+        }
+
+        /* Formula display */
+        .formula-box {
+            background: var(--ink);
+            color: var(--gold-light);
+            border-radius: 8px;
+            padding: 16px 22px;
+            margin: 16px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            text-align: center
+        }
+
+        .formula-parts {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin: 16px 0
+        }
+
+        .formula-part {
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            text-align: center;
+            font-size: 14px
+        }
+
+        .formula-part strong {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            color: var(--teal)
+        }
+
+        /* MST visual */
+        .mst-step {
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 8px 0;
+            font-size: 14.5px
+        }
+
+        .mst-step .step-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 4px
+        }
+
+        /* Compare grid */
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin: 20px 0
+        }
+
+        .compare-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden
+        }
+
+        .compare-card-head {
+            padding: 11px 16px;
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700
+        }
+
+        .compare-card-head.a {
+            background: var(--teal);
+            color: #fff
+        }
+
+        .compare-card-head.b {
+            background: var(--rust);
+            color: #fff
+        }
+
+        .compare-card-head.c {
+            background: #1a6a3a;
+            color: #fff
+        }
+
+        .compare-card-body {
+            padding: 13px 16px;
+            font-size: 14px
+        }
+
+        .compare-card-body ul {
+            margin: 0
+        }
+
+        /* Summary + quiz */
+        .summary-box {
+            background: var(--ink);
+            color: #e8dfc8;
+            border-radius: 12px;
+            padding: 26px 30px;
+            margin: 28px 0
+        }
+
+        .summary-box h3 {
+            color: var(--gold-light);
+            margin-top: 0;
+            font-size: 16px
+        }
+
+        .summary-box ul {
+            padding-left: 20px
+        }
+
+        .summary-box li {
+            margin-bottom: 7px;
+            font-size: 14.5px
+        }
+
+        .quiz {
+            counter-reset: quiz
+        }
+
+        .quiz-item {
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            counter-increment: quiz;
+            position: relative
+        }
+
+        .quiz-item::before {
+            content: 'Q' counter(quiz);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gold);
+            position: absolute;
+            top: 12px;
+            right: 14px
+        }
+
+        .quiz-item p {
+            margin: 0;
+            font-size: 15px
+        }
+
+        .quiz-item .hint {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 7px;
+            font-style: italic
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0
+        }
+
+        .checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 15px
+        }
+
+        .checklist li:last-child {
+            border: none
+        }
+
+        .check-box {
+            width: 17px;
+            height: 17px;
+            min-width: 17px;
+            border: 2px solid var(--border);
+            border-radius: 3px;
+            margin-top: 3px
+        }
+
+        /* algo step table */
+        .step-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        .step-table th {
+            background: #1a3a2a;
+            color: #a5d6a7;
+            padding: 7px 10px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700
+        }
+
+        .step-table td {
+            padding: 7px 10px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top
+        }
+
+        .step-table tr:nth-child(even) td {
+            background: #f0f5f0
+        }
+
+        .step-table .chosen {
+            color: var(--accent);
+            font-weight: 700
+        }
+
+        .scroll-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 42px;
+            height: 42px;
+            background: var(--ink);
+            color: var(--gold-light);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 17px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .3);
+            text-decoration: none
+        }
+
+        @media(max-width:900px) {
+            .sidebar {
+                display: none
+            }
+
+            .main {
+                margin-left: 0
+            }
+
+            .content,
+            .hero {
+                padding: 28px
+            }
+
+            .compare-grid {
+                grid-template-columns: 1fr
+            }
+
+            .formula-parts {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <a href="index.html">← All Lectures</a>
+            <strong>Lecture 11</strong><span>Graph Data Science</span>
+        </div>
+        <div class="nav-section">Algorithms</div>
+        <a class="nav-link" href="#what-gds">1. What is Graph Data Science?</a>
+        <a class="nav-link" href="#what-search">2. What is Search?</a>
+        <a class="nav-link" href="#bfs">3. BFS — Breadth First Search</a>
+        <a class="nav-link" href="#dfs">4. DFS — Depth First Search</a>
+        <a class="nav-link" href="#bfs-vs-dfs">5. BFS vs DFS Comparison</a>
+        <a class="nav-link" href="#astar">6. A* Search Algorithm</a>
+        <a class="nav-link" href="#mst">7. Minimum Spanning Tree</a>
+        <a class="nav-link" href="#random-walk">8. Random Walk</a>
+        <div class="nav-section">Neo4j GDS</div>
+        <a class="nav-link" href="#projected">9. Projected Graphs</a>
+        <a class="nav-link" href="#neo4j-impl">10. Neo4j Implementation</a>
+        <div class="nav-section">Revision</div>
+        <a class="nav-link" href="#summary">Summary</a>
+        <a class="nav-link" href="#checklist">Checklist</a>
+        <a class="nav-link" href="#questions">Exam Questions</a>
+    </nav>
+
+    <div class="main">
+        <div class="hero">
+            <div class="hero-eyebrow">CITS3401 · Week 11 · Lecture 11</div>
+            <h1>Intro to Graph Data Science<br>&amp; Pathfinding Algorithms</h1>
+            <p class="hero-sub">BFS, DFS, A* search, Minimum Spanning Trees, and Random Walk — with step-by-step worked
+                examples you can practise for the final exam. Plus Neo4j GDS implementation.</p>
+            <div class="hero-nav">
+                <a class="home" href="index.html">🏠 Home</a>
+                <a class="prev" href="lecture10.html">← Lecture 10</a>
+            </div>
+        </div>
+
+        <div class="content">
+
+            <div class="callout exam" style="margin-bottom:32px">
+                <div class="callout-label">🎯 Final Exam — This Lecture = Q5</div>
+                <p>Lecturer confirmed: <strong>"Q5 = Graph Data Science and APOC. You have visiting order questions in
+                        the final exam. You must understand how to find the visiting order for BFS and DFS. For A* you
+                        need to trace f(n) = g(n) + h(n). For MST, find the minimum spanning tree and calculate the
+                        total cost."</strong><br>
+                    No Neo4j coding needed in the exam — only hand calculations and short answers.</p>
+            </div>
+
+            <!-- SECTION 1 -->
+            <div class="section" id="what-gds">
+                <div class="section-header">
+                    <div class="section-num">01</div>
+                    <h2>What is Graph Data Science?</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 Definition</div>
+                    <p><strong>Graph Data Science (GDS)</strong> is using graph algorithms to answer business-critical
+                        questions and make predictions from graph data. Neo4j has a built-in Graph Data Science library
+                        with hundreds of ready-to-use algorithms.</p>
+                </div>
+
+                <h3>Real-world applications</h3>
+                <ul class="clean">
+                    <li><strong>Google Maps:</strong> Given your start (UWA) and destination (King's Park), GDS
+                        algorithms find all possible routes and suggest the shortest or fastest one based on traffic.
+                    </li>
+                    <li><strong>Robotics:</strong> A robot arm needs to move from point A to point B without hitting
+                        obstacles. GDS finds a safe path through the space.</li>
+                    <li><strong>Pac-Man AI:</strong> The game computer uses search algorithms to explore all possible
+                        moves and find a path that eats dots without being caught by ghosts.</li>
+                    <li><strong>Fraud detection:</strong> Tracing suspicious connected transaction patterns in financial
+                        networks.</li>
+                </ul>
+
+                <h3>The GDS Algorithm Categories in this Unit</h3>
+                <div class="table-wrap">
+                    <table>
+                        <tr>
+                            <th>Algorithm</th>
+                            <th>Type</th>
+                            <th>Key Use</th>
+                        </tr>
+                        <tr>
+                            <td>BFS (Breadth First Search)</td>
+                            <td>Graph traversal</td>
+                            <td>Shortest path (unweighted), level-by-level exploration</td>
+                        </tr>
+                        <tr>
+                            <td>DFS (Depth First Search)</td>
+                            <td>Graph traversal</td>
+                            <td>General graph exploration, visiting all nodes</td>
+                        </tr>
+                        <tr>
+                            <td>A* (A-Star)</td>
+                            <td>Pathfinding</td>
+                            <td>Shortest path with weights + heuristic estimate</td>
+                        </tr>
+                        <tr>
+                            <td>Minimum Spanning Tree</td>
+                            <td>Graph optimisation</td>
+                            <td>Find minimum-cost connection of all nodes</td>
+                        </tr>
+                        <tr>
+                            <td>Random Walk</td>
+                            <td>Sampling</td>
+                            <td>Explore graphs randomly, graph embeddings, similarity</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SECTION 2 -->
+            <div class="section" id="what-search">
+                <div class="section-header">
+                    <div class="section-num">02</div>
+                    <h2>What is Search?</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 Definition</div>
+                    <p><strong>Search</strong> in graph data science is how a computer tries to find different options
+                        to find the best answer to a problem. A <strong>solution</strong> is a path from the start node
+                        to the goal node.</p>
+                </div>
+
+                <h3>Two types of search goals</h3>
+                <ul class="clean">
+                    <li><strong>General discovery:</strong> Explore what's inside the graph — visit all nodes,
+                        understand the structure. (Used by DFS)</li>
+                    <li><strong>Explicit search:</strong> Find a specific target — "find the shortest path from A to B."
+                        (Used by BFS, A*)</li>
+                </ul>
+
+                <div class="callout tip">
+                    <div class="callout-label">💡 Important Note</div>
+                    <p>Graph search algorithms carve paths through the graph, but these paths may NOT necessarily be the
+                        computationally optimal path. BFS and DFS use equal weights (every edge = cost 1). Only A* uses
+                        actual edge weights, making it smarter for weighted graphs.</p>
+                </div>
+            </div>
+
+            <!-- SECTION 3 -->
+            <div class="section" id="bfs">
+                <div class="section-header">
+                    <div class="section-num">03</div>
+                    <h2>BFS — Breadth First Search</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 Definition</div>
+                    <p><strong>BFS</strong> starts from a chosen node and explores ALL of its direct neighbours (1 hop
+                        away) before visiting neighbours 2 hops away, then 3 hops, and so on. It explores the graph
+                        <em>level by level</em>.</p>
+                </div>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 BFS Key Properties — Must Know</div>
+                    <p><strong>Unweighted:</strong> Every edge costs 1.<br>
+                        <strong>Queue = FIFO:</strong> First In, First Out. The node that was added first to the queue
+                        is processed first.<br>
+                        <strong>Finds shortest path:</strong> Because it explores level by level, the first time you
+                        reach a node IS always the shortest path.<br>
+                        <strong>Visits nearest neighbours first.</strong>
+                    </p>
+                </div>
+
+                <h3>BFS Step-by-Step: How it works</h3>
+                <p>Think of BFS like ripples in water — starting from your stone-drop point, it reaches all spots 1 step
+                    away, then 2 steps, then 3 steps, and so on.</p>
+
+                <div class="algo-box">
+                    <p
+                        style="font-weight:700;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--teal)">
+                        EXAMPLE GRAPH — BFS from node A</p>
+                    <div class="tree">
+                        <div class="tree-level">
+                            <div class="tnode start">A</div>
+                        </div>
+                        <div class="tree-level">
+                            <div class="tnode">B</div>
+                            <div class="tnode">C</div>
+                        </div>
+                        <div class="tree-level">
+                            <div class="tnode">D</div>
+                            <div class="tnode">E</div>
+                            <div class="tnode">F</div>
+                            <div class="tnode">G</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:16px;font-size:14px">
+                        <strong>BFS Visit Order starting from A:</strong>
+                        <table class="step-table" style="margin-top:8px">
+                            <tr>
+                                <th>Step</th>
+                                <th>Queue (before processing)</th>
+                                <th>Process</th>
+                                <th>Add to Queue</th>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>[A]</td>
+                                <td class="chosen">A</td>
+                                <td>B, C</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>[B, C]</td>
+                                <td class="chosen">B</td>
+                                <td>D, E</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>[C, D, E]</td>
+                                <td class="chosen">C</td>
+                                <td>F, G</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>[D, E, F, G]</td>
+                                <td class="chosen">D</td>
+                                <td>(none)</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>[E, F, G]</td>
+                                <td class="chosen">E</td>
+                                <td>(none)</td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>[F, G]</td>
+                                <td class="chosen">F</td>
+                                <td>(none)</td>
+                            </tr>
+                            <tr>
+                                <td>7</td>
+                                <td>[G]</td>
+                                <td class="chosen">G</td>
+                                <td>(none)</td>
+                            </tr>
+                        </table>
+                        <p style="margin-top:8px"><strong>Final visit order: A → B → C → D → E → F → G</strong></p>
+                    </div>
+                    <p class="algo-caption">BFS visits level 1 (B,C) before level 2 (D,E,F,G). This is why it finds
+                        shortest paths.</p>
+                </div>
+
+                <h3>BFS for Shortest Path — Worked Example</h3>
+                <p>Starting from node <strong>0</strong> in the graph: 0 connects to 1 and 3. 1 connects to 2. 3
+                    connects to 4 and 5. 4 connects to 6 and 7. 5 connects to 6.</p>
+
+                <div class="algo-box">
+                    <table class="step-table">
+                        <tr>
+                            <th>Step</th>
+                            <th>Queue (FIFO)</th>
+                            <th>Process</th>
+                            <th>Neighbours (unvisited)</th>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>[0]</td>
+                            <td class="chosen">0</td>
+                            <td>1, 3 → add to queue</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>[1, 3]</td>
+                            <td class="chosen">1</td>
+                            <td>2 → add</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>[3, 2]</td>
+                            <td class="chosen">3</td>
+                            <td>4, 5 → add</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>[2, 4, 5]</td>
+                            <td class="chosen">2</td>
+                            <td>none</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>[4, 5]</td>
+                            <td class="chosen">4</td>
+                            <td>6, 7 → add (3 already visited)</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>[5, 6, 7]</td>
+                            <td class="chosen">5</td>
+                            <td>6 (already in queue)</td>
+                        </tr>
+                        <tr>
+                            <td>7-8</td>
+                            <td>[6, 7]</td>
+                            <td class="chosen">6, 7</td>
+                            <td>none left</td>
+                        </tr>
+                    </table>
+                    <p style="margin-top:10px"><strong>Visit order: 0 → 1 → 3 → 2 → 4 → 5 → 6 → 7</strong></p>
+                    <p><strong>Shortest path from 0 to 7:</strong> 0 → 4 → 7 (cost = 3 hops). Why? BFS reaches node 7
+                        via 0→3→4→7, which is the first (shortest) path found.</p>
+                    <p class="algo-caption">BFS uses cost = 1 per hop. The first time you reach any node = shortest
+                        path.</p>
+                </div>
+            </div>
+
+            <!-- SECTION 4 -->
+            <div class="section" id="dfs">
+                <div class="section-header">
+                    <div class="section-num">04</div>
+                    <h2>DFS — Depth First Search</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 Definition</div>
+                    <p><strong>DFS</strong> starts from a chosen node and picks one neighbour, then goes as deep as
+                        possible along that branch before backtracking and trying the next option. It explores <em>one
+                            branch all the way down before trying another</em>.</p>
+                </div>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 DFS Key Properties — Must Know</div>
+                    <p><strong>Unweighted:</strong> Every edge costs 1.<br>
+                        <strong>Stack = LIFO:</strong> Last In, First Out. The most recently added node is processed
+                        next (like a stack of plates).<br>
+                        <strong>NOT for shortest path:</strong> DFS is for graph exploration/traversal, not shortest
+                        path finding.<br>
+                        <strong>When multiple neighbours:</strong> Visit in alphabetical/numerical order.
+                    </p>
+                </div>
+
+                <h3>DFS Step-by-Step: How it works</h3>
+                <p>Think of DFS like exploring a maze — you always keep going forward until you hit a dead end, then
+                    backtrack and try a different branch.</p>
+
+                <div class="algo-box">
+                    <p
+                        style="font-weight:700;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--rust)">
+                        EXAMPLE GRAPH — DFS from node A (alphabetical order)</p>
+                    <div class="tree">
+                        <div class="tree-level">
+                            <div class="tnode start">A</div>
+                        </div>
+                        <div class="tree-level">
+                            <div class="tnode">B</div>
+                            <div class="tnode">C</div>
+                        </div>
+                        <div class="tree-level">
+                            <div class="tnode">D</div>
+                            <div class="tnode">E</div>
+                            <div class="tnode">F</div>
+                            <div class="tnode">G</div>
+                        </div>
+                        <div class="tree-level">
+                            <div class="tnode">H</div>
+                            <div class="tnode">I</div>
+                            <div class="tnode">J</div>
+                            <div class="tnode">K</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:16px;font-size:14px">
+                        <table class="step-table" style="margin-top:8px">
+                            <tr>
+                                <th>Step</th>
+                                <th>Stack (LIFO)</th>
+                                <th>Process</th>
+                                <th>Add to Stack</th>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>[A]</td>
+                                <td class="chosen">A</td>
+                                <td>B, C (B processed first — alphabetical)</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>[C, B]</td>
+                                <td class="chosen">B</td>
+                                <td>D, E</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>[C, E, D]</td>
+                                <td class="chosen">D</td>
+                                <td>H</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>[C, E, H]</td>
+                                <td class="chosen">H</td>
+                                <td>none → backtrack</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>[C, E]</td>
+                                <td class="chosen">E</td>
+                                <td>I, J</td>
+                            </tr>
+                            <tr>
+                                <td>6-7</td>
+                                <td>[C, J, I]</td>
+                                <td class="chosen">I, J</td>
+                                <td>none → backtrack to C</td>
+                            </tr>
+                            <tr>
+                                <td>8</td>
+                                <td>[C]</td>
+                                <td class="chosen">C</td>
+                                <td>F, G</td>
+                            </tr>
+                            <tr>
+                                <td>9</td>
+                                <td>[G, F]</td>
+                                <td class="chosen">F</td>
+                                <td>K</td>
+                            </tr>
+                            <tr>
+                                <td>10</td>
+                                <td>[G, K]</td>
+                                <td class="chosen">K</td>
+                                <td>none → backtrack to G</td>
+                            </tr>
+                            <tr>
+                                <td>11</td>
+                                <td>[G]</td>
+                                <td class="chosen">G</td>
+                                <td>none</td>
+                            </tr>
+                        </table>
+                        <p style="margin-top:8px"><strong>Final visit order: A → B → D → H → E → I → J → C → F → K →
+                                G</strong></p>
+                    </div>
+                    <p class="algo-caption">DFS dives deep first: A→B→D→H (dead end) → backtrack → E→I→J (dead end) →
+                        backtrack → C→F→K (dead end) → G</p>
+                </div>
+
+                <h3>Simpler DFS Example</h3>
+                <div class="algo-box">
+                    <p style="font-size:14px;margin-bottom:10px">Graph with nodes 0,1,2,3,4. 0 connects to 1 and 2. 1
+                        connects to 2. 2 connects to 3 and 4. <strong>Find visit order from 0.</strong></p>
+                    <table class="step-table">
+                        <tr>
+                            <th>Stack (LIFO)</th>
+                            <th>Process</th>
+                            <th>Add to Stack</th>
+                        </tr>
+                        <tr>
+                            <td>[0]</td>
+                            <td class="chosen">0</td>
+                            <td>1, 2 → stack = [2, 1] (1 on top — processed first numerically)</td>
+                        </tr>
+                        <tr>
+                            <td>[2, 1]</td>
+                            <td class="chosen">1</td>
+                            <td>2 already visited → nothing</td>
+                        </tr>
+                        <tr>
+                            <td>[2]</td>
+                            <td class="chosen">2</td>
+                            <td>3, 4 → stack = [4, 3]</td>
+                        </tr>
+                        <tr>
+                            <td>[4, 3]</td>
+                            <td class="chosen">3</td>
+                            <td>none</td>
+                        </tr>
+                        <tr>
+                            <td>[4]</td>
+                            <td class="chosen">4</td>
+                            <td>none</td>
+                        </tr>
+                    </table>
+                    <p style="margin-top:8px"><strong>Visit order: 0 → 1 → 2 → 3 → 4</strong></p>
+                    <p class="algo-caption">Each node visited at most once. LIFO stack means the most recently
+                        discovered node is explored next.</p>
+                </div>
+            </div>
+
+            <!-- SECTION 5 -->
+            <div class="section" id="bfs-vs-dfs">
+                <div class="section-header">
+                    <div class="section-num">05</div>
+                    <h2>BFS vs. DFS — Side-by-Side Comparison</h2>
+                </div>
+
+                <div class="compare-grid">
+                    <div class="compare-card">
+                        <div class="compare-card-head a">BFS — Breadth First Search</div>
+                        <div class="compare-card-body">
+                            <ul>
+                                <li><strong>Data structure:</strong> Queue (FIFO — First In, First Out)</li>
+                                <li><strong>Explores:</strong> All nodes at current hop-distance before going deeper
+                                </li>
+                                <li><strong>Finds shortest path:</strong> ✅ Yes — because it reaches each node via
+                                    minimum hops</li>
+                                <li><strong>Weighted:</strong> ❌ No — all edges cost 1</li>
+                                <li><strong>Best for:</strong> Finding shortest paths, level-by-level exploration,
+                                    closeness centrality</li>
+                                <li><strong>Memory:</strong> Uses more memory (stores all nodes at current level)</li>
+                                <li><strong>Analogy:</strong> Ripples in water spreading outward</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="compare-card">
+                        <div class="compare-card-head b">DFS — Depth First Search</div>
+                        <div class="compare-card-body">
+                            <ul>
+                                <li><strong>Data structure:</strong> Stack (LIFO — Last In, First Out)</li>
+                                <li><strong>Explores:</strong> One branch as deeply as possible before backtracking</li>
+                                <li><strong>Finds shortest path:</strong> ❌ No — goes deep, not shortest</li>
+                                <li><strong>Weighted:</strong> ❌ No — all edges cost 1</li>
+                                <li><strong>Best for:</strong> General graph exploration, checking if a path exists,
+                                    visiting all nodes</li>
+                                <li><strong>Memory:</strong> Uses less memory (only stores current path)</li>
+                                <li><strong>Analogy:</strong> Exploring a maze — go as far as possible, then backtrack
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <tr>
+                            <th>Feature</th>
+                            <th>BFS</th>
+                            <th>DFS</th>
+                            <th>A*</th>
+                        </tr>
+                        <tr>
+                            <td>Data structure</td>
+                            <td>Queue (FIFO)</td>
+                            <td>Stack (LIFO)</td>
+                            <td>Priority queue</td>
+                        </tr>
+                        <tr>
+                            <td>Weighted?</td>
+                            <td>No (cost=1 per hop)</td>
+                            <td>No (cost=1 per hop)</td>
+                            <td>Yes (uses edge weights)</td>
+                        </tr>
+                        <tr>
+                            <td>Finds shortest path?</td>
+                            <td>Yes</td>
+                            <td>No</td>
+                            <td>Yes (optimal)</td>
+                        </tr>
+                        <tr>
+                            <td>Uses heuristic?</td>
+                            <td>No</td>
+                            <td>No</td>
+                            <td>Yes — f(n)=g(n)+h(n)</td>
+                        </tr>
+                        <tr>
+                            <td>Main use</td>
+                            <td>Shortest path in unweighted graphs</td>
+                            <td>Full graph exploration</td>
+                            <td>Shortest path in weighted graphs</td>
+                        </tr>
+                        <tr>
+                            <td>Neo4j GDS function</td>
+                            <td>gds.bfs.stream()</td>
+                            <td>gds.dfs.stream()</td>
+                            <td>gds.shortestPath.astar.stream()</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SECTION 6 -->
+            <div class="section" id="astar">
+                <div class="section-header">
+                    <div class="section-num">06</div>
+                    <h2>A* Search — Weighted Pathfinding with a Heuristic</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 Why A* Exists</div>
+                    <p>BFS and DFS treat all edges as cost 1 and have no information about where the goal is. <strong>A*
+                            is smarter</strong> — it uses actual edge weights AND a heuristic estimate of remaining
+                        distance to the goal, so it focuses exploration toward the most promising paths.</p>
+                </div>
+
+                <h3>The A* Formula — f(n) = g(n) + h(n)</h3>
+
+                <div class="formula-box">f(n) = g(n) + h(n)</div>
+
+                <div class="formula-parts">
+                    <div class="formula-part"><strong>g(n)</strong>Actual cost from START to current node n along the
+                        path taken so far</div>
+                    <div class="formula-part"><strong>h(n)</strong>Heuristic estimate of cost from node n to the GOAL.
+                        This is a "guess" — not the actual cost.</div>
+                    <div class="formula-part"><strong>f(n)</strong>Total estimated cost of path through n. A* always
+                        expands the node with the LOWEST f(n).</div>
+                </div>
+
+                <div class="callout tip">
+                    <div class="callout-label">💡 In Plain English</div>
+                    <p>g(n) = "how much have I already spent to get here?" h(n) = "how much do I estimate it will cost
+                        to reach the goal from here?" f(n) = "what's my best guess at the total trip cost if I go
+                        through this node?" A* always picks the node with the smallest f(n) next — it prioritises paths
+                        that look cheapest overall.</p>
+                </div>
+
+                <h3>What is a Heuristic?</h3>
+                <ul class="clean">
+                    <li>A <strong>heuristic</strong> is a function that <em>estimates</em> how close a node is to the
+                        goal — it's a "smart guess"</li>
+                    <li>Must be designed for the specific problem type</li>
+                    <li>Common heuristics: <strong>Manhattan distance</strong> (grid-based movement, horizontal+vertical
+                        only), <strong>Euclidean distance</strong> (straight-line/crow-flies distance)</li>
+                    <li>In the exam, heuristic values are given to you — you don't need to calculate them from scratch
+                    </li>
+                    <li>The goal node always has h(n) = 0 (no estimated remaining distance when you're at the goal)</li>
+                </ul>
+
+                <h3>A* Worked Example — Full Step-by-Step</h3>
+                <p>Find the shortest path from <strong>a</strong> to <strong>z</strong>. Numbers inside nodes =
+                    heuristic values h(n). Numbers on edges = actual costs.</p>
+
+                <div class="algo-box">
+                    <div
+                        style="font-family:'JetBrains Mono',monospace;font-size:12px;margin-bottom:14px;background:#0d1117;color:#e6edf3;border-radius:6px;padding:12px 14px">
+                        Graph: a(h=11) --5-- b(h=8) --5-- d(h=4) --6-- z(h=0)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a --4-- c(h=8) --1-- (c is node with low edge to b and
+                        e)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c --10-- e(h=2) --5-- z<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b --8-- e
+                    </div>
+                    <table class="step-table">
+                        <tr>
+                            <th>Step</th>
+                            <th>Current node</th>
+                            <th>Options</th>
+                            <th>f = g + h</th>
+                            <th>Choose</th>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>Start: a</td>
+                            <td>a→b: g=5, h=8 → f=13<br>a→c: g=4, h=8 → f=12</td>
+                            <td>13 vs 12</td>
+                            <td class="chosen">a→c (f=12 lowest)</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>At c</td>
+                            <td>a→c→d: g=4+1=5? (via c's edge to b, then d)? Check options<br>a→c→e: g=4+10=14, h=2 →
+                                f=16<br>Also explore a→b: f=13</td>
+                            <td>13 vs 16</td>
+                            <td class="chosen">a→b (f=13 lowest)</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>At b</td>
+                            <td>a→b→d: g=5+5=10, h=4 → f=14<br>a→b→c: but c visited with lower g</td>
+                            <td>14</td>
+                            <td class="chosen">a→b→d (f=14)</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>At d</td>
+                            <td>a→b→d→z: g=10+6=16, h=0 → f=16</td>
+                            <td>16</td>
+                            <td class="chosen">REACHED GOAL</td>
+                        </tr>
+                    </table>
+                    <p style="margin-top:10px"><strong>Shortest path: a → b → d → z</strong></p>
+                    <p><strong>Total actual cost: 5 + 5 + 6 = 16</strong> (heuristics are NOT added to the final cost —
+                        only edge costs)</p>
+                    <p class="algo-caption">Key rule: at each step, pick the option with the lowest f(n). The heuristic
+                        guides you toward the goal but is NOT included in the final cost calculation.</p>
+                </div>
+
+                <div class="callout warning">
+                    <div class="callout-label">⚠️ Critical Exam Point — Heuristic is NOT part of final cost</div>
+                    <p>The heuristic h(n) is used ONLY to decide which path to explore next. When you finally reach the
+                        goal and report the total cost, you only add up the actual edge costs g(n). <strong>Never
+                            include h(n) in the final answer.</strong></p>
+                </div>
+
+                <h3>A* Practice Question (from slides)</h3>
+                <div class="algo-box">
+                    <p style="font-size:14px;margin-bottom:12px">Find the shortest path from S to G. Edge costs and
+                        heuristic values h(n) given:</p>
+                    <div
+                        style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#0d1117;color:#e6edf3;border-radius:6px;padding:10px 14px;margin-bottom:12px">
+                        Heuristics: S=5, A=3, B=4, C=2, D=6, G=0<br>
+                        Edges: S→A=1, S→B=4, A→C=2, A→B=1, B→C=1, B→G=10, C→D=3, C→G=4, D→G=2
+                    </div>
+                    <table class="step-table">
+                        <tr>
+                            <th>Step</th>
+                            <th>Options to expand</th>
+                            <th>f = g + h</th>
+                            <th>Choose</th>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>S→A: g=1, h=3 → f=4<br>S→B: g=4, h=4 → f=8</td>
+                            <td>4 vs 8</td>
+                            <td class="chosen">S→A (f=4 lowest)</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>S→A→C: g=3, h=2 → f=5<br>S→A→B: g=2, h=4 → f=6<br>S→B: g=4, h=4 → f=8</td>
+                            <td>5, 6, 8</td>
+                            <td class="chosen">S→A→C (f=5 lowest)</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>S→A→C→D: g=6, h=6 → f=12<br>S→A→C→G: g=7, h=0 → f=7<br>S→A→B: f=6<br>S→B: f=8</td>
+                            <td>12, 7, 6, 8</td>
+                            <td class="chosen">S→A→B (f=6 lowest)</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>S→A→B→G: g=12, h=0 → f=12<br>S→A→C→G: f=7<br>S→B: f=8</td>
+                            <td>12, 7, 8</td>
+                            <td class="chosen">S→A→C→G (f=7 lowest)</td>
+                        </tr>
+                    </table>
+                    <p style="margin-top:10px"><strong>Shortest path: S → A → C → G</strong></p>
+                    <p><strong>Total actual cost: 1 + 2 + 4 = 7</strong></p>
+                    <p class="algo-caption">Always expand the node with the lowest f(n) value across ALL current open
+                        options, regardless of how many steps you've already taken.</p>
+                </div>
+            </div>
+
+            <!-- SECTION 7 -->
+            <div class="section" id="mst">
+                <div class="section-header">
+                    <div class="section-num">07</div>
+                    <h2>Minimum Spanning Tree (MST)</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 Key Definitions</div>
+                    <p><strong>Tree:</strong> An undirected network where any two nodes are connected by exactly ONE
+                        path. No loops/cycles.<br>
+                        <strong>Spanning Tree:</strong> A tree that contains ALL nodes of the graph, connected with
+                        minimum edges (no cycles).<br>
+                        <strong>Minimum Spanning Tree (MST):</strong> The spanning tree with the minimum total edge
+                        weight — the cheapest way to connect all nodes.
+                    </p>
+                </div>
+
+                <h3>Real-world use</h3>
+                <p>The classic example: you need to lay cable/pipe/wire to connect N cities. You want every city
+                    reachable from every other, but you want to minimise the total cable used. The MST gives you the
+                    cheapest network.</p>
+
+                <!-- Visual MST concept -->
+                <div class="algo-box">
+                    <div class="compare-grid" style="margin:0">
+                        <div>
+                            <p
+                                style="font-weight:700;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--rust);margin-bottom:10px">
+                                Original network (has loops)</p>
+                            <div style="font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2.2">
+                                A ——4—— B ——6—— C<br>
+                                &nbsp;&nbsp;\<br>
+                                &nbsp;&nbsp;&nbsp;2<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;\<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D ——3—— B<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;C
+                            </div>
+                            <p style="font-size:13px;color:var(--muted);margin-top:8px">Edges: A-B(4), B-C(6), A-D(2),
+                                D-B(3), D-C(5), B-D(10)</p>
+                        </div>
+                        <div>
+                            <p
+                                style="font-weight:700;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--accent);margin-bottom:10px">
+                                MST (no loops, minimum cost)</p>
+                            <div style="font-size:14px;line-height:2">
+                                Keep edges: A-D (2), D-B (3), D-C (5), A-B (4)<br>
+                                Drop: B-C (6), B-D (10) ← too expensive<br><br>
+                                Total cost of MST = 2 + 3 + 4 + 5 = <strong>14</strong><br>
+                                Dropped the 10 and 6 weight edges
+                            </div>
+                        </div>
+                    </div>
+                    <p class="algo-caption">MST includes all nodes, uses minimum edge cost, and has no cycles. Left =
+                        original graph with loops. Right = MST (tree, no loops).</p>
+                </div>
+
+                <h3>Prim's Algorithm — How to Find the MST</h3>
+                <div class="callout definition">
+                    <div class="callout-label">📖 Prim's Algorithm Steps</div>
+                    <p>
+                        1. Start with any chosen node.<br>
+                        2. Find the cheapest edge connecting ANY node already in your tree to ANY node NOT yet in the
+                        tree.<br>
+                        3. Add that edge and the new node to the tree.<br>
+                        4. Repeat steps 2–3 until ALL nodes are in the tree.<br>
+                        5. The result is the MST.
+                    </p>
+                </div>
+
+                <h3>Prim's — Worked Example (from slides)</h3>
+                <div class="algo-box">
+                    <p style="font-size:14px;margin-bottom:12px">Graph with nodes a,b,c,d,e,f,g. Find MST starting from
+                        a.</p>
+                    <table class="step-table">
+                        <tr>
+                            <th>Tree so far</th>
+                            <th>Cheapest edge to new node</th>
+                            <th>Add to MST</th>
+                            <th>Cost so far</th>
+                        </tr>
+                        <tr>
+                            <td>{a}</td>
+                            <td>a-b (4) vs a-c (8) vs a-d (8)</td>
+                            <td class="chosen">a-b (weight 4)</td>
+                            <td>4</td>
+                        </tr>
+                        <tr>
+                            <td>{a,b}</td>
+                            <td>b-c (8), b-d (8) vs a-c (8), etc. — check min from any node in tree</td>
+                            <td class="chosen">b-d (weight 2) if exists, or next cheapest</td>
+                            <td>4+2=6</td>
+                        </tr>
+                        <tr>
+                            <td>{a,b,d}</td>
+                            <td>Find cheapest to f or e or c</td>
+                            <td class="chosen">Pick lowest cost</td>
+                            <td>+next min</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="font-style:italic;color:var(--muted);text-align:center">Continue
+                                until all nodes included. Total cost = 22 for this example.</td>
+                        </tr>
+                    </table>
+                    <div style="margin-top:12px;background:#e0f0e8;border-radius:6px;padding:10px 14px;font-size:14px">
+                        <strong>Key property:</strong> The MST total weight is always unique (always the same minimum),
+                        but the MST structure itself may not be unique — when edges have equal weights, there can be
+                        multiple valid MSTs (but same total cost).
+                    </div>
+                    <p class="algo-caption">Prim's algorithm from the slides: 2 MSTs exist for that example graph
+                        (because some edges have equal weight) but both have total cost = 22.</p>
+                </div>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 Exam Trick — Multiple MSTs Are OK</div>
+                    <p>If two edges have the same weight and you could pick either, the question might have multiple
+                        valid MSTs. This is fine — the MST structure may differ but the <strong>total weight is always
+                            the same</strong>. If asked to find the MST, show your work step by step and justify each
+                        edge choice.</p>
+                </div>
+            </div>
+
+            <!-- SECTION 8 -->
+            <div class="section" id="random-walk">
+                <div class="section-header">
+                    <div class="section-num">08</div>
+                    <h2>Random Walk</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 Definition</div>
+                    <p>A <strong>random walk</strong> starts from a node and moves to a connected node chosen at random,
+                        repeatedly, for a specified number of steps or until a specified end node is reached. There is
+                        no "smart" decision — movement is random.</p>
+                </div>
+
+                <h3>The UWA Analogy (from the lecturer)</h3>
+                <p>"Imagine you are a new student at UWA and someone tells you to go to the CSSE building, but you have
+                    no map. You don't know the layout. So you just start walking randomly — maybe you wander to the
+                    Business School, then Engineering, then accidentally arrive at CSSE. That's a random walk."</p>
+
+                <h3>Why would we use something so seemingly useless?</h3>
+                <ul class="clean">
+                    <li><strong>Graph embeddings:</strong> Translate the graph structure into numerical coordinates
+                        (vectors) that computers can process with machine learning algorithms</li>
+                    <li><strong>Similarity measurement:</strong> Two words like "happy" and "joyful" — random walks can
+                        measure how similarly they are connected in a language graph</li>
+                    <li><strong>Network analysis:</strong> Understand the structure of complex networks without prior
+                        knowledge of them</li>
+                    <li><strong>Training data:</strong> Generate training data for graph machine learning models (e.g.
+                        Node2Vec algorithm uses random walks)</li>
+                </ul>
+
+                <h3>Random Walk Parameters</h3>
+                <ul class="clean">
+                    <li><strong>walkLength:</strong> How many steps to take (e.g. 5 means visit 5 nodes from the start)
+                    </li>
+                    <li><strong>walksPerNode:</strong> How many separate random walks to perform from the same starting
+                        node</li>
+                    <li><strong>No calculation needed in exam</strong> — just understand the concept</li>
+                </ul>
+            </div>
+
+            <!-- SECTION 9 -->
+            <div class="section" id="projected">
+                <div class="section-header">
+                    <div class="section-num">09</div>
+                    <h2>Projected Graphs — Required for Neo4j GDS</h2>
+                </div>
+
+                <div class="callout definition">
+                    <div class="callout-label">📖 What is a Projected Graph?</div>
+                    <p>Before running ANY GDS algorithm in Neo4j, you must first <strong>project</strong> your graph. A
+                        projected graph is an in-memory copy of (part of) your Neo4j database, loaded into the GDS
+                        library for analysis. It is NOT stored permanently — it's like a temporary view.</p>
+                </div>
+
+                <h3>Why do we need to project?</h3>
+                <p>Your full graph database might have many node types (Person, Movie, Company, etc.) and relationship
+                    types. GDS algorithms usually only need a subset. Projection lets you:</p>
+                <ul class="clean">
+                    <li>Choose which node labels to include (e.g. only Place nodes)</li>
+                    <li>Choose which relationship types to include (e.g. only ROAD relationships)</li>
+                    <li>Control graph orientation (directed or undirected)</li>
+                    <li>Keep the analysis in memory (faster, doesn't affect the real database)</li>
+                </ul>
+
+                <h3>Creating a projected graph</h3>
+                <div class="code-block">
+                    <div class="code-label">gds.graph.project — project the Transport graph</div>
+                    <div class="code-body">
+                        <span class="cy-comment">// Project: include all Place nodes and EROAD relationships</span>
+                        <span class="cy-fn">CALL</span> <span class="cy-fn">gds.graph.project</span>(<span
+                            class="cy-val">'Transport'</span>, <span class="cy-val">'Place'</span>, <span
+                            class="cy-val">'EROAD'</span>)
+
+                        <span class="cy-comment">// 'Transport' = project name (used later when calling
+                            algorithms)</span>
+                        <span class="cy-comment">// 'Place' = node label to include</span>
+                        <span class="cy-comment">// 'EROAD' = relationship type to include</span>
+                        <span class="cy-comment">// Default orientation = NATURAL (same as the stored graph)</span>
+                    </div>
+                </div>
+
+                <div class="callout warning">
+                    <div class="callout-label">⚠️ Important — Different Algorithms Need Different Projects</div>
+                    <p>Some algorithms (BFS, DFS) work with the same projected graph. A* requires different node
+                        properties (latitude, longitude) so you may need to delete the old project and create a new one.
+                        Always check that your project includes the properties your algorithm needs.</p>
+                </div>
+            </div>
+
+            <!-- SECTION 10 -->
+            <div class="section" id="neo4j-impl">
+                <div class="section-header">
+                    <div class="section-num">10</div>
+                    <h2>Neo4j GDS Implementation</h2>
+                </div>
+
+                <div class="callout exam">
+                    <div class="callout-label">🎯 No Coding Required in Exam</div>
+                    <p>Lecturer: <strong>"For graph data science, you don't need to memorise any codings for the final
+                            exam. We just have calculation questions and short answer questions. No coding questions
+                            about GDS algorithms."</strong><br>
+                        The code below is shown for understanding, not memorisation.</p>
+                </div>
+
+                <h3>BFS in Neo4j GDS</h3>
+                <div class="code-block">
+                    <div class="code-label">gds.bfs.stream — find path from Ipswich to Den Haag</div>
+                    <div class="code-body">
+                        <span class="cy-fn">MATCH</span> (<span class="cy-var">source</span><span
+                            class="cy-label">:Place</span> {<span class="cy-var">name</span>: <span
+                            class="cy-val">'Ipswich'</span>}), (<span class="cy-var">target</span><span
+                            class="cy-label">:Place</span> {<span class="cy-var">name</span>: <span class="cy-val">'Den
+                            Haag'</span>})
+                        <span class="cy-fn">CALL</span> <span class="cy-fn">gds.bfs.stream</span>(<span
+                            class="cy-val">'Transport'</span>, {
+                        sourceNode: <span class="cy-var">source</span>,
+                        targetNodes: [<span class="cy-var">target</span>]
+                        })
+                        <span class="cy-fn">YIELD</span> path
+                        <span class="cy-fn">RETURN</span> path
+                        <span class="cy-comment">// Note: BFS in GDS is unweighted. Arrows on road relationships are
+                            ignored.</span>
+                    </div>
+                </div>
+
+                <h3>DFS in Neo4j GDS</h3>
+                <div class="code-block">
+                    <div class="code-label">gds.dfs.stream — DFS traversal</div>
+                    <div class="code-body">
+                        <span class="cy-fn">MATCH</span> (<span class="cy-var">source</span><span
+                            class="cy-label">:Place</span>{<span class="cy-var">name</span>:<span
+                            class="cy-val">"Ipswich"</span>}), (<span class="cy-var">target</span><span
+                            class="cy-label">:Place</span>{<span class="cy-var">name</span>:<span class="cy-val">'Den
+                            Haag'</span>})
+                        <span class="cy-fn">CALL</span> <span class="cy-fn">gds.dfs.stream</span>(<span
+                            class="cy-val">'Transport'</span>, {sourceNode:<span class="cy-var">source</span>,
+                        targetNodes:<span class="cy-var">target</span>})
+                        <span class="cy-fn">YIELD</span> path
+                        <span class="cy-fn">RETURN</span> path
+                    </div>
+                </div>
+
+                <h3>A* Shortest Path in Neo4j GDS</h3>
+                <div class="code-block">
+                    <div class="code-label">gds.shortestPath.astar.stream — weighted shortest path</div>
+                    <div class="code-body">
+                        <span class="cy-fn">MATCH</span> (<span class="cy-var">source</span><span
+                            class="cy-label">:Place</span> {<span class="cy-var">name</span>: <span
+                            class="cy-val">'Ipswich'</span>}), (<span class="cy-var">target</span><span
+                            class="cy-label">:Place</span> {<span class="cy-var">name</span>: <span
+                            class="cy-val">'Utrecht'</span>})
+                        <span class="cy-fn">CALL</span> <span class="cy-fn">gds.shortestPath.astar.stream</span>(<span
+                            class="cy-val">'Transport'</span>, {
+                        sourceNode: <span class="cy-var">source</span>,
+                        targetNode: <span class="cy-var">target</span>,
+                        latitudeProperty: <span class="cy-val">'latitude'</span>, <span class="cy-comment">// used as
+                            heuristic</span>
+                        longitudeProperty: <span class="cy-val">'longitude'</span>, <span class="cy-comment">// used as
+                            heuristic</span>
+                        relationshipWeightProperty: <span class="cy-val">'distance'</span>
+                        })
+                        <span class="cy-fn">YIELD</span> index, sourceNode, targetNode, totalCost, nodeIds, costs, path
+                        <span class="cy-fn">RETURN</span>
+                        <span class="cy-fn">gds.util.asNode</span>(sourceNode).name <span class="cy-fn">AS</span>
+                        sourceNodeName,
+                        <span class="cy-fn">gds.util.asNode</span>(targetNode).name <span class="cy-fn">AS</span>
+                        targetNodeName,
+                        totalCost,
+                        [nodeId <span class="cy-fn">IN</span> nodeIds | <span
+                            class="cy-fn">gds.util.asNode</span>(nodeId).name] <span class="cy-fn">AS</span> nodeNames,
+                        costs
+                        <span class="cy-fn">ORDER BY</span> index
+                    </div>
+                </div>
+                <div class="callout warning">
+                    <div class="callout-label">⚠️ A* GDS Returns Only Nodes — No Relationships</div>
+                    <p>The path returned by GDS algorithms is a virtual path with nodes only — no relationship arrows.
+                        This is because GDS operates on the in-memory projected graph, which doesn't have direct
+                        references to the real Neo4j relationship objects.</p>
+                </div>
+
+                <h3>Minimum Spanning Tree in Neo4j GDS</h3>
+                <div class="code-block">
+                    <div class="code-label">gds.beta.spanningTree.write — compute and write MST</div>
+                    <div class="code-body">
+                        <span class="cy-fn">MATCH</span> (<span class="cy-var">n</span><span
+                            class="cy-label">:Place</span>{<span class="cy-var">name</span>: <span
+                            class="cy-val">'Ipswich'</span>})
+                        <span class="cy-fn">CALL</span> <span class="cy-fn">gds.beta.spanningTree.write</span>(
+                        <span class="cy-val">'Transport'</span>,
+                        {sourceNode: id(<span class="cy-var">n</span>),
+                        relationshipWeightProperty: <span class="cy-val">'distance'</span>,
+                        writeProperty: <span class="cy-val">'writeCost'</span>,
+                        writeRelationshipType: <span class="cy-val">'MINST'</span>} <span class="cy-comment">// creates
+                            MINST relationships</span>
+                        )
+                        <span class="cy-fn">YIELD</span> preProcessingMillis, computeMillis, writeMillis,
+                        effectiveNodeCount
+                        <span class="cy-fn">RETURN</span> preProcessingMillis, computeMillis, writeMillis,
+                        effectiveNodeCount
+
+                        <span class="cy-comment">// Then display the MST:</span>
+                        <span class="cy-fn">MATCH</span> (<span class="cy-var">p1</span><span
+                            class="cy-label">:Place</span>)<span class="cy-dir">-[m:MINST]-&gt;</span>(<span
+                            class="cy-var">p2</span><span class="cy-label">:Place</span>) <span
+                            class="cy-fn">RETURN</span> <span class="cy-var">p1</span>, m, <span
+                            class="cy-var">p2</span>
+                    </div>
+                </div>
+
+                <h3>Random Walk in Neo4j GDS</h3>
+                <div class="code-block">
+                    <div class="code-label">gds.randomWalk.stream — random walk from London</div>
+                    <div class="code-body">
+                        <span class="cy-fn">MATCH</span> (<span class="cy-var">source</span><span
+                            class="cy-label">:Place</span> {<span class="cy-var">name</span>: <span
+                            class="cy-val">"London"</span>})
+                        <span class="cy-fn">CALL</span> <span class="cy-fn">gds.randomWalk.stream</span>(<span
+                            class="cy-val">'Transport'</span>, {
+                        sourceNodes: [id(<span class="cy-var">source</span>)],
+                        walkLength: 5, <span class="cy-comment">// take 5 steps</span>
+                        walksPerNode: 1 <span class="cy-comment">// do 1 walk from London</span>
+                        })
+                        <span class="cy-fn">YIELD</span> nodeIds, path
+                        <span class="cy-fn">RETURN</span>
+                        nodeIds,
+                        [nodeId <span class="cy-fn">IN</span> nodeIds | <span
+                            class="cy-fn">gds.util.asNode</span>(nodeId).name] <span class="cy-fn">AS</span> nodeNames,
+                        path
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUMMARY -->
+            <div class="section" id="summary">
+                <div class="section-header">
+                    <div class="section-num">★</div>
+                    <h2>Summary — The Exam Cheat Sheet</h2>
+                </div>
+                <div class="summary-box">
+                    <h3>Lecture 11 — All Algorithm Properties (from slides summary slide)</h3>
+                    <ul>
+                        <li><strong>BFS:</strong> Unweighted (cost=1 per edge) · Queue = FIFO · Finds shortest path ·
+                            Explores level by level</li>
+                        <li><strong>DFS:</strong> Unweighted (cost=1 per edge) · Stack = LIFO · Does NOT find shortest
+                            path · For graph exploration/traversal</li>
+                        <li><strong>A*:</strong> Weighted (uses edge costs) · Formula: f(n) = g(n) + h(n) · Finds
+                            optimal shortest path · Uses heuristic to guide search · Always expand node with lowest f(n)
+                        </li>
+                        <li><strong>MST (Minimum Spanning Tree):</strong> Find the minimum cost tree connecting all
+                            nodes · Use Prim's algorithm (always pick cheapest edge to a new node) · Total weight is
+                            unique; tree structure may not be</li>
+                        <li><strong>Random Walk:</strong> Move randomly from node to node · Use case: graph embeddings,
+                            similarity, machine learning · No calculation required in exam</li>
+                    </ul>
+                    <h3 style="margin-top:16px">Key Definitions</h3>
+                    <ul>
+                        <li>g(n) = actual cost from start to node n along path taken</li>
+                        <li>h(n) = heuristic estimate from node n to goal (always given in exam, never computed)</li>
+                        <li>f(n) = g(n) + h(n) = total estimated cost through n (the lower, the better)</li>
+                        <li>Heuristic for A*: goal node always h=0. Common: Manhattan distance, Euclidean distance.</li>
+                        <li>Projected graph = in-memory copy of your graph for GDS algorithms. Created with
+                            gds.graph.project(). Temporary only.</li>
+                        <li>GDS path result = virtual path (nodes only, no relationship objects) because GDS runs on
+                            in-memory projected graph.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- CHECKLIST -->
+            <div class="section" id="checklist">
+                <div class="section-header">
+                    <div class="section-num">✓</div>
+                    <h2>Revision Checklist</h2>
+                </div>
+                <ul class="checklist">
+                    <li>
+                        <div class="check-box"></div>I can explain BFS: explores level by level, uses queue (FIFO),
+                        finds shortest path in unweighted graphs
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can trace BFS step-by-step and give the correct visit order for
+                        any small graph
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can find the shortest path using BFS (first path to reach
+                        destination = shortest)
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can explain DFS: explores branch-by-branch, uses stack (LIFO),
+                        used for graph exploration not shortest path
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can trace DFS step-by-step and give the correct visit order for
+                        any small graph
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know when multiple unvisited neighbours exist: visit in
+                        alphabetical/numerical order
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know the A* formula: f(n) = g(n) + h(n) and what each term means
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can trace A* step-by-step: always pick the option with lowest
+                        f(n), regardless of steps taken
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know heuristic values are used for decision-making only — NOT
+                        included in the final total cost
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know h(n) = 0 for the goal node and h(n) is always provided in
+                        the exam
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can explain what a spanning tree is and what makes it a minimum
+                        spanning tree
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can apply Prim's algorithm to find the MST and calculate its
+                        total weight
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know the total MST weight is unique, but the MST structure may
+                        not be (multiple valid MSTs possible)
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I can explain what a random walk is and give 2 practical use cases
+                    </li>
+                    <li>
+                        <div class="check-box"></div>I know what a projected graph is and why it is needed before
+                        running GDS algorithms
+                    </li>
+                </ul>
+            </div>
+
+            <!-- EXAM QUESTIONS -->
+            <div class="section" id="questions">
+                <div class="section-header">
+                    <div class="section-num">?</div>
+                    <h2>Exam-Style Practice Questions</h2>
+                </div>
+                <div class="quiz">
+                    <div class="quiz-item">
+                        <p><strong>Use BFS starting from node 0 to find: (a) the visit order, (b) the shortest path from
+                                0 to 6. Graph: 0→1, 0→2, 1→3, 1→4, 2→5, 2→6.</strong></p>
+                        <p class="hint">Hint: (a) BFS queue FIFO: Start [0] → process 0 → add 1,2 → process 1 → add 3,4
+                            → process 2 → add 5,6 → process 3,4,5,6. Visit order: 0,1,2,3,4,5,6. (b) Shortest path
+                            0→2→6, cost = 2 hops.</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>Use DFS starting from node A to find the visit order. Graph: A connects to B and C. B
+                                connects to D and E. C connects to F. D connects to G. Alphabetical order for
+                                tie-breaking.</strong></p>
+                        <p class="hint">Hint: Stack LIFO, alphabetical order. Start [A] → process A, add B,C (stack
+                            [C,B]) → process B, add D,E (stack [C,E,D]) → process D, add G (stack [C,E,G]) → process G
+                            (stack [C,E]) → process E (stack [C]) → process C, add F (stack [F]) → process F. Visit
+                            order: A,B,D,G,E,C,F.</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>Explain the difference between BFS and DFS. For which problems would you use each?
+                                What data structure does each use?</strong></p>
+                        <p class="hint">Hint: BFS = queue (FIFO), level-by-level, finds shortest path in unweighted
+                            graphs. DFS = stack (LIFO), deep first, used for exploring all nodes (not shortest path).
+                            Use BFS when you need shortest path. Use DFS when you need to explore the full graph
+                            structure.</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>Use A* to find the shortest path from S to G. Graph: S→A (cost 2, h=4), S→B (cost 5,
+                                h=2), A→G (cost 6, h=0), B→G (cost 3, h=0). Goal node G has h=0.</strong></p>
+                        <p class="hint">Hint: Step 1: S→A: f=2+4=6, S→B: f=5+2=7. Choose S→A (f=6 lower). Step 2: From
+                            A: S→A→G: g=2+6=8, h=0, f=8. From B: f=7. Choose B (f=7 lower). Step 3: S→B→G: g=5+3=8, h=0,
+                            f=8. Tie between S→A→G and S→B→G both cost 8. Both are valid shortest paths with total cost
+                            8.</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>What is a Minimum Spanning Tree? Describe Prim's algorithm in plain steps and explain
+                                why the total weight is always unique even if the MST structure is not.</strong></p>
+                        <p class="hint">Hint: MST = spanning tree (connects all nodes, no loops) with minimum total edge
+                            weight. Prim's: start from any node, repeatedly add the cheapest edge connecting a new node
+                            to any already-in-tree node, until all nodes included. Weight unique because MST is optimal
+                            — but when edges have equal weights, there may be multiple ways to achieve that same
+                            minimum.</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>In A*, a student adds the heuristic value h(n) to the final path cost to get the
+                                total. Are they correct? Explain.</strong></p>
+                        <p class="hint">Hint: NO — incorrect. Heuristics h(n) are used ONLY for deciding which node to
+                            explore next. They are never added to the final cost. The total path cost = sum of actual
+                            edge weights g(n) along the chosen path only. The heuristic is an estimation tool, not a
+                            real distance.</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>What is a projected graph in Neo4j GDS? Why is it needed before running BFS, DFS, or
+                                A*?</strong></p>
+                        <p class="hint">Hint: A projected graph is a temporary in-memory copy of a subset of the Neo4j
+                            database (selected node labels + relationship types). It's needed because GDS algorithms
+                            operate on this in-memory structure, not the actual stored database. It allows: choosing
+                            only relevant nodes/relationships, controlling orientation, and faster processing. Created
+                            with gds.graph.project().</p>
+                    </div>
+                    <div class="quiz-item">
+                        <p><strong>Find the MST using Prim's algorithm starting from node a. Graph: a-b(3), a-c(7),
+                                b-c(2), b-d(5), c-d(4). Calculate total MST weight.</strong></p>
+                        <p class="hint">Hint: Start from a. Options from a: a-b(3), a-c(7). Pick a-b(3). Tree={a,b}.
+                            Options: a-c(7), b-c(2), b-d(5). Pick b-c(2). Tree={a,b,c}. Options: a-c(7 already cheaper
+                            via b-c), b-d(5), c-d(4). Pick c-d(4). Tree={a,b,c,d}. All nodes included. MST edges:
+                            a-b(3), b-c(2), c-d(4). Total = 9.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <a class="scroll-top" href="#">↑</a>
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/notes.js"></script>
+</body>
+
+</html>
